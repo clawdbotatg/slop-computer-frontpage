@@ -10,12 +10,19 @@ import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { MenuBar } from "~~/components/ui";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
+  const { data: isLive } = useScaffoldReadContract({
+    contractName: "SlopComputerFrontpage",
+    functionName: "isLive",
+  });
   return (
     <>
-      <div className={`flex flex-col min-h-screen `}>
+      <MenuBar isLive={!!isLive} />
+      <div className={`flex flex-col min-h-screen`} style={{ paddingTop: 22 }}>
         <Header />
         <main className="relative flex flex-col flex-1">{children}</main>
         <Footer />

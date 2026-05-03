@@ -8,14 +8,14 @@ const LIVE_URL = process.env.NEXT_PUBLIC_LIVE_URL || "https://live.slop.computer
 
 export const Header = () => {
   return (
-    <header className="sticky top-0 z-30 slop-window border-x-0 border-t-0">
+    <header className="sticky z-30 slop-window border-x-0 border-t-0" style={{ top: 22 }}>
       <div className="slop-titlebar">
         <div className="slop-titlebar__dots" aria-hidden>
           <span className="slop-titlebar__dot" />
           <span className="slop-titlebar__dot" />
           <span className="slop-titlebar__dot" />
         </div>
-        <div className="flex-1 text-center">slop.computer ◆ frontpage</div>
+        <div className="flex-1 truncate">slop.computer ◆ frontpage</div>
         <span className="hidden sm:inline opacity-60">v1.0</span>
       </div>
       <div className="flex items-center justify-between px-4 py-3 gap-3 flex-wrap">

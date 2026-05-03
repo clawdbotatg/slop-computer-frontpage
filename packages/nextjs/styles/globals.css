@@ -254,17 +254,24 @@
 /* === MenuBar === */
 
 .slop-menubar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  height: 22px;
   display: flex;
   align-items: center;
   gap: 16px;
   background: var(--slop-panel);
   border-bottom: 1px solid var(--slop-bevel-dark);
-  padding: 4px 12px;
+  padding: 0 12px;
   font-family: var(--slop-font-display);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  user-select: none;
 }
 
 .slop-menubar__item {
@@ -282,6 +289,15 @@
   color: var(--slop-accent);
 }
 
+.slop-menubar__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--slop-font-body);
+  color: var(--slop-text-muted);
+  text-transform: uppercase;
+}
+
 /* === LivePulse === */
 
 .slop-pulse {
@@ -291,6 +307,11 @@
   background: var(--slop-live);
   border-radius: 50%;
   animation: slop-pulse 1s steps(2, end) infinite;
+}
+
+.slop-pulse--off {
+  background: var(--slop-text-muted);
+  animation: none;
 }
 
 @keyframes slop-pulse {

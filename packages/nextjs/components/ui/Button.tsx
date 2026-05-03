@@ -6,28 +6,29 @@ type CommonProps = {
   variant?: Variant;
   className?: string;
   children: React.ReactNode;
+  style?: React.CSSProperties;
 };
 
 type ButtonAsButton = CommonProps & {
   as?: "button";
-} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children">;
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children" | "style">;
 
 type ButtonAsAnchor = CommonProps & {
   as: "a";
   href: string;
-} & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "className" | "children" | "href">;
+} & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "className" | "children" | "style" | "href">;
 
 export type ButtonProps = ButtonAsButton | ButtonAsAnchor;
 
 const buttonClass = (variant: Variant, className?: string) =>
-  `slop-button ${variant === "primary" ? "slop-button--primary" : ""} ${className ?? ""}`.trim();
+  `slop-button${variant === "primary" ? " slop-button--primary" : ""}${className ? ` ${className}` : ""}`;
 
 export const Button = (props: ButtonProps) => {
   const variant = props.variant ?? "default";
   const cls = buttonClass(variant, props.className);
 
   if (props.as === "a") {
-    const { children, href, target, rel, onClick, id, role, "aria-label": ariaLabel } = props;
+    const { children, href, target, rel, onClick, id, role, style, "aria-label": ariaLabel } = props;
     return (
       <a
         className={cls}
@@ -37,6 +38,7 @@ export const Button = (props: ButtonProps) => {
         onClick={onClick}
         id={id}
         role={role}
+        style={style}
         aria-label={ariaLabel}
       >
         {children}
@@ -44,7 +46,7 @@ export const Button = (props: ButtonProps) => {
     );
   }
 
-  const { children, type, onClick, disabled, id, name, "aria-label": ariaLabel } = props;
+  const { children, type, onClick, disabled, id, name, style, "aria-label": ariaLabel } = props;
   return (
     <button
       className={cls}
@@ -53,9 +55,12 @@ export const Button = (props: ButtonProps) => {
       disabled={disabled}
       id={id}
       name={name}
+      style={style}
       aria-label={ariaLabel}
     >
       {children}
     </button>
   );
 };
+
+export default Button;
