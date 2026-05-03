@@ -111,9 +111,3 @@ No public RPCs ever. Per CLAUDE.md, mainnet calls go through Alchemy.
 Existing prototypes in `~/clawd/`:
 - `clawd-computer-frontpage/` — has the contract pattern that we port (`packages/hardhat/contracts/ClawdComputerFrontpage.sol`).
 - `clawd-conclave/` — has the static-export + IPFS/ENS deploy pattern.
-
-## Open questions
-
-1. ENS owner — `slopcomputer.eth` is owned by which address? Need write access for the contenthash update.
-2. BGIPFS pin retention — confirm episode CIDs survive long-term, or pin to a second service (web3.storage / Pinata) for redundancy.
-3. Live player on the front page — embed inline, or just show a "we're live" CTA that links to `live.slop.computer`? Default: inline.
