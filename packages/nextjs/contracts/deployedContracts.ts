@@ -9,7 +9,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   1: {
     SlopComputerFrontpage: {
-      address: "0x0000000000000000000000000000000000000000",
+      address: "0x94D987a8057b7795522589E36383C87356217820",
       abi: [
         {
           inputs: [
