@@ -9,25 +9,35 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 const LIVE_URL = process.env.NEXT_PUBLIC_LIVE_URL || "https://live.slop.computer";
 const SOURCE_URL = "https://github.com/clawdbotatg/slop-computer-frontpage";
 
+const READ_QUERY = { refetchInterval: 30000, refetchOnWindowFocus: false } as const;
+
 const Home: NextPage = () => {
   const { data: isLive } = useScaffoldReadContract({
     contractName: "SlopComputerFrontpage",
     functionName: "isLive",
+    watch: false,
+    query: READ_QUERY,
   });
 
   const { data: liveTitle } = useScaffoldReadContract({
     contractName: "SlopComputerFrontpage",
     functionName: "liveTitle",
+    watch: false,
+    query: READ_QUERY,
   });
 
   const { data: liveHlsUrl } = useScaffoldReadContract({
     contractName: "SlopComputerFrontpage",
     functionName: "liveHlsUrl",
+    watch: false,
+    query: READ_QUERY,
   });
 
   const { data: episodes, isLoading } = useScaffoldReadContract({
     contractName: "SlopComputerFrontpage",
     functionName: "getEpisodes",
+    watch: false,
+    query: READ_QUERY,
   });
 
   return (
