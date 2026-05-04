@@ -1,0 +1,5 @@
+[profile.default]
+src = "packages/hardhat/contracts"
+solc = "0.8.30"
+optimizer = true
+broadcast = true

@@ -1,9 +1,16 @@
+import { Silkscreen } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import "@scaffold-ui/components/styles.css";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
+
+const silkscreen = Silkscreen({
+  variable: "--font-silkscreen",
+  weight: "400",
+  subsets: ["latin"],
+});
 
 export const metadata = getMetadata({
   title: "slop.computer — onchain podcast",
@@ -13,7 +20,7 @@ export const metadata = getMetadata({
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning lang="en" data-theme="dark">
+    <html suppressHydrationWarning lang="en" data-theme="dark" className={silkscreen.variable}>
       <body>
         <ThemeProvider defaultTheme="dark" forcedTheme="dark">
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
