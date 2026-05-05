@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { Button } from "~~/components/ui";
 
 const LIVE_URL = process.env.NEXT_PUBLIC_LIVE_URL || "https://live.slop.computer";
@@ -36,10 +35,9 @@ export const Header = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button as="a" variant="primary" href={LIVE_URL} target="_blank" rel="noreferrer">
+          <Button as="a" variant="primary" href={LIVE_URL}>
             Enter Desktop ▸
           </Button>
-          <RainbowKitCustomConnectButton />
         </div>
       </div>
     </header>
