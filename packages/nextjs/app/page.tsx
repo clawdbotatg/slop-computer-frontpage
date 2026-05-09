@@ -1,6 +1,7 @@
 "use client";
 
 import type { NextPage } from "next";
+import { ChatPanel } from "~~/components/ChatPanel";
 import { EpisodesGrid } from "~~/components/EpisodesGrid";
 import { LiveBanner } from "~~/components/LiveBanner";
 import { Button, Window } from "~~/components/ui";
@@ -74,6 +75,7 @@ const Home: NextPage = () => {
         </div>
         <EpisodesGrid episodes={episodes} isLoading={isLoading} />
       </section>
+      <ChatPanel />
     </div>
   );
 };
