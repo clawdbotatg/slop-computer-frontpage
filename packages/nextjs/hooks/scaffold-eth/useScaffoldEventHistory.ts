@@ -125,14 +125,10 @@ export const useScaffoldEventHistory = <
 
   const isContractAddressAndClientReady = Boolean(deployedContractData?.address) && Boolean(publicClient);
 
-  const fromBlockValue =
-    fromBlock !== undefined
-      ? fromBlock
-      : BigInt(
-          deployedContractData && "deployedOnBlock" in deployedContractData
-            ? deployedContractData.deployedOnBlock || 0
-            : 0,
-        );
+  // `deployedOnBlock` is optional on GenericContract, so when the contract
+  // union doesn't declare it the `in` check narrows to `unknown`. Coerce.
+  const deployedOnBlock = (deployedContractData as { deployedOnBlock?: number } | undefined)?.deployedOnBlock;
+  const fromBlockValue = fromBlock !== undefined ? fromBlock : BigInt(deployedOnBlock ?? 0);
 
   const query = useInfiniteQuery({
     queryKey: [

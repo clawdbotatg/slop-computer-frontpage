@@ -9,12 +9,12 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
-  // /admin and /join used to live here. They moved to live.slop.computer
-  // where the auth surface is — slop.computer is audience-only now.
+  // /admin here is the *registry* admin (on-chain episode management for the
+  // SlopComputer contract owner). The *broadcast* admin (RTMP keys, invites,
+  // session config) still lives on live.slop.computer/admin — different
+  // surface, different scope. /join still belongs over there.
   async redirects() {
     return [
-      { source: "/admin", destination: "https://live.slop.computer/admin", permanent: false },
-      { source: "/admin/:path*", destination: "https://live.slop.computer/admin/:path*", permanent: false },
       { source: "/join", destination: "https://live.slop.computer/", permanent: false },
       { source: "/join/:path*", destination: "https://live.slop.computer/", permanent: false },
     ];

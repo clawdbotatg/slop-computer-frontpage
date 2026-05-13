@@ -8,22 +8,67 @@ import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
-import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { MenuBar } from "~~/components/ui";
+import { DesktopBackground, MenuBar } from "~~/components/ui";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { ZERO_BYTES32 } from "~~/types/episode";
+
+/**
+ * Right-side menubar strip — persistent show status. Replaces the in-page
+ * status banner so off-air / live / episode count is always one glance away
+ * regardless of which view the visitor is on.
+ */
+const MenuBarStatus = () => {
+  const { data: live } = useScaffoldReadContract({
+    contractName: "SlopComputer",
+    functionName: "live",
+  });
+  const { data: episodeCount } = useScaffoldReadContract({
+    contractName: "SlopComputer",
+    functionName: "episodeCount",
+  });
+
+  const isLive = !!live && live !== ZERO_BYTES32;
+  const total = episodeCount !== undefined ? Number(episodeCount) : undefined;
+  const dotColor = isLive ? "var(--slop-lime)" : "var(--slop-red)";
+
+  return (
+    <span className="inline-flex items-center gap-3 px-3 h-full text-[12px] tracking-widest">
+      <span className="inline-flex items-center gap-1.5">
+        <span className={`slop-pulse${isLive ? "" : " slop-pulse--off"}`} aria-hidden />
+        <span style={{ color: dotColor, fontWeight: 700, textShadow: `0 0 6px ${dotColor}` }}>
+          {isLive ? "live" : "off air"}
+        </span>
+      </span>
+      {!isLive ? (
+        <>
+          <Dot />
+          <span className="hidden sm:inline" style={{ color: "var(--slop-text)" }}>
+            next: coming soon
+          </span>
+        </>
+      ) : null}
+      <Dot className="hidden md:inline" />
+      <span className="hidden md:inline" style={{ color: "var(--slop-text-muted)" }}>
+        {total === undefined ? "…" : `${total} ep${total === 1 ? "" : "s"}`}
+      </span>
+    </span>
+  );
+};
+
+const Dot = ({ className }: { className?: string }) => (
+  <span className={className} style={{ opacity: 0.45 }} aria-hidden>
+    ·
+  </span>
+);
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
-  const { data: isLive } = useScaffoldReadContract({
-    contractName: "SlopComputerFrontpage",
-    functionName: "isLive",
-  });
   return (
     <>
-      <MenuBar isLive={!!isLive} />
-      <div className={`flex flex-col min-h-screen`} style={{ paddingTop: 22 }}>
-        <Header />
+      <DesktopBackground />
+      <MenuBar right={<MenuBarStatus />} />
+      <div className="relative flex flex-col min-h-screen" style={{ paddingTop: 38, zIndex: 1 }}>
         <main className="relative flex flex-col flex-1">{children}</main>
         <Footer />
       </div>

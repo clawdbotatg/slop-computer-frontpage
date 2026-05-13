@@ -29,7 +29,14 @@ export const bevelStyle = (variant: BevelVariant = "outset"): CSSProperties =>
         borderBottom: "1px solid var(--slop-bevel-dark)",
       };
 
-export const Bevel = ({ variant = "outset", background, className = "", style, children, as: Tag = "div" }: BevelProps) => {
+export const Bevel = ({
+  variant = "outset",
+  background,
+  className = "",
+  style,
+  children,
+  as: Tag = "div",
+}: BevelProps) => {
   const cls = isInset(variant) ? "slop-bevel-in" : "slop-bevel-out";
   const defaultBg = isInset(variant) ? "var(--slop-bg)" : "var(--slop-panel)";
   const Component = Tag as React.ElementType;

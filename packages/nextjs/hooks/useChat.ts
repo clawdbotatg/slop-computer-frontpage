@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-export const RELAY_HTTP_URL =
-  process.env.NEXT_PUBLIC_RELAY_HTTP_URL ?? "https://live.slop.computer";
+export const RELAY_HTTP_URL = process.env.NEXT_PUBLIC_RELAY_HTTP_URL ?? "https://live.slop.computer";
 
 export type ChatMessage = {
   id: string;
@@ -109,26 +108,23 @@ export function useChat() {
     };
   }, []);
 
-  const send = useCallback(
-    async (text: string) => {
-      const trimmed = text.trim().slice(0, 500);
-      if (!trimmed) return { ok: false, error: "empty" } as const;
-      const res = await fetch(`${RELAY_HTTP_URL}/v1/chat`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text: trimmed }),
-      });
-      if (res.status === 401) {
-        setAuth({ authenticated: false, address: null, handle: null });
-        return { ok: false, error: "unauthenticated" } as const;
-      }
-      if (res.status === 429) return { ok: false, error: "rate-limited" } as const;
-      if (!res.ok) return { ok: false, error: `http-${res.status}` } as const;
-      return { ok: true } as const;
-    },
-    [],
-  );
+  const send = useCallback(async (text: string) => {
+    const trimmed = text.trim().slice(0, 500);
+    if (!trimmed) return { ok: false, error: "empty" } as const;
+    const res = await fetch(`${RELAY_HTTP_URL}/v1/chat`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: trimmed }),
+    });
+    if (res.status === 401) {
+      setAuth({ authenticated: false, address: null, handle: null });
+      return { ok: false, error: "unauthenticated" } as const;
+    }
+    if (res.status === 429) return { ok: false, error: "rate-limited" } as const;
+    if (!res.ok) return { ok: false, error: `http-${res.status}` } as const;
+    return { ok: true } as const;
+  }, []);
 
   return { messages, auth, connected, error, send, refreshAuth };
 }
