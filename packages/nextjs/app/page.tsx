@@ -75,7 +75,13 @@ const Home: NextPage = () => {
       {isLive && liveEpisode ? (
         <LiveHero episode={liveEpisode} />
       ) : featuredEpisode ? (
-        <FeaturedEpisode episode={featuredEpisode} episodeNumber={(total ?? 1) - 1} />
+        <>
+          {/* Off-air: keep the slop.computer brand (ASCII title + logo) on
+              top of the page above the featured episode. When live, the
+              episode title takes the brand slot inside LiveHero. */}
+          <Hero />
+          <FeaturedEpisode episode={featuredEpisode} episodeNumber={(total ?? 1) - 1} />
+        </>
       ) : null}
 
       {pastEpisodes.length > 0 || isLoading ? (
