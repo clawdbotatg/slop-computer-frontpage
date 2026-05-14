@@ -3,8 +3,8 @@
 import { type ReactElement, use, useEffect, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { NextPage } from "next";
 import { Address } from "@scaffold-ui/components";
+import type { NextPage } from "next";
 import { Chat } from "~~/components/Chat";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import {
@@ -56,7 +56,10 @@ const EpisodePage: NextPage<PageProps> = ({ params }) => {
 
   return (
     <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 flex flex-col gap-8">
-      <div className="flex flex-wrap items-center gap-2 text-[11px] slop-mono" style={{ color: "var(--slop-text-muted)" }}>
+      <div
+        className="flex flex-wrap items-center gap-2 text-[11px] slop-mono"
+        style={{ color: "var(--slop-text-muted)" }}
+      >
         <Link href="/" className="slop-link">
           ← slop.computer
         </Link>
@@ -105,7 +108,10 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   return (
     <article className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-3 text-[11px] slop-mono" style={{ color: "var(--slop-text-muted)" }}>
+        <div
+          className="flex flex-wrap items-center gap-3 text-[11px] slop-mono"
+          style={{ color: "var(--slop-text-muted)" }}
+        >
           {isLive ? <span style={{ color: "var(--slop-lime)" }}>● LIVE</span> : null}
           <span>{formatDate(episode.datetime)}</span>
           <span>·</span>
@@ -148,13 +154,14 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 // Dynamic import so the live HLS bundle isn't pulled into the page when not needed.
                 <LazyHlsPlayer src={videoSrc} />
               ) : (
-                // eslint-disable-next-line jsx-a11y/media-has-caption
                 <video src={videoSrc} controls playsInline className="block w-full h-full" />
               )
             ) : manifestLoading ? (
               <PlayerPlaceholder label="Loading manifest…" />
             ) : (
-              <PlayerPlaceholder label={episode.manifest ? "Manifest is missing video.cid" : "Recording publishing soon"} />
+              <PlayerPlaceholder
+                label={episode.manifest ? "Manifest is missing video.cid" : "Recording publishing soon"}
+              />
             )}
           </div>
 
@@ -214,7 +221,12 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               <ul className="flex flex-col gap-1 text-sm slop-mono">
                 {manifest.files.map(f => (
                   <li key={f.cid}>
-                    <a href={gatewayUrl(`ipfs://${f.cid}`, f.name)} target="_blank" rel="noreferrer" className="slop-link">
+                    <a
+                      href={gatewayUrl(`ipfs://${f.cid}`, f.name)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="slop-link"
+                    >
                       {f.name}
                     </a>
                   </li>
@@ -270,7 +282,10 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
 };
 
 const PlayerPlaceholder = ({ label }: { label: string }) => (
-  <div className="flex items-center justify-center w-full h-full slop-mono text-xs" style={{ color: "var(--slop-text-muted)" }}>
+  <div
+    className="flex items-center justify-center w-full h-full slop-mono text-xs"
+    style={{ color: "var(--slop-text-muted)" }}
+  >
     {label}
   </div>
 );
