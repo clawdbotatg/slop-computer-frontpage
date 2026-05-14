@@ -263,6 +263,7 @@ type RecordingInfo = {
 
 type FinalizeEvent =
   | { phase: "starting"; file: string; name: string; totalBytes: number }
+  | { phase: "remuxing" }
   | { phase: "uploading"; bytes: number; totalBytes: number }
   | { phase: "done"; cid: string; file: string; name: string; sizeBytes: number; mtime: number }
   | { phase: "error"; message: string };
@@ -274,6 +275,7 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
   const [pinning, setPinning] = useState(false);
   const [bytesPinned, setBytesPinned] = useState(0);
   const [pinTotal, setPinTotal] = useState(0);
+  const [phaseLabel, setPhaseLabel] = useState("starting…");
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
@@ -305,6 +307,7 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
     setCid("");
     setBytesPinned(0);
     setPinTotal(0);
+    setPhaseLabel("starting…");
     setPinning(true);
     try {
       const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize`, { method: "POST", credentials: "include" });
@@ -336,9 +339,13 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
           if (ev.phase === "starting") {
             setPinTotal(ev.totalBytes);
             setRecording({ name: ev.name, sizeBytes: ev.totalBytes, mtime: Date.now() });
+            setPhaseLabel("preparing…");
+          } else if (ev.phase === "remuxing") {
+            setPhaseLabel("remuxing fmp4 → mp4…");
           } else if (ev.phase === "uploading") {
             setBytesPinned(ev.bytes);
             if (ev.totalBytes > 0) setPinTotal(ev.totalBytes);
+            setPhaseLabel("pinning to IPFS");
           } else if (ev.phase === "done") {
             finalCid = ev.cid;
             setCid(ev.cid);
@@ -397,15 +404,18 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
         >
           <LoadingBar
             cells={24}
-            progress={pct}
+            // Only switch into determinate mode once we're actually
+            // uploading — remux runs first with no byte-progress and
+            // would otherwise sit at 0% looking stuck.
+            progress={bytesPinned > 0 ? pct : undefined}
             caption={
-              pinTotal > 0 ? (
+              bytesPinned > 0 && pinTotal > 0 ? (
                 <span className="slop-mono text-[11px]">
                   {formatBytes(bytesPinned)} / {formatBytes(pinTotal)}
                   {pct !== undefined ? ` · ${Math.round(pct)}%` : ""}
                 </span>
               ) : (
-                <span className="slop-mono text-[11px]">starting…</span>
+                <span className="slop-mono text-[11px]">{phaseLabel}</span>
               )
             }
           />
