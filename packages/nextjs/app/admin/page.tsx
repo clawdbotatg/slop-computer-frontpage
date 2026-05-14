@@ -440,7 +440,10 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
             </Button>
             <a
               className="slop-link slop-mono text-[11px] self-center"
-              href={`https://media.slop.computer/ipfs/${cid}`}
+              // The `?filename` hint makes kubo's gateway emit
+              // Content-Disposition: inline; filename=... so browsers
+              // play the mp4 in-page instead of forcing a download.
+              href={`https://media.slop.computer/ipfs/${cid}?filename=${encodeURIComponent(recording?.name ?? "episode.mp4")}`}
               target="_blank"
               rel="noreferrer"
             >
