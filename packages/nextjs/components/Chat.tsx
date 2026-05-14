@@ -110,7 +110,11 @@ export const Chat = () => {
       >
         {auth.authenticated ? (
           <>
-            <div className="flex gap-2">
+            {/* min-w-0 lets the flex-1 input actually shrink below its
+                intrinsic size (default min-width:auto pins it to placeholder
+                width), so the Send button stays on-screen at 360px panel
+                widths. shrink-0 keeps the button at its natural width. */}
+            <div className="flex gap-2 min-w-0">
               <input
                 type="text"
                 value={draft}
@@ -124,7 +128,7 @@ export const Chat = () => {
                     void submit();
                   }
                 }}
-                className="slop-textfield flex-1"
+                className="slop-textfield flex-1 min-w-0"
               />
               <Button onClick={() => void submit()} disabled={!draft.trim() || busy} variant="primary">
                 Send
