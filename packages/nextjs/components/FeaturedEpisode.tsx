@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "~~/components/ui";
-import { type Episode, ZERO_ADDRESS, formatDate, isIpfsUrl, watchUrl } from "~~/types/episode";
+import { type Episode, ZERO_ADDRESS, formatDate } from "~~/types/episode";
 
 interface FeaturedEpisodeProps {
   episode: Episode;
@@ -13,13 +13,12 @@ const shortAddr = (addr: string) => (addr === ZERO_ADDRESS ? null : `${addr.slic
 
 /**
  * Hero for the offline state — hypes the most-recent episode with a big
- * watch CTA. Pulls the IPFS recording when available; falls back to the
- * raw url otherwise.
+ * watch CTA. The button links to the per-episode page `/[slug]`, which
+ * fetches the manifest JSON and embeds the video player itself.
  */
 export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps) => {
-  const ipfs = isIpfsUrl(episode.url);
   const contractShort = shortAddr(episode.contractAddr);
-  const hasUrl = episode.url.length > 0;
+  const hasManifest = episode.manifest.length > 0;
 
   return (
     <section
@@ -66,15 +65,14 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
         every episode is pinned to ipfs and indexed on ethereum mainnet.
       </p>
       <div className="flex flex-wrap gap-3 items-center">
-        {hasUrl ? (
-          <Button as="a" variant="primary" href={watchUrl(episode.url)} target="_blank" rel="noreferrer">
-            {ipfs ? "▶ Watch episode" : "▶ Open"}
-          </Button>
-        ) : (
+        <Button as="a" variant="primary" href={`/${episode.slug}`}>
+          {hasManifest ? "▶ Watch episode" : "▶ Episode page"}
+        </Button>
+        {!hasManifest ? (
           <span className="text-xs slop-mono" style={{ color: "var(--slop-text-muted)" }}>
             {"// recording publishing soon"}
           </span>
-        )}
+        ) : null}
         <span className="text-[11px] slop-mono" style={{ color: "var(--slop-text-muted)" }}>
           {"// next live show: tba"}
         </span>

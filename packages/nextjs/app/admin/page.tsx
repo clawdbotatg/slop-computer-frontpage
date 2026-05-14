@@ -9,10 +9,9 @@ import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
-import { type Episode, ZERO_ADDRESS, formatDate, isZeroEpisode } from "~~/types/episode";
+import { type Episode, ZERO_ADDRESS, formatDate, isZeroEpisode, slugify } from "~~/types/episode";
 
 const CONTRACT_ADDRESS = externalContracts[1].SlopComputer.address;
-const DEFAULT_HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
 const READ_QUERY = { refetchInterval: 5000, refetchOnWindowFocus: false } as const;
 
 /**
@@ -230,7 +229,8 @@ const LiveStatusPanel = ({ liveEpisode, onChange }: { liveEpisode: Episode | und
   return (
     <Section label={"// live now"} title={ep.name || "untitled"} tone="live">
       <KV k="id" v={ep.id} />
-      <KV k="url" v={ep.url || "—"} />
+      <KV k="slug" v={ep.slug || "—"} />
+      <KV k="manifest" v={ep.manifest || "(empty — set after finalize)"} />
       <KV k="contract" v={ep.contractAddr} />
       <KV k="datetime" v={`${formatDate(ep.datetime)} (unix ${ep.datetime.toString()})`} />
       <div className="flex flex-wrap gap-3 pt-2">
@@ -265,12 +265,22 @@ type FinalizeEvent =
   | { phase: "starting"; file: string; name: string; totalBytes: number }
   | { phase: "remuxing" }
   | { phase: "uploading"; bytes: number; totalBytes: number }
-  | { phase: "done"; cid: string; file: string; name: string; sizeBytes: number; mtime: number }
+  | { phase: "pinning-manifest" }
+  | {
+      phase: "done";
+      cid: string;
+      manifestCid: string;
+      file: string;
+      name: string;
+      sizeBytes: number;
+      mtime: number;
+    }
   | { phase: "error"; message: string };
 
 const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; onUrlUpdated: () => void }) => {
   const [recording, setRecording] = useState<RecordingInfo | null>(null);
   const [cid, setCid] = useState("");
+  const [manifestCid, setManifestCid] = useState("");
   const [checking, setChecking] = useState(false);
   const [pinning, setPinning] = useState(false);
   const [bytesPinned, setBytesPinned] = useState(0);
@@ -305,6 +315,7 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
   const pin = async () => {
     setError("");
     setCid("");
+    setManifestCid("");
     setBytesPinned(0);
     setPinTotal(0);
     setPhaseLabel("starting…");
@@ -346,9 +357,12 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
             setBytesPinned(ev.bytes);
             if (ev.totalBytes > 0) setPinTotal(ev.totalBytes);
             setPhaseLabel("pinning to IPFS");
+          } else if (ev.phase === "pinning-manifest") {
+            setPhaseLabel("pinning manifest…");
           } else if (ev.phase === "done") {
             finalCid = ev.cid;
             setCid(ev.cid);
+            setManifestCid(ev.manifestCid);
             setRecording({ name: ev.name, sizeBytes: ev.sizeBytes, mtime: ev.mtime });
             setBytesPinned(ev.sizeBytes);
             setPinTotal(ev.sizeBytes);
@@ -365,11 +379,11 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
     }
   };
 
-  const saveUrl = async () => {
+  const saveManifest = async () => {
     setError("");
-    const url = `ipfs://${cid}`;
+    const url = `ipfs://${manifestCid}`;
     try {
-      await writeContractAsync({ functionName: "setEpisodeUrl", args: [liveEpisode.id, url] });
+      await writeContractAsync({ functionName: "setManifest", args: [liveEpisode.id, url] });
       onUrlUpdated();
     } catch (e) {
       setError((e as Error).message || "tx failed");
@@ -438,15 +452,16 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
           className="px-3 py-3 flex flex-col gap-3"
           style={{ border: "1px solid rgba(188, 255, 91, 0.4)", background: "rgba(10, 15, 36, 0.4)" }}
         >
-          <KV k="cid" v={cid} />
-          <KV k="next url" v={`ipfs://${cid}`} />
+          <KV k="video cid" v={cid} />
+          <KV k="manifest cid" v={manifestCid} />
+          <KV k="next manifest" v={`ipfs://${manifestCid}`} />
           <div className="flex flex-wrap gap-2">
             <Button
               variant="primary"
-              onClick={() => void saveUrl()}
-              disabled={isMining || `ipfs://${cid}` === liveEpisode.url}
+              onClick={() => void saveManifest()}
+              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === liveEpisode.manifest}
             >
-              {isMining ? "Signing…" : "Save url on-chain"}
+              {isMining ? "Signing…" : "Save manifest on-chain"}
             </Button>
             <a
               className="slop-link slop-mono text-[11px] self-center"
@@ -457,7 +472,15 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
               target="_blank"
               rel="noreferrer"
             >
-              open in slop.computer gateway ↗
+              play video ↗
+            </a>
+            <a
+              className="slop-link slop-mono text-[11px] self-center"
+              href={`https://media.slop.computer/ipfs/${manifestCid}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              inspect manifest ↗
             </a>
           </div>
         </div>
@@ -474,25 +497,35 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
 
 const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
   const [contractAddr, setContractAddr] = useState(ZERO_ADDRESS);
-  const [url, setUrl] = useState(DEFAULT_HLS_URL);
   const [datetime, setDatetime] = useState(toLocalDatetimeValue(new Date()));
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
+  const onNameChange = (v: string) => {
+    setName(v);
+    if (!slugTouched) setSlug(slugify(v));
+  };
+
   const submit = async () => {
     setError("");
     if (!name.trim()) return setError("name required");
+    if (!slug.trim() || !/^[a-z0-9-]{1,64}$/.test(slug)) return setError("slug must be 1-64 chars of [a-z0-9-]");
     if (!isAddress(contractAddr)) return setError("contract address invalid");
-    if (!url.trim()) return setError("url required");
     const unix = Math.floor(new Date(datetime).getTime() / 1000);
     if (!Number.isFinite(unix) || unix <= 0) return setError("datetime invalid");
     try {
+      // manifest stays empty while live — the audience watches HLS, the
+      // finalize panel publishes the manifest CID after the show.
       await writeContractAsync({
         functionName: "goLive",
-        args: [name.trim(), contractAddr as `0x${string}`, url.trim(), BigInt(unix)],
+        args: [name.trim(), slug, "", contractAddr as `0x${string}`, BigInt(unix)],
       });
       setName("");
+      setSlug("");
+      setSlugTouched(false);
       onDone();
     } catch (e) {
       setError((e as Error).message || "tx failed");
@@ -502,17 +535,26 @@ const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
   return (
     <Section label={"// go live"} title="Start a new live show">
       <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
-        creates a new episode at the head of the list AND marks it live. url should be the HLS stream the media box is
-        publishing. swap to {"ipfs://<cid>"} after the show via setEpisodeUrl.
+        creates a new episode at the head of the list AND marks it live. while live, audience sees the HLS stream from
+        media.slop.computer. after the show, hit the Finalize panel to pin the recording + publish the manifest cid.
       </p>
       <FormField
         label="name"
         value={name}
-        onChange={setName}
+        onChange={onNameChange}
         placeholder="ep 003 · agents and the death of the email signup"
       />
+      <FormField
+        label="slug (URL: slop.computer/<slug>)"
+        value={slug}
+        onChange={v => {
+          setSlug(v);
+          setSlugTouched(true);
+        }}
+        placeholder="ep-003-agents"
+        mono
+      />
       <FormField label="contract" value={contractAddr} onChange={setContractAddr} placeholder={ZERO_ADDRESS} mono />
-      <FormField label="url (HLS while live, ipfs:// after)" value={url} onChange={setUrl} mono />
       <FormField label="datetime (local)" value={datetime} onChange={setDatetime} type="datetime-local" />
       {error ? (
         <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
@@ -530,25 +572,35 @@ const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
 
 const AddEpisodeForm = ({ onDone }: { onDone: () => void }) => {
   const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
   const [contractAddr, setContractAddr] = useState(ZERO_ADDRESS);
-  const [url, setUrl] = useState("");
+  const [manifest, setManifest] = useState("");
   const [datetime, setDatetime] = useState(toLocalDatetimeValue(new Date()));
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
+  const onNameChange = (v: string) => {
+    setName(v);
+    if (!slugTouched) setSlug(slugify(v));
+  };
+
   const submit = async () => {
     setError("");
     if (!name.trim()) return setError("name required");
+    if (!slug.trim() || !/^[a-z0-9-]{1,64}$/.test(slug)) return setError("slug must be 1-64 chars of [a-z0-9-]");
     if (!isAddress(contractAddr)) return setError("contract address invalid");
     const unix = Math.floor(new Date(datetime).getTime() / 1000);
     if (!Number.isFinite(unix) || unix <= 0) return setError("datetime invalid");
     try {
       await writeContractAsync({
         functionName: "addEpisode",
-        args: [name.trim(), contractAddr as `0x${string}`, url.trim(), BigInt(unix)],
+        args: [name.trim(), slug, manifest.trim(), contractAddr as `0x${string}`, BigInt(unix)],
       });
       setName("");
-      setUrl("");
+      setSlug("");
+      setSlugTouched(false);
+      setManifest("");
       onDone();
     } catch (e) {
       setError((e as Error).message || "tx failed");
@@ -559,16 +611,32 @@ const AddEpisodeForm = ({ onDone }: { onDone: () => void }) => {
     <Section label={"// add episode"} title="Add a past / placeholder episode">
       <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
         appends to the head of the list without touching the live pointer. use this to backfill past shows or seed
-        placeholder content.
+        placeholder content. manifest can be empty and populated later via setManifest.
       </p>
       <FormField
         label="name"
         value={name}
-        onChange={setName}
+        onChange={onNameChange}
         placeholder="ep 001 · why every podcast is now an agent"
       />
+      <FormField
+        label="slug (URL: slop.computer/<slug>)"
+        value={slug}
+        onChange={v => {
+          setSlug(v);
+          setSlugTouched(true);
+        }}
+        placeholder="ep-001-agents"
+        mono
+      />
       <FormField label="contract" value={contractAddr} onChange={setContractAddr} placeholder={ZERO_ADDRESS} mono />
-      <FormField label="url (ipfs://CID or http)" value={url} onChange={setUrl} placeholder="ipfs://bafy…" mono />
+      <FormField
+        label="manifest (ipfs://CID — optional)"
+        value={manifest}
+        onChange={setManifest}
+        placeholder="ipfs://bafy…"
+        mono
+      />
       <FormField label="datetime (local)" value={datetime} onChange={setDatetime} type="datetime-local" />
       {error ? (
         <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
@@ -634,7 +702,8 @@ const EpisodeRow = ({
 }) => {
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
   const [expanded, setExpanded] = useState(false);
-  const [newUrl, setNewUrl] = useState(episode.url);
+  const [newManifest, setNewManifest] = useState(episode.manifest);
+  const [newSlug, setNewSlug] = useState(episode.slug);
   const [newContract, setNewContract] = useState(episode.contractAddr);
   const [error, setError] = useState("");
 
@@ -678,7 +747,8 @@ const EpisodeRow = ({
           style={{ border: "1px dashed rgba(255, 62, 201, 0.2)", background: "rgba(0,0,0,0.25)" }}
         >
           <KV k="id" v={episode.id} />
-          <FormField label="url" value={newUrl} onChange={setNewUrl} mono />
+          <FormField label="slug" value={newSlug} onChange={setNewSlug} mono />
+          <FormField label="manifest (ipfs://CID)" value={newManifest} onChange={setNewManifest} mono />
           <FormField label="contract" value={newContract} onChange={setNewContract} mono />
           {error ? (
             <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
@@ -695,12 +765,24 @@ const EpisodeRow = ({
               </Button>
             ) : null}
             <Button
-              onClick={() =>
-                tx(() => writeContractAsync({ functionName: "setEpisodeUrl", args: [episode.id, newUrl] }))
-              }
-              disabled={isMining || newUrl === episode.url}
+              onClick={() => {
+                if (!/^[a-z0-9-]{1,64}$/.test(newSlug)) {
+                  setError("slug must be 1-64 chars of [a-z0-9-]");
+                  return;
+                }
+                void tx(() => writeContractAsync({ functionName: "setSlug", args: [episode.id, newSlug] }));
+              }}
+              disabled={isMining || newSlug === episode.slug}
             >
-              Save url
+              Save slug
+            </Button>
+            <Button
+              onClick={() =>
+                tx(() => writeContractAsync({ functionName: "setManifest", args: [episode.id, newManifest] }))
+              }
+              disabled={isMining || newManifest === episode.manifest}
+            >
+              Save manifest
             </Button>
             <Button
               onClick={() => {

@@ -10,14 +10,19 @@ interface LiveHeroProps {
   episode: Episode;
 }
 
-const DEFAULT_HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
+const HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
 
 /**
  * Hero shown when the contract has a live episode. Player on the left,
  * built-in chat (with SIWE CTA) on the right. Stacks on mobile.
+ *
+ * The contract's `manifest` field is intentionally ignored while live —
+ * playback is always the global HLS endpoint. After the host calls
+ * goOffline + setManifest, the episode becomes a VOD and the per-episode
+ * page (/[slug]) reads the manifest's video CID.
  */
 export const LiveHero = ({ episode }: LiveHeroProps) => {
-  const src = episode.url.length > 0 ? episode.url : DEFAULT_HLS_URL;
+  const src = HLS_URL;
   return (
     <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4">
       <div className="flex flex-col gap-3 min-w-0">

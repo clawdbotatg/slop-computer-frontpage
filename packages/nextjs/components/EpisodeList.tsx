@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { type Episode, formatDate, isIpfsUrl, watchUrl } from "~~/types/episode";
+import { type Episode, formatDate } from "~~/types/episode";
 
 interface EpisodeListProps {
   episodes: readonly Episode[] | undefined;
@@ -45,8 +45,6 @@ export const EpisodeList = ({ episodes, isLoading, topNumber }: EpisodeListProps
     <ul className="flex flex-col">
       {episodes.map((ep, i) => {
         const epNum = top - i;
-        const ipfs = isIpfsUrl(ep.url);
-        const hasUrl = ep.url.length > 0;
         return (
           <li
             key={ep.id}
@@ -59,23 +57,12 @@ export const EpisodeList = ({ episodes, isLoading, topNumber }: EpisodeListProps
             <span className="slop-mono text-[11px] hidden sm:inline" style={{ color: "var(--slop-text-muted)" }}>
               {formatDate(ep.datetime)}
             </span>
-            <span className="truncate text-sm" style={{ color: "var(--slop-text)" }}>
+            <a href={`/${ep.slug}`} className="truncate text-sm slop-link" style={{ color: "var(--slop-text)" }}>
               {ep.name || "untitled"}
-            </span>
-            {hasUrl ? (
-              <a
-                href={watchUrl(ep.url)}
-                target="_blank"
-                rel="noreferrer"
-                className="slop-link slop-mono text-[11px] whitespace-nowrap"
-              >
-                {ipfs ? "▶ watch" : "▶ open"}
-              </a>
-            ) : (
-              <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-                soon
-              </span>
-            )}
+            </a>
+            <a href={`/${ep.slug}`} className="slop-link slop-mono text-[11px] whitespace-nowrap">
+              ▶ watch
+            </a>
           </li>
         );
       })}
