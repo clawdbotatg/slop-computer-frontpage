@@ -16,13 +16,24 @@ export type Episode = {
 export const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-const BGIPFS_GATEWAY = process.env.NEXT_PUBLIC_BGIPFS_GATEWAY || "https://community.bgipfs.com/ipfs";
+// Our self-hosted kubo gateway behind Caddy. Overridable for local dev or
+// if we ever federate to a different gateway. The `?filename=…` hint is
+// added at resolve time so kubo emits Content-Disposition: inline and the
+// browser plays the mp4 in-tab instead of saving it to disk.
+const IPFS_GATEWAY =
+  process.env.NEXT_PUBLIC_IPFS_GATEWAY ||
+  process.env.NEXT_PUBLIC_BGIPFS_GATEWAY || // legacy name, still honored
+  "https://media.slop.computer/ipfs";
 const IPFS_PREFIX = "ipfs://";
 
 export const isIpfsUrl = (url: string) => url.startsWith(IPFS_PREFIX);
 
 /** Resolves an `ipfs://CID` to an HTTP gateway URL; passes other URLs through. */
-export const watchUrl = (url: string) => (isIpfsUrl(url) ? `${BGIPFS_GATEWAY}/${url.slice(IPFS_PREFIX.length)}` : url);
+export const watchUrl = (url: string) => {
+  if (!isIpfsUrl(url)) return url;
+  const cid = url.slice(IPFS_PREFIX.length);
+  return `${IPFS_GATEWAY}/${cid}?filename=episode.mp4`;
+};
 
 /** YYYY-MM-DD from a unix-seconds bigint, or `"—"` for the zero-struct case. */
 export const formatDate = (datetime: bigint) => {
