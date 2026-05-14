@@ -441,7 +441,7 @@ const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
       ) : null}
       <div className="flex flex-wrap gap-3 pt-1">
         <Button variant="primary" onClick={() => void submit()} disabled={isMining}>
-          {isMining ? "Signing…" : "◉ GO LIVE NOW"}
+          {isMining ? "Signing…" : "◉ Go Live on slop.computer"}
         </Button>
       </div>
     </Section>
