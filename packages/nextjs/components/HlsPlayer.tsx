@@ -23,27 +23,31 @@ export const HlsPlayer = ({ src, className }: HlsPlayerProps) => {
     let destroy: (() => void) | undefined;
     let cancelled = false;
 
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = src;
-    } else {
-      import("hls.js")
-        .then(mod => {
-          if (cancelled) return;
-          const Hls = mod.default;
-          if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(src);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.ERROR, (_e, data) => {
-              if (data.fatal) setError("stream error — please retry");
-            });
-            destroy = () => hls.destroy();
-          } else {
-            setError("HLS not supported in this browser");
-          }
-        })
-        .catch(() => setError("failed to load player"));
-    }
+    // Order matters: try hls.js FIRST, fall back to native only if MSE isn't
+    // available. Chromium reports `canPlayType("application/vnd.apple.mpegurl")
+    // === "maybe"` but cannot actually play HLS natively — taking that branch
+    // sets `video.src` and immediately throws MEDIA_ERR_SRC_NOT_SUPPORTED.
+    // Real native HLS only exists on Safari/iOS, where Hls.isSupported() is
+    // false because MSE isn't exposed, so we cleanly fall through.
+    import("hls.js")
+      .then(mod => {
+        if (cancelled) return;
+        const Hls = mod.default;
+        if (Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(src);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.ERROR, (_e, data) => {
+            if (data.fatal) setError("stream error — please retry");
+          });
+          destroy = () => hls.destroy();
+        } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          video.src = src;
+        } else {
+          setError("HLS not supported in this browser");
+        }
+      })
+      .catch(() => setError("failed to load player"));
 
     return () => {
       cancelled = true;
