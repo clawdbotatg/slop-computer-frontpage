@@ -5,7 +5,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import { isAddress } from "viem";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { Button } from "~~/components/ui";
+import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
@@ -245,8 +245,10 @@ const LiveStatusPanel = ({ liveEpisode, onChange }: { liveEpisode: Episode | und
 // Wraps the relay's /admin/recording + /admin/finalize endpoints. The flow:
 //
 //   1. "Check recording" → GET /admin/recording → shows latest file on disk.
-//   2. "Pin to IPFS"     → POST /admin/finalize → blocks for upload, returns
-//                          CID from bgipfs.
+//   2. "Pin to IPFS"     → POST /admin/finalize → streams NDJSON progress
+//                          (phase: starting | uploading | done | error)
+//                          from the relay's local kubo daemon, ending in a
+//                          CID. We render LoadingBar against the bytes/total.
 //   3. "Save url on-chain" → setEpisodeUrl(liveId, `ipfs://CID`).
 //
 // Auth piggybacks on the slop_session cookie the relay set when the host
@@ -259,25 +261,24 @@ type RecordingInfo = {
   mtime: number;
 };
 
+type FinalizeEvent =
+  | { phase: "starting"; file: string; name: string; totalBytes: number }
+  | { phase: "uploading"; bytes: number; totalBytes: number }
+  | { phase: "done"; cid: string; file: string; name: string; sizeBytes: number; mtime: number }
+  | { phase: "error"; message: string };
+
 const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; onUrlUpdated: () => void }) => {
   const [recording, setRecording] = useState<RecordingInfo | null>(null);
   const [cid, setCid] = useState("");
   const [checking, setChecking] = useState(false);
   const [pinning, setPinning] = useState(false);
+  const [bytesPinned, setBytesPinned] = useState(0);
+  const [pinTotal, setPinTotal] = useState(0);
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
-  const handleErr = async (res: Response): Promise<string> => {
-    if (res.status === 401) {
-      return `Not signed in as host on the relay. Visit ${RELAY_HTTP_URL} and sign in with this wallet first.`;
-    }
-    try {
-      const j = (await res.json()) as { error?: string };
-      return j.error || `relay returned ${res.status}`;
-    } catch {
-      return `relay returned ${res.status}`;
-    }
-  };
+  const handle401 = (): string =>
+    `Not signed in as host on the relay. Visit ${RELAY_HTTP_URL} and sign in with this wallet first.`;
 
   const check = async () => {
     setError("");
@@ -285,7 +286,8 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
     try {
       const res = await fetch(`${RELAY_HTTP_URL}/admin/recording`, { credentials: "include" });
       if (!res.ok) {
-        setError(await handleErr(res));
+        if (res.status === 401) setError(handle401());
+        else setError(`relay returned ${res.status}`);
         return;
       }
       const j = (await res.json()) as { latest: RecordingInfo | null };
@@ -301,16 +303,54 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
   const pin = async () => {
     setError("");
     setCid("");
+    setBytesPinned(0);
+    setPinTotal(0);
     setPinning(true);
     try {
       const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize`, { method: "POST", credentials: "include" });
-      if (!res.ok) {
-        setError(await handleErr(res));
+      if (!res.ok || !res.body) {
+        if (res.status === 401) setError(handle401());
+        else setError(`relay returned ${res.status}`);
         return;
       }
-      const j = (await res.json()) as { cid: string; name: string; sizeBytes: number; mtime: number };
-      setCid(j.cid);
-      setRecording({ name: j.name, sizeBytes: j.sizeBytes, mtime: j.mtime });
+      // Stream NDJSON: one JSON object per line. Each line is a FinalizeEvent.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalCid = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, nl).trim();
+          buffer = buffer.slice(nl + 1);
+          if (!line) continue;
+          let ev: FinalizeEvent;
+          try {
+            ev = JSON.parse(line) as FinalizeEvent;
+          } catch {
+            continue;
+          }
+          if (ev.phase === "starting") {
+            setPinTotal(ev.totalBytes);
+            setRecording({ name: ev.name, sizeBytes: ev.totalBytes, mtime: Date.now() });
+          } else if (ev.phase === "uploading") {
+            setBytesPinned(ev.bytes);
+            if (ev.totalBytes > 0) setPinTotal(ev.totalBytes);
+          } else if (ev.phase === "done") {
+            finalCid = ev.cid;
+            setCid(ev.cid);
+            setRecording({ name: ev.name, sizeBytes: ev.sizeBytes, mtime: ev.mtime });
+            setBytesPinned(ev.sizeBytes);
+            setPinTotal(ev.sizeBytes);
+          } else if (ev.phase === "error") {
+            setError(ev.message);
+          }
+        }
+      }
+      if (!finalCid && !error) setError("finalize ended without a CID");
     } catch (e) {
       setError((e as Error).message || "pin failed");
     } finally {
@@ -329,11 +369,16 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
     }
   };
 
+  // Percentage for the LoadingBar. Falls back to indeterminate (undefined)
+  // until we know totalBytes — kubo starts emitting Bytes within milliseconds
+  // so this is brief.
+  const pct = pinTotal > 0 ? Math.min(100, (bytesPinned / pinTotal) * 100) : undefined;
+
   return (
     <Section label={"// finalize"} title="Pin recording → IPFS → update episode url">
       <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
-        after the show ends, pull the latest MediaMTX recording, pin it to bgipfs, and swap the on-chain url from the
-        HLS stream to {"ipfs://<cid>"}. host session cookie on {RELAY_HTTP_URL} is required.
+        after the show ends, pull the latest MediaMTX recording, pin it to our self-hosted IPFS node, and swap the
+        on-chain url from the HLS stream to {"ipfs://<cid>"}. host session cookie on {RELAY_HTTP_URL} is required.
       </p>
 
       <div className="flex flex-wrap gap-3">
@@ -341,11 +386,33 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
           {checking ? "..." : "Check recording"}
         </Button>
         <Button onClick={() => void pin()} disabled={pinning || checking}>
-          {pinning ? "Pinning… (can take minutes)" : "Pin to IPFS"}
+          {pinning ? "Pinning…" : "Pin to IPFS"}
         </Button>
       </div>
 
-      {recording ? (
+      {pinning || (pinTotal > 0 && !cid) ? (
+        <div
+          className="px-3 py-3 flex flex-col gap-2"
+          style={{ border: "1px dashed rgba(255, 62, 201, 0.35)", background: "rgba(0,0,0,0.25)" }}
+        >
+          <LoadingBar
+            cells={24}
+            progress={pct}
+            caption={
+              pinTotal > 0 ? (
+                <span className="slop-mono text-[11px]">
+                  {formatBytes(bytesPinned)} / {formatBytes(pinTotal)}
+                  {pct !== undefined ? ` · ${Math.round(pct)}%` : ""}
+                </span>
+              ) : (
+                <span className="slop-mono text-[11px]">starting…</span>
+              )
+            }
+          />
+        </div>
+      ) : null}
+
+      {recording && !pinning ? (
         <div
           className="px-3 py-3 flex flex-col gap-2"
           style={{ border: "1px dashed rgba(255, 62, 201, 0.2)", background: "rgba(0,0,0,0.25)" }}
@@ -373,11 +440,11 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
             </Button>
             <a
               className="slop-link slop-mono text-[11px] self-center"
-              href={`https://${cid}.ipfs.community.bgipfs.com/`}
+              href={`https://media.slop.computer/ipfs/${cid}`}
               target="_blank"
               rel="noreferrer"
             >
-              open in bgipfs gateway ↗
+              open in slop.computer gateway ↗
             </a>
           </div>
         </div>

@@ -3,6 +3,7 @@ export { Button } from "./Button";
 export { Cursor } from "./Cursor";
 export { DesktopBackground } from "./DesktopBackground";
 export { LivePulse } from "./LivePulse";
+export { LoadingBar } from "./LoadingBar";
 export { MenuBar } from "./MenuBar";
 export { TextField } from "./TextField";
 export { TitleBar } from "./TitleBar";
