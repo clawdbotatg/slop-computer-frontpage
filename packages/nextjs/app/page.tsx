@@ -137,6 +137,28 @@ const ANNOYING_PHRASES = [
 // — fast enough to feel alive, slow enough not to look spazzy.
 const SPARKLE_FRAMES = ["✳", "✶", "✻", "✷"];
 
+// Effort tiers escalate with each phrase swap — the joke is that the
+// more cringe the phrase, the more "effort" Claude is supposedly using.
+// First 5 are user-spec'd; after that we just keep ramping until we
+// top out at "infinite effort".
+const EFFORT_TIERS = [
+  "some effort",
+  "high effort",
+  "xhigh effort",
+  "super high effort",
+  "hella effort",
+  "ultra effort",
+  "max effort",
+  "galaxy-brain effort",
+  "unhinged effort",
+  "godlike effort",
+  "biblical effort",
+  "cosmic effort",
+  "transcendent effort",
+  "metaphysical effort",
+  "infinite effort",
+];
+
 const ThinkingBlock = () => {
   // Staged intro:
   //   stage 0 → "Thinking…" for 3s (the authentic Claude Code opener)
@@ -185,7 +207,10 @@ const ThinkingBlock = () => {
     <div className="slop-mono text-sm sm:text-base" style={{ textTransform: "none" }}>
       <span style={{ color: "var(--slop-magenta)" }}>{SPARKLE_FRAMES[frame]}</span>
       <span style={{ color: "var(--slop-text)" }}> {phrase}</span>
-      <span style={{ color: "var(--slop-text-muted)" }}> ({elapsed}s · thinking with xhigh effort)</span>
+      <span style={{ color: "var(--slop-text-muted)" }}>
+        {" "}
+        ({elapsed}s · thinking with {EFFORT_TIERS[Math.min(stage, EFFORT_TIERS.length - 1)]})
+      </span>
     </div>
   );
 };
@@ -240,7 +265,7 @@ const Hero = () => {
         className="max-w-3xl text-base sm:text-lg slop-mono leading-relaxed pt-1"
         style={{ color: "var(--slop-magenta)", textTransform: "none" }}
       >
-        join us to build our way out of the permanent underclass.
+        join the psychosis to build our way out of the permanent underclass.
       </p>
     </section>
   );
