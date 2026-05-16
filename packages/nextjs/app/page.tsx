@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { EpisodeList } from "~~/components/EpisodeList";
 import { FeaturedEpisode } from "~~/components/FeaturedEpisode";
@@ -109,6 +110,86 @@ const BrandHomepage = () => (
   </div>
 );
 
+// The most-cited Claude verbal tics, cross-referenced across The
+// Register, Hacker News, BigGo, Nautilus, Will Francis's AI-tells
+// guide, BlogPros, the arxiv "Rise of Verbal Tics in LLMs" paper,
+// and direct user observation. "You're absolutely right!" was said
+// 12× in a single thread (per The Register). "It's not X, it's Y."
+// is the most-documented structural tic across all sources.
+const ANNOYING_PHRASES = [
+  "You're absolutely right!",
+  "Let me actually look instead of just saying so.",
+  "There it is.",
+  "Fair.",
+  "It's not X, it's Y.",
+  "It's half this and half that.",
+  "Honestly, I'm not sure.",
+  "Great question!",
+  "I apologize for the confusion.",
+  "Got it.",
+  "It's worth noting that…",
+  "Let that sink in.",
+  "Boom.",
+];
+
+// Claude Code's terminal thinking indicator cycles a sparkle through a
+// few star glyphs to create a shimmer. ~150ms/frame is the sweet spot
+// — fast enough to feel alive, slow enough not to look spazzy.
+const SPARKLE_FRAMES = ["✳", "✶", "✻", "✷"];
+
+const ThinkingBlock = () => {
+  // Staged intro:
+  //   stage 0 → "Thinking…" for 3s (the authentic Claude Code opener)
+  //   stage 1 → "You're absolutely right!" for 7–8s (the king tic, gets a long dwell)
+  //   stage 2+ → random rotation through ANNOYING_PHRASES every 5–10s
+  const [phrase, setPhrase] = useState("Thinking…");
+  const [stage, setStage] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [frame, setFrame] = useState(0);
+
+  useEffect(() => {
+    const tick = setInterval(() => setElapsed(e => e + 1), 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  useEffect(() => {
+    const sparkle = setInterval(() => setFrame(f => (f + 1) % SPARKLE_FRAMES.length), 150);
+    return () => clearInterval(sparkle);
+  }, []);
+
+  useEffect(() => {
+    let duration: number;
+    if (stage === 0) {
+      setPhrase("Thinking…");
+      duration = 3000;
+    } else if (stage === 1) {
+      setPhrase("You're absolutely right!");
+      duration = 7000 + Math.random() * 1000;
+    } else {
+      setPhrase(prev => {
+        let candidate = prev;
+        // Spin until we pick something different from what's currently shown,
+        // so we never see the same phrase twice in a row.
+        while (candidate === prev && ANNOYING_PHRASES.length > 1) {
+          candidate = ANNOYING_PHRASES[Math.floor(Math.random() * ANNOYING_PHRASES.length)];
+        }
+        return candidate;
+      });
+      duration = 5000 + Math.random() * 5000;
+    }
+    const t = setTimeout(() => setStage(s => s + 1), duration);
+    return () => clearTimeout(t);
+  }, [stage]);
+
+  return (
+    <div className="slop-mono text-sm sm:text-base" style={{ textTransform: "none" }}>
+      <span style={{ color: "var(--slop-magenta)" }}>{SPARKLE_FRAMES[frame]}</span>
+      <span style={{ color: "var(--slop-text)" }}> {phrase}</span>
+      <span style={{ color: "var(--slop-text-muted)" }}> ({elapsed}s · thinking with xhigh effort)</span>
+    </div>
+  );
+};
+
 const Hero = () => {
   return (
     <section className="flex flex-col items-center text-center gap-6 sm:gap-8 pt-8 sm:pt-16">
@@ -143,6 +224,8 @@ const Hero = () => {
       >
         {SLOP_ASCII}
       </div>
+
+      <ThinkingBlock />
 
       <p
         className="max-w-3xl text-base sm:text-lg slop-mono leading-relaxed"
