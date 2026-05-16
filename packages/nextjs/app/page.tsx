@@ -10,7 +10,11 @@ import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { isZeroEpisode } from "~~/types/episode";
 
-const READ_QUERY = { refetchInterval: 30000, refetchOnWindowFocus: false } as const;
+// Tuned for the off-air → live transition. Host calls goLive from /admin
+// in one tab and expects the slop.computer tab to flip without a reload.
+// 10s polling is the worst case; refetchOnWindowFocus catches the common
+// case (switching tabs back) immediately.
+const READ_QUERY = { refetchInterval: 10000, refetchOnWindowFocus: true } as const;
 const PAGE_SIZE = 24n;
 const CONTRACT_ADDRESS = externalContracts[1].SlopComputer.address;
 const ENS_NAME = "slopcomputer.eth";

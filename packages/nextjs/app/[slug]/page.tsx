@@ -39,7 +39,18 @@ interface PageProps {
 const EpisodePage: NextPage<PageProps> = ({ params }) => {
   const { slug } = use(params);
 
-  const { data: episode, isLoading } = useScaffoldReadContract({
+  // `isFetched` (not `isLoading`) is the SSR-safe gate: during the server
+  // render the query hasn't run yet, so `isLoading` is `false` AND `data`
+  // is `undefined` — the old check fired `notFound()` and Vercel returned
+  // a 404 status with our not-found.tsx body before the client ever
+  // hydrated. `isError` covers the other side: `getEpisodeBySlug` reverts
+  // (doesn't return zero) when the slug isn't registered, so we treat the
+  // revert as "not found" too.
+  const {
+    data: episode,
+    isFetched,
+    isError,
+  } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "getEpisodeBySlug",
     args: [slug],
@@ -52,7 +63,8 @@ const EpisodePage: NextPage<PageProps> = ({ params }) => {
     query: READ_QUERY,
   });
 
-  if (!isLoading && (!episode || isZeroEpisode(episode as Episode))) return notFound();
+  if (isError) return notFound();
+  if (isFetched && (!episode || isZeroEpisode(episode as Episode))) return notFound();
 
   return (
     <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 flex flex-col gap-8">
