@@ -4,8 +4,6 @@ import type { NextPage } from "next";
 import { EpisodeList } from "~~/components/EpisodeList";
 import { FeaturedEpisode } from "~~/components/FeaturedEpisode";
 import { LiveHero } from "~~/components/LiveHero";
-import { Button } from "~~/components/ui";
-import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { isZeroEpisode } from "~~/types/episode";
 
@@ -15,10 +13,6 @@ import { isZeroEpisode } from "~~/types/episode";
 // case (switching tabs back) immediately.
 const READ_QUERY = { refetchInterval: 10000, refetchOnWindowFocus: true } as const;
 const PAGE_SIZE = 24n;
-const CONTRACT_ADDRESS = externalContracts[1].SlopComputer.address;
-const ENS_NAME = "slopcomputer.eth";
-const ENS_URL = `https://app.ens.domains/${ENS_NAME}`;
-const ETHERSCAN_URL = `https://etherscan.io/address/${CONTRACT_ADDRESS}`;
 
 /**
  * Canonical "ANSI Shadow" figlet rendering of `SLOP.COMPUTER` — straight
@@ -117,7 +111,7 @@ const BrandHomepage = () => (
 
 const Hero = () => {
   return (
-    <section className="flex flex-col items-center text-center gap-6 sm:gap-8">
+    <section className="flex flex-col items-center text-center gap-6 sm:gap-8 pt-8 sm:pt-16">
       {/* sr-only heading for screen readers + SEO; the visible mark is the
           ANSI Shadow ASCII block. Following the ethskills.com recipe: a
           plain <div> with white-space:pre (not <pre>, which has browser
@@ -159,14 +153,12 @@ const Hero = () => {
         the sloperators, the dorkestrators, the clawdoggers.
       </p>
 
-      <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-        <Button as="a" variant="primary" href={ENS_URL} target="_blank" rel="noreferrer">
-          ◆ Follow {ENS_NAME}
-        </Button>
-        <Button as="a" href={ETHERSCAN_URL} target="_blank" rel="noreferrer">
-          Watch the contract ↗
-        </Button>
-      </div>
+      <p
+        className="max-w-3xl text-base sm:text-lg slop-mono leading-relaxed pt-1"
+        style={{ color: "var(--slop-magenta)", textTransform: "none" }}
+      >
+        join us to build our way out of the permanent underclass.
+      </p>
     </section>
   );
 };
