@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { EpisodeList } from "~~/components/EpisodeList";
 import { FeaturedEpisode } from "~~/components/FeaturedEpisode";
@@ -117,50 +116,8 @@ const BrandHomepage = () => (
 );
 
 const Hero = () => {
-  // HEAD-probe /logo.png on mount; only render the <img> when the file
-  // actually exists. Avoids the broken-image-icon flash that happens when
-  // we render the <img> first and then react to onError.
-  const [hasLogo, setHasLogo] = useState(false);
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/logo.png", { method: "HEAD" })
-      .then(r => {
-        if (!cancelled) setHasLogo(r.ok);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   return (
     <section className="flex flex-col items-center text-center gap-6 sm:gap-8">
-      {hasLogo ? (
-        <div
-          className="relative w-full max-w-[320px] aspect-square"
-          style={{
-            filter: "drop-shadow(0 0 24px rgba(255, 62, 201, 0.45)) drop-shadow(0 0 64px rgba(124, 77, 255, 0.25))",
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt="slop.computer — ethereum CRT mascot"
-            className="block w-full h-full"
-            style={{ objectFit: "contain", imageRendering: "pixelated" }}
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,0,0,0.25) 2px, rgba(0,0,0,0.25) 3px)",
-              mixBlendMode: "multiply",
-            }}
-          />
-        </div>
-      ) : null}
-
       {/* sr-only heading for screen readers + SEO; the visible mark is the
           ANSI Shadow ASCII block. Following the ethskills.com recipe: a
           plain <div> with white-space:pre (not <pre>, which has browser
