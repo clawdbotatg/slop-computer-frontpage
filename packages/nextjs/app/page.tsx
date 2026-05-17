@@ -205,8 +205,8 @@ const ThinkingBlock = () => {
 
   return (
     <div className="slop-mono text-sm sm:text-base" style={{ textTransform: "none" }}>
-      <span style={{ color: "var(--slop-magenta)" }}>{SPARKLE_FRAMES[frame]}</span>
-      <span style={{ color: "var(--slop-text)" }}> {phrase}</span>
+      <span style={{ color: "var(--slop-purple)" }}>{SPARKLE_FRAMES[frame]}</span>
+      <span style={{ color: "var(--slop-cyan)" }}> {phrase}</span>
       <span style={{ color: "var(--slop-text-muted)" }}>
         {" "}
         ({elapsed}s · thinking with {EFFORT_TIERS[Math.min(stage, EFFORT_TIERS.length - 1)]})
