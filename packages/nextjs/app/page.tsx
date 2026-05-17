@@ -205,7 +205,7 @@ const ThinkingBlock = () => {
 
   return (
     <div className="slop-mono text-sm sm:text-base" style={{ textTransform: "none" }}>
-      <span style={{ color: "var(--slop-purple)" }}>{SPARKLE_FRAMES[frame]}</span>
+      <span style={{ color: "var(--slop-cyan)" }}>{SPARKLE_FRAMES[frame]}</span>
       <span style={{ color: "var(--slop-cyan)" }}> {phrase}</span>
       <span style={{ color: "var(--slop-text-muted)" }}>
         {" "}
@@ -263,7 +263,7 @@ const Hero = () => {
 
       <p
         className="max-w-4xl text-base sm:text-lg slop-mono leading-relaxed pt-1"
-        style={{ color: "var(--slop-magenta)", textTransform: "none" }}
+        style={{ color: "var(--slop-purple)", textTransform: "none" }}
       >
         join the psychosis to build our way out of the permanent underclass.
       </p>
