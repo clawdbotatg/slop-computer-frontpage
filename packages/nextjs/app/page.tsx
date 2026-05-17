@@ -262,7 +262,7 @@ const Hero = () => {
       </p>
 
       <p
-        className="max-w-3xl text-base sm:text-lg slop-mono leading-relaxed pt-1"
+        className="max-w-4xl text-base sm:text-lg slop-mono leading-relaxed pt-1"
         style={{ color: "var(--slop-magenta)", textTransform: "none" }}
       >
         join the psychosis to build our way out of the permanent underclass.
