@@ -253,7 +253,7 @@ const Hero = () => {
       <ThinkingBlock />
 
       <p
-        className="max-w-3xl text-base sm:text-lg slop-mono leading-relaxed"
+        className="max-w-4xl text-base sm:text-lg slop-mono leading-relaxed"
         style={{ color: "var(--slop-text)", textTransform: "none" }}
       >
         an onchain podcast for technical humans building with ai:
