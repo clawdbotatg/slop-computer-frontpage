@@ -7,6 +7,10 @@ Two surfaces involved:
 - `live.slop.computer` — the Mac OS 9 desktop where host + guests appear as draggable cam/screen windows. OBS captures this desktop and pushes to MediaMTX.
 - `slop.computer` (this repo) — audience-facing front page. Reads the `SlopComputer` contract on mainnet. Flips to `<LiveHero>` when `live != 0x0`.
 
+## Booking the guest
+
+- [ ] Pick a guest and generate them a link on `live.slop.computer/admin`, then get it on the cal.
+
 ## Before the show
 
 - [ ] Host signed in via SIWE on `live.slop.computer` (sets the `slop_session` cookie that the relay's `/admin/*` endpoints will gate on later — same cookie works on the `slop.computer` /admin Finalize panel because both subdomains share eTLD+1).
