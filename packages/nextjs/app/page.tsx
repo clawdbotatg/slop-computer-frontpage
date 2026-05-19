@@ -131,7 +131,7 @@ const ANNOYING_PHRASES = [
   "Let that sink in.",
   "Boom.",
   "Let's run a quick smoke test.",
-  "Belt-and-suspenders fix.",
+  "Making a belt-and-suspenders fix.",
 ];
 
 // Claude Code's terminal thinking indicator cycles a sparkle through a
