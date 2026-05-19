@@ -130,6 +130,8 @@ const ANNOYING_PHRASES = [
   "It's worth noting that…",
   "Let that sink in.",
   "Boom.",
+  "Let's run a quick smoke test.",
+  "Belt-and-suspenders fix.",
 ];
 
 // Claude Code's terminal thinking indicator cycles a sparkle through a
