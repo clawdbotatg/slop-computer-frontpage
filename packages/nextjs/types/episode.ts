@@ -44,7 +44,13 @@ export type EpisodeManifest = {
   transcript?: { cid: string; format?: string; language?: string; segmentCount?: number };
   chat?: { cid: string; messageCount?: number };
   meta?: EpisodeMeta;
-  participants?: { address: string; role?: string; ens?: string }[];
+  /**
+   * Long-running participant roster captured by the relay every time a peer
+   * joined the desktop mesh — first-seen wins, dedup by address. The relay
+   * emits `handle` (custom display name set in the room); `ens` is kept as a
+   * legacy alias and either is picked up by the renderer.
+   */
+  participants?: { address: string; role?: string; handle?: string | null; ens?: string }[];
   files?: { name: string; cid: string; sizeBytes?: number }[];
   links?: { label: string; url: string }[];
   tags?: string[];
