@@ -148,6 +148,7 @@ const OwnerConsole = () => {
       {liveEpisode && !isZeroEpisode(liveEpisode) ? (
         <FinalizePanel liveEpisode={liveEpisode} onUrlUpdated={refreshAll} />
       ) : null}
+      <AddFutureEpisodeForm onDone={refreshAll} />
       <GoLiveForm onDone={refreshAll} />
       <AddEpisodeForm onDone={refreshAll} />
       <EpisodeTable
@@ -495,6 +496,76 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
   );
 };
 
+const AddFutureEpisodeForm = ({ onDone }: { onDone: () => void }) => {
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [datetime, setDatetime] = useState("");
+  const [error, setError] = useState("");
+  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
+
+  const onNameChange = (v: string) => {
+    setName(v);
+    if (!slugTouched) setSlug(slugify(v));
+  };
+
+  const submit = async () => {
+    setError("");
+    if (!name.trim()) return setError("name required");
+    if (!slug.trim() || !/^[a-z0-9-]{1,64}$/.test(slug)) return setError("slug must be 1-64 chars of [a-z0-9-]");
+    let unix = 0;
+    if (datetime) {
+      const t = Math.floor(new Date(datetime).getTime() / 1000);
+      if (!Number.isFinite(t) || t <= 0) return setError("datetime invalid");
+      unix = t;
+    }
+    try {
+      await writeContractAsync({
+        functionName: "addEpisode",
+        args: [name.trim(), slug, "", ZERO_ADDRESS, BigInt(unix)],
+      });
+      setName("");
+      setSlug("");
+      setSlugTouched(false);
+      setDatetime("");
+      onDone();
+    } catch (e) {
+      setError((e as Error).message || "tx failed");
+    }
+  };
+
+  return (
+    <Section label={"// schedule"} title="Add a future episode">
+      <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
+        registers the slug on-chain without going live. slop.computer/&lt;slug&gt; becomes browsable as a placeholder.
+        flip it live later from the row below when the stream is up.
+      </p>
+      <FormField label="name" value={name} onChange={onNameChange} placeholder="ep 004 · <topic and guest>" />
+      <FormField
+        label="slug (URL: slop.computer/<slug>)"
+        value={slug}
+        onChange={v => {
+          setSlug(v);
+          setSlugTouched(true);
+        }}
+        placeholder="ep-004-<guest>"
+        mono
+      />
+      <FormField label="datetime (local, optional)" value={datetime} onChange={setDatetime} type="datetime-local" />
+      {error ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+          {error}
+        </div>
+      ) : null}
+      <div className="flex flex-wrap gap-3 pt-1">
+        <Button onClick={() => void submit()} disabled={isMining}>
+          {isMining ? "Signing…" : "Schedule episode"}
+        </Button>
+      </div>
+    </Section>
+  );
+};
+
 const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -732,6 +803,15 @@ const EpisodeRow = ({
         <span className="flex-1 min-w-0 truncate text-sm" style={{ color: "var(--slop-text)" }}>
           {episode.name || "untitled"}
         </span>
+        {!isLive ? (
+          <Button
+            variant="primary"
+            onClick={() => tx(() => writeContractAsync({ functionName: "setLive", args: [episode.id] }))}
+            disabled={isMining}
+          >
+            {isMining ? "…" : "◉ Go Live"}
+          </Button>
+        ) : null}
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
@@ -756,14 +836,6 @@ const EpisodeRow = ({
             </div>
           ) : null}
           <div className="flex flex-wrap gap-2">
-            {!isLive ? (
-              <Button
-                onClick={() => tx(() => writeContractAsync({ functionName: "setLive", args: [episode.id] }))}
-                disabled={isMining}
-              >
-                Set live
-              </Button>
-            ) : null}
             <Button
               onClick={() => {
                 if (!/^[a-z0-9-]{1,64}$/.test(newSlug)) {
