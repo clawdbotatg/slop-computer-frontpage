@@ -803,6 +803,9 @@ const EpisodeRow = ({
         <span className="flex-1 min-w-0 truncate text-sm" style={{ color: "var(--slop-text)" }}>
           {episode.name || "untitled"}
         </span>
+        <Button as="a" href={`/${episode.slug}`} target="_blank" rel="noreferrer">
+          view ↗
+        </Button>
         {!isLive ? (
           <Button
             variant="primary"
