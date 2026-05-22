@@ -194,15 +194,46 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 }
               />
               {showCardFallback ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={cardUrl}
-                  alt=""
-                  onError={e => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                  className="absolute inset-0 block w-full h-full object-cover"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cardUrl}
+                    alt=""
+                    onError={e => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                    className="absolute inset-0 block w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 flex justify-center p-3 pointer-events-none">
+                    <span
+                      className="slop-mono uppercase flex items-center gap-2 px-3 py-1.5"
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: "0.12em",
+                        fontFamily: "var(--slop-font-display)",
+                        color: "var(--slop-text)",
+                        background: "rgba(6, 3, 13, 0.82)",
+                        border: "1px solid rgba(255, 62, 201, 0.55)",
+                        borderRadius: 999,
+                        backdropFilter: "blur(6px)",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: "var(--slop-magenta)",
+                          boxShadow: "0 0 8px var(--slop-magenta)",
+                          animation: "slop-pulse 1.6s ease-in-out infinite",
+                        }}
+                      />
+                      Stream coming soon…
+                    </span>
+                  </div>
+                </>
               ) : null}
             </>
           )}
