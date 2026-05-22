@@ -82,8 +82,15 @@ const AdminHeader = () => (
     >
       slop.computer · owner controls
     </h1>
-    <div className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-      contract: {CONTRACT_ADDRESS} · ethereum mainnet
+    <div
+      className="slop-mono text-[11px] flex flex-wrap items-center gap-3"
+      style={{ color: "var(--slop-text-muted)" }}
+    >
+      <span>contract: {CONTRACT_ADDRESS} · ethereum mainnet</span>
+      <span>·</span>
+      <a href="/stream" target="_blank" rel="noreferrer" className="slop-link">
+        preview stream ↗
+      </a>
     </div>
   </header>
 );

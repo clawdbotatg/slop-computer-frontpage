@@ -44,7 +44,7 @@ Register the episode on-chain ahead of time so `slop.computer/<slug>` resolves t
 - [ ] Start OBS publishing RTMP to `media.slop.computer`. MediaMTX does two things from this one ingest:
   - Serves `https://media.slop.computer/hls/live/index.m3u8` for the audience HLS player.
   - Writes the fmp4 recording to disk on the relay box.
-- [ ] Open `https://media.slop.computer/hls/live/index.m3u8` in a tab and confirm it actually plays. Expect ~5–15s before the first segment lands.
+- [ ] Open `https://slop.computer/stream` in a tab and confirm the player actually plays the stream. (Hitting the raw `.m3u8` URL just downloads text — the `/stream` page wraps it in hls.js so it actually plays. Expect ~5–15s before the first segment lands.)
 
 **Do not skip the sanity check.** If the HLS endpoint isn't producing segments, flipping the contract live just shows the audience a buffering player.
 
