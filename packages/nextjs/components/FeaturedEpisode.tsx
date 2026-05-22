@@ -46,7 +46,13 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
     };
   }, [episode.manifest]);
 
-  const description = manifest?.description?.trim() || FALLBACK_BLURB;
+  // Prefer the AI-generated one-liner as a punchy lead; fall back to the
+  // full description, then the generic blurb.
+  const description =
+    manifest?.meta?.oneLiner?.trim() ||
+    manifest?.meta?.description?.trim() ||
+    manifest?.description?.trim() ||
+    FALLBACK_BLURB;
   const cardUrl = `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
 
   return (

@@ -157,6 +157,11 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
         >
           {episode.name || "untitled"}
         </h1>
+        {manifest?.meta?.oneLiner ? (
+          <p className="m-0 text-sm sm:text-base" style={{ color: "var(--slop-text-muted)" }}>
+            {manifest.meta.oneLiner}
+          </p>
+        ) : null}
       </header>
 
       <div className="flex flex-col gap-4">
@@ -298,13 +303,13 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
         ) : null}
 
         <div className="flex flex-col gap-3 min-w-0">
-          {manifest?.description ? (
+          {manifest?.meta?.description || manifest?.description ? (
             <section className="flex flex-col gap-2">
               <h2 className="text-base sm:text-lg uppercase tracking-wide m-0" style={{ color: "var(--slop-text)" }}>
                 About
               </h2>
               <p className="text-sm whitespace-pre-wrap" style={{ color: "var(--slop-text)" }}>
-                {manifest.description}
+                {manifest?.meta?.description || manifest?.description}
               </p>
             </section>
           ) : null}

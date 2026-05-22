@@ -19,13 +19,31 @@ export type Episode = {
   readonly nextId: `0x${string}`;
 };
 
+/**
+ * AI-generated episode metadata. The relay's finalize flow runs a pass over
+ * the transcript + chat and writes the result under `manifest.meta` (kept
+ * namespaced — and tagged with `generatedBy`/`generatedAt` — so AI output
+ * stays distinguishable from human-authored fields).
+ */
+export type EpisodeMeta = {
+  title?: string;
+  oneLiner?: string;
+  description?: string;
+  topics?: string[];
+  chapters?: { tStart: number; title: string }[];
+  generatedBy?: string;
+  generatedAt?: number;
+};
+
 /** Best-effort schema for the manifest JSON the contract's `manifest` points at. */
 export type EpisodeManifest = {
   version?: number;
+  /** Legacy / human-authored top-level description. Prefer `meta.description`. */
   description?: string;
   video?: { cid: string; durationSeconds?: number; sizeBytes?: number; format?: string };
-  transcript?: { cid: string; format?: string; language?: string };
+  transcript?: { cid: string; format?: string; language?: string; segmentCount?: number };
   chat?: { cid: string; messageCount?: number };
+  meta?: EpisodeMeta;
   participants?: { address: string; role?: string; ens?: string }[];
   files?: { name: string; cid: string; sizeBytes?: number }[];
   links?: { label: string; url: string }[];
