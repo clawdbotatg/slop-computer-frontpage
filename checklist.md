@@ -48,30 +48,21 @@ Register the episode on-chain ahead of time so `slop.computer/<slug>` resolves t
 
 **Do not skip the sanity check.** If the HLS endpoint isn't producing segments, flipping the contract live just shows the audience a buffering player.
 
-## 2. Start the fanouts (YouTube, Twitch, X, Kick)
+## 2. Flip the front page live
 
-OBS pushes **once** to MediaMTX. The relay then re-publishes that stream to external destinations via ffmpeg children (`-c copy`, no transcode) so the stream keys never leave the box. UI is on `live.slop.computer/admin` → Fanouts panel (this repo's /admin doesn't have it).
+Step 1's HLS sanity check has passed, so the stream is genuinely producing segments — flip the front page live now and the `slop.computer` audience is watching straight away. Fanouts to external platforms come *after* this (Step 3); the audience-facing surface is the priority once the stream is verified healthy.
 
-- [ ] In `live.slop.computer/admin` → **Fanouts** panel, hit **Start** next to **YouTube Live**. (Same flow for Twitch / X / Kick if you're sending there too.)
-- [ ] Confirm the destination shows `running` and pop YouTube Studio open to verify the ingest is healthy before announcing.
-
-Notes / gotchas:
-
-- Stream keys live in the relay's env (`YOUTUBE_STREAM_KEY`, `TWITCH_STREAM_KEY`, `TWITTER_STREAM_KEY`, `KICK_STREAM_KEY`). If a destination shows `not configured`, that env is missing.
-- **X / Twitter** keys are per-broadcast — regenerate in `studio.x.com → Producer` before each show.
-- **If OBS drops and reconnects** (like it just did), the fanout ffmpeg children exit because their RTMP source vanished. The registry entry is cleared by the exit handler. **Re-Start each fanout** from the Fanouts panel after OBS comes back, or YouTube goes silent for the rest of the show.
-
-## 3. Flip the front page live
+**Still do not reach this step until Step 1 passed.** If `index.m3u8` isn't producing segments, flipping the contract live just shows the audience a buffering player.
 
 Two paths depending on whether you already reserved the slug ahead of the show:
 
-### 3a. If you already scheduled the episode (recommended)
+### 2a. If you already scheduled the episode (recommended)
 
 The slug is already on-chain from the **Reserve the slug** step. Just flip the live pointer:
 
 - [ ] In `/admin` → find the row in the episode table → click **◉ Go Live** inline on that row. Calls `setLive(id)`. One tx, no fields to re-enter.
 
-### 3b. If you're going live cold (no pre-scheduled entry)
+### 2b. If you're going live cold (no pre-scheduled entry)
 
 In `/admin` → **Start a new live show** form:
 
@@ -88,6 +79,19 @@ On chain:
 - `episodeCount` increments.
 
 The homepage polls every 30s; within 30s of the tx confirming, visitors flip from the brand page to `<LiveHero>` with the HLS player + live chat. `/<slug>` also resolves and renders the live player.
+
+## 3. Start the fanouts (YouTube, Twitch, X, Kick)
+
+With the `slop.computer` audience already watching (Step 2), now re-publish to the external platforms. OBS pushes **once** to MediaMTX. The relay then re-publishes that stream to external destinations via ffmpeg children (`-c copy`, no transcode) so the stream keys never leave the box. UI is on `live.slop.computer/admin` → Fanouts panel (this repo's /admin doesn't have it).
+
+- [ ] In `live.slop.computer/admin` → **Fanouts** panel, hit **Start** next to **YouTube Live**. (Same flow for Twitch / X / Kick if you're sending there too.)
+- [ ] Confirm the destination shows `running` and pop YouTube Studio open to verify the ingest is healthy before announcing.
+
+Notes / gotchas:
+
+- Stream keys live in the relay's env (`YOUTUBE_STREAM_KEY`, `TWITCH_STREAM_KEY`, `TWITTER_STREAM_KEY`, `KICK_STREAM_KEY`). If a destination shows `not configured`, that env is missing.
+- **X / Twitter** keys are per-broadcast — regenerate in `studio.x.com → Producer` before each show.
+- **If OBS drops and reconnects** (like it just did), the fanout ffmpeg children exit because their RTMP source vanished. The registry entry is cleared by the exit handler. **Re-Start each fanout** from the Fanouts panel after OBS comes back, or YouTube goes silent for the rest of the show.
 
 ## 4. Run the show
 
