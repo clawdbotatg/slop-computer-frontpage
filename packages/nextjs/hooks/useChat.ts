@@ -26,7 +26,12 @@ const HISTORY_CAP = 200;
 // slop_session cookie the relay set on us — same cookie as live.slop.computer
 // since both share `slop.computer` as eTLD+1, and SIWE here mints a session
 // cookie scoped to the relay's host.
-export function useChat() {
+//
+// `slug` MUST be the live episode's slug — every /v1/chat* route on the relay
+// resolves its room from `?slug=`, and a missing slug silently falls back to
+// the relay's DEFAULT_SLUG ("debug"). Without this the front page would show
+// the debug room's chat instead of the episode's.
+export function useChat(slug: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [auth, setAuth] = useState<ChatAuth>({ authenticated: false, address: null, handle: null });
   const [connected, setConnected] = useState(false);
@@ -64,7 +69,9 @@ export function useChat() {
     const connect = () => {
       if (cancelled) return;
       try {
-        es = new EventSource(`${RELAY_HTTP_URL}/v1/chat/stream`, { withCredentials: true });
+        es = new EventSource(`${RELAY_HTTP_URL}/v1/chat/stream?slug=${encodeURIComponent(slug)}`, {
+          withCredentials: true,
+        });
       } catch (e) {
         setError((e as Error).message);
         return;
@@ -100,18 +107,21 @@ export function useChat() {
       };
     };
 
+    // Drop any messages from a previously-watched room so a slug change
+    // doesn't flash the old room's scrollback before the new `init` lands.
+    setMessages([]);
     connect();
     return () => {
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
       es?.close();
     };
-  }, []);
+  }, [slug]);
 
   const send = useCallback(async (text: string) => {
     const trimmed = text.trim().slice(0, 500);
     if (!trimmed) return { ok: false, error: "empty" } as const;
-    const res = await fetch(`${RELAY_HTTP_URL}/v1/chat`, {
+    const res = await fetch(`${RELAY_HTTP_URL}/v1/chat?slug=${encodeURIComponent(slug)}`, {
       method: "POST",
       credentials: "include",
       headers: { "content-type": "application/json" },
@@ -124,7 +134,7 @@ export function useChat() {
     if (res.status === 429) return { ok: false, error: "rate-limited" } as const;
     if (!res.ok) return { ok: false, error: `http-${res.status}` } as const;
     return { ok: true } as const;
-  }, []);
+  }, [slug]);
 
   return { messages, auth, connected, error, send, refreshAuth };
 }

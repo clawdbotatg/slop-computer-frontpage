@@ -12,9 +12,12 @@ import { type ChatMessage, RELAY_HTTP_URL, useChat } from "~~/hooks/useChat";
  * Embedded chat — messages + input + SIWE flow. Always-visible, fills its
  * container. Used inside the LiveHero when the show is live so signing in
  * and chatting is the primary CTA on the page.
+ *
+ * `slug` is the live episode's slug — it scopes every relay call to that
+ * episode's room. Without it the relay defaults to the "debug" room.
  */
-export const Chat = () => {
-  const { messages, auth, send, refreshAuth } = useChat();
+export const Chat = ({ slug }: { slug: string }) => {
+  const { messages, auth, send, refreshAuth } = useChat(slug);
   const { address: walletAddress, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { openConnectModal } = useConnectModal();

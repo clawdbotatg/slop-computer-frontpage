@@ -262,7 +262,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             {isLive ? "▣ Live chat" : "▣ Chat archive (coming soon)"}
           </div>
           <div className="flex-1 min-h-0">
-            {isLive ? <Chat /> : <ChatArchivePlaceholder cid={manifest?.chat?.cid} />}
+            {isLive ? <Chat slug={episode.slug} /> : <ChatArchivePlaceholder cid={manifest?.chat?.cid} />}
           </div>
         </aside>
 

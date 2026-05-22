@@ -80,7 +80,7 @@ export const LiveHero = ({ episode }: LiveHeroProps) => {
           <span style={{ opacity: 0.8 }}>{"// live"}</span>
         </div>
         <div className="flex-1 min-h-0">
-          <Chat />
+          <Chat slug={episode.slug} />
         </div>
       </aside>
     </section>
