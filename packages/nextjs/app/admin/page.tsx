@@ -322,7 +322,14 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
     setPhaseLabel("starting…");
     setPinning(true);
     try {
-      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize`, { method: "POST", credentials: "include" });
+      // ?slug= is REQUIRED — /admin/finalize resolves the room via
+      // roomFromReq, and a missing slug silently finalizes the relay's
+      // DEFAULT_SLUG ("debug") room, pinning the wrong room's chat +
+      // transcript into the manifest.
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(liveEpisode.slug)}`, {
+        method: "POST",
+        credentials: "include",
+      });
       if (!res.ok || !res.body) {
         if (res.status === 401) setError(handle401());
         else setError(`relay returned ${res.status}`);
