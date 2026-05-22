@@ -133,6 +133,7 @@ const ANNOYING_PHRASES = [
   "Let's run a quick smoke test.",
   "Making a belt-and-suspenders fix.",
   "You're right. I've been confidently wrong twice already.",
+  "Let me actually verify, not guess.",
 ];
 
 // Claude Code's terminal thinking indicator cycles a sparkle through a
