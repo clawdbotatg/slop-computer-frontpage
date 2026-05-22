@@ -266,6 +266,9 @@ type FinalizeEvent =
   | { phase: "starting"; file: string; name: string; totalBytes: number }
   | { phase: "remuxing" }
   | { phase: "uploading"; bytes: number; totalBytes: number }
+  | { phase: "pinning-chat"; messageCount: number }
+  | { phase: "pinning-transcript"; segmentCount: number }
+  | { phase: "generating-meta" }
   | { phase: "pinning-manifest" }
   | {
       phase: "done";
@@ -389,12 +392,31 @@ const FinalizePanel = ({
             setRecording({ name: ev.name, sizeBytes: ev.totalBytes, mtime: Date.now() });
             setPhaseLabel("preparing…");
           } else if (ev.phase === "remuxing") {
+            // Reset bytes/total so the bar flips to indeterminate during phases
+            // that don't have byte progress — otherwise it would stay pinned at
+            // the previous phase's 100% and look stuck.
+            setBytesPinned(0);
+            setPinTotal(0);
             setPhaseLabel("remuxing fmp4 → mp4…");
           } else if (ev.phase === "uploading") {
             setBytesPinned(ev.bytes);
             if (ev.totalBytes > 0) setPinTotal(ev.totalBytes);
-            setPhaseLabel("pinning to IPFS");
+            setPhaseLabel("uploading video to IPFS…");
+          } else if (ev.phase === "pinning-chat") {
+            setBytesPinned(0);
+            setPinTotal(0);
+            setPhaseLabel(`pinning chat archive · ${ev.messageCount} messages…`);
+          } else if (ev.phase === "pinning-transcript") {
+            setBytesPinned(0);
+            setPinTotal(0);
+            setPhaseLabel(`pinning transcript · ${ev.segmentCount} segments…`);
+          } else if (ev.phase === "generating-meta") {
+            setBytesPinned(0);
+            setPinTotal(0);
+            setPhaseLabel("generating episode metadata (AI pass — can take 30s+)…");
           } else if (ev.phase === "pinning-manifest") {
+            setBytesPinned(0);
+            setPinTotal(0);
             setPhaseLabel("pinning manifest…");
           } else if (ev.phase === "done") {
             finalCid = ev.cid;
