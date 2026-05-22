@@ -150,33 +150,58 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
         </h1>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4">
-        <div className="flex flex-col gap-3 min-w-0">
+      <div className="flex flex-col gap-4">
+        <div
+          className="overflow-hidden bg-black"
+          style={{
+            border: "1px solid rgba(255, 62, 201, 0.4)",
+            boxShadow: "0 16px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+            borderRadius: 8,
+            aspectRatio: "16 / 9",
+          }}
+        >
+          {videoSrc ? (
+            isLive ? (
+              // Dynamic import so the live HLS bundle isn't pulled into the page when not needed.
+              <LazyHlsPlayer src={videoSrc} />
+            ) : (
+              <video src={videoSrc} controls playsInline className="block w-full h-full" />
+            )
+          ) : manifestLoading ? (
+            <PlayerPlaceholder label="Loading manifest…" />
+          ) : (
+            <PlayerPlaceholder
+              label={episode.manifest ? "Manifest is missing video.cid" : "Recording publishing soon"}
+            />
+          )}
+        </div>
+
+        <aside
+          className="flex flex-col h-[520px]"
+          style={{
+            border: "1px solid rgba(255, 62, 201, 0.4)",
+            background: "rgba(10, 15, 36, 0.85)",
+            borderRadius: 8,
+            backdropFilter: "blur(12px)",
+            overflow: "hidden",
+          }}
+        >
           <div
-            className="overflow-hidden bg-black"
+            className="px-3 py-2 text-[11px] uppercase tracking-wide"
             style={{
-              border: "1px solid rgba(255, 62, 201, 0.4)",
-              boxShadow: "0 16px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
-              borderRadius: 8,
-              aspectRatio: "16 / 9",
+              background: "linear-gradient(180deg, var(--slop-magenta) 0%, var(--slop-magenta-dim) 100%)",
+              color: "#fff",
+              fontFamily: "var(--slop-font-display)",
             }}
           >
-            {videoSrc ? (
-              isLive ? (
-                // Dynamic import so the live HLS bundle isn't pulled into the page when not needed.
-                <LazyHlsPlayer src={videoSrc} />
-              ) : (
-                <video src={videoSrc} controls playsInline className="block w-full h-full" />
-              )
-            ) : manifestLoading ? (
-              <PlayerPlaceholder label="Loading manifest…" />
-            ) : (
-              <PlayerPlaceholder
-                label={episode.manifest ? "Manifest is missing video.cid" : "Recording publishing soon"}
-              />
-            )}
+            {isLive ? "▣ Live chat" : "▣ Chat archive (coming soon)"}
           </div>
+          <div className="flex-1 min-h-0">
+            {isLive ? <Chat /> : <ChatArchivePlaceholder cid={manifest?.chat?.cid} />}
+          </div>
+        </aside>
 
+        <div className="flex flex-col gap-3 min-w-0">
           {manifest?.description ? (
             <section className="flex flex-col gap-2">
               <h2 className="text-base sm:text-lg uppercase tracking-wide m-0" style={{ color: "var(--slop-text)" }}>
@@ -263,31 +288,6 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             </section>
           ) : null}
         </div>
-
-        <aside
-          className="flex flex-col h-[480px] lg:h-auto lg:min-h-[480px]"
-          style={{
-            border: "1px solid rgba(255, 62, 201, 0.4)",
-            background: "rgba(10, 15, 36, 0.85)",
-            borderRadius: 8,
-            backdropFilter: "blur(12px)",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            className="px-3 py-2 text-[11px] uppercase tracking-wide"
-            style={{
-              background: "linear-gradient(180deg, var(--slop-magenta) 0%, var(--slop-magenta-dim) 100%)",
-              color: "#fff",
-              fontFamily: "var(--slop-font-display)",
-            }}
-          >
-            {isLive ? "▣ Live chat" : "▣ Chat archive (coming soon)"}
-          </div>
-          <div className="flex-1 min-h-0">
-            {isLive ? <Chat /> : <ChatArchivePlaceholder cid={manifest?.chat?.cid} />}
-          </div>
-        </aside>
       </div>
     </article>
   );
