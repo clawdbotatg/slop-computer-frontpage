@@ -9,7 +9,21 @@ Two surfaces involved:
 
 ## Booking the guest
 
-- [ ] Pick a guest and generate them a link on `live.slop.computer/admin`, then get it on the cal.
+- [ ] Pick a guest and generate a room link on `live.slop.computer/admin`.
+- [ ] Copy/paste the link to the guest (or put it on the cal).
+- [ ] Follow the link yourself and fire up the **Card** app to generate the guest's card.
+
+## Schedule the YouTube broadcast
+
+- [ ] YouTube Studio → **Create** → **Go Live** → **Manage** → **Schedule** → **Select previous one** → reuse everything, then swap in the new card.
+
+## Promote
+
+- [ ] (Optional) Fire off a tweet announcing the show — date, time, guest, link.
+
+## Day of — ~1 hour before the show
+
+- [ ] Drop the guest into the **research app** and run a full pass. Skim the output for good questions to ask on air.
 
 ## Before the show
 
