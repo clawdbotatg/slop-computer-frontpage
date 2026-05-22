@@ -99,20 +99,21 @@ Notes / gotchas:
 - Chat is the SIWE-gated live chat on the right rail, talking to the relay.
 - MediaMTX keeps writing the recording to disk.
 
-## 5. End the show — finalize FIRST, then go offline
+## 5. End the show
 
-**Order matters:** the `<FinalizePanel>` in /admin is gated on `liveEpisode != 0x0`. If you call `goOffline()` first, the panel disappears and you have to paste the manifest CID into the per-episode "Save manifest" button manually. Do it in the order below.
+The `<FinalizePanel>` has an episode picker and stays visible whether or not an episode is live, so you can finalize before *or* after `goOffline()` — and re-finalize a past episode any time. Finalizing while still live is the smooth path, but it's no longer load-bearing.
 
 - [ ] In `live.slop.computer/admin` → **Stop** each running fanout. Stopping these *before* OBS gives YouTube/etc. a clean disconnect; if you stop OBS first the ffmpeg children just error out when the RTMP source vanishes.
 - [ ] **Stop OBS publishing.** MediaMTX closes the fmp4 recording on disk.
-- [ ] In `/admin` → **Finalize** panel → **Check recording** (`GET /admin/recording` on the relay). Confirms the latest file size + mtime.
-- [ ] **Pin to IPFS** (`POST /admin/finalize`). Streams NDJSON progress phases the UI renders via `LoadingBar`:
+- [ ] In `/admin` → **Finalize** panel → confirm the **episode** picker is on the right show (defaults to the live one, else the latest).
+- [ ] **Check recording** (`GET /admin/recording` on the relay). Confirms the latest file size + mtime.
+- [ ] **Pin to IPFS** (`POST /admin/finalize?slug=<slug>` — the panel adds the slug so the relay pins *that episode's* chat + transcript, not the `debug` room). Streams NDJSON progress phases the UI renders via `LoadingBar`:
   - `starting` — total bytes known
   - `remuxing` — fmp4 → mp4 (indeterminate bar; no byte progress)
   - `uploading` — bytes / total to local kubo
   - `pinning-manifest` — pinning the JSON manifest
   - `done` — returns `cid` (video) and `manifestCid` (JSON with video CID + description + participants + files + chat)
-- [ ] **Save manifest on-chain** → `setManifest(liveEpisode.id, "ipfs://" + manifestCid)`. One tx from the owner wallet.
+- [ ] **Save manifest on-chain** → `setManifest(episode.id, "ipfs://" + manifestCid)`. One tx from the owner wallet.
 - [ ] **End show (go offline)** → `goOffline()`. Clears the `live` pointer.
 
 Relay auth: the `slop_session` cookie set during the SIWE pre-flight gates `/admin/recording` and `/admin/finalize`. If you get a 401, sign in on `live.slop.computer` with the host wallet first.
@@ -132,5 +133,5 @@ Relay auth: the `slop_session` cookie set during the SIWE pre-flight gates `/adm
 | MediaMTX has two recording files after an OBS reconnect | MediaMTX closes the recording on publisher disconnect and opens a fresh one on reconnect | `/admin/finalize` only pins the newest by mtime. Accept the gap, or ssh in and `ffmpeg -f concat` the two before finalize. |
 | `Check recording` shows nothing | OBS never published, or MediaMTX recording path is misconfigured | Check MediaMTX config on the relay. |
 | `/admin/finalize` returns 401 | Host not signed in to relay via SIWE | Visit `live.slop.computer`, sign in with the owner wallet, retry. |
-| FinalizePanel is gone but recording still on disk | You called `goOffline` before finalizing | Pin the recording out-of-band; paste the manifest CID into the per-episode row's "Save manifest" field in the EpisodeTable. |
+| Manifest is missing transcript / description / one-liner | `/admin/finalize` ran without `?slug=`, so the relay finalized the `debug` room (empty transcript → no transcript pin, AI meta pass skipped) | Re-finalize: pick the episode in the Finalize panel and **Pin to IPFS** again, then **Save manifest**. The panel now always sends the slug. |
 | `goLive` reverts | Slug collision (`slugToId` already has it), or not the owner | Pick a fresh slug; confirm wallet is contract owner. |

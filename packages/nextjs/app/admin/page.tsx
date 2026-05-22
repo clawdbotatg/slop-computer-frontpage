@@ -145,8 +145,8 @@ const OwnerConsole = () => {
   return (
     <div className="flex flex-col gap-10">
       <LiveStatusPanel liveEpisode={liveEpisode} onChange={refreshAll} />
-      {liveEpisode && !isZeroEpisode(liveEpisode) ? (
-        <FinalizePanel liveEpisode={liveEpisode} onUrlUpdated={refreshAll} />
+      {episodes && episodes.length > 0 ? (
+        <FinalizePanel episodes={episodes} liveEpisode={liveEpisode} onUrlUpdated={refreshAll} />
       ) : null}
       <AddFutureEpisodeForm onDone={refreshAll} />
       <GoLiveForm onDone={refreshAll} />
@@ -278,7 +278,16 @@ type FinalizeEvent =
     }
   | { phase: "error"; message: string };
 
-const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; onUrlUpdated: () => void }) => {
+const FinalizePanel = ({
+  episodes,
+  liveEpisode,
+  onUrlUpdated,
+}: {
+  episodes: readonly Episode[];
+  liveEpisode: Episode | undefined;
+  onUrlUpdated: () => void;
+}) => {
+  const [selectedId, setSelectedId] = useState<string>("");
   const [recording, setRecording] = useState<RecordingInfo | null>(null);
   const [cid, setCid] = useState("");
   const [manifestCid, setManifestCid] = useState("");
@@ -289,6 +298,26 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
   const [phaseLabel, setPhaseLabel] = useState("starting…");
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
+
+  // The episode being finalized. Defaults to the live one (the in-show
+  // common case); when offline, defaults to the latest episode so a past
+  // show can be re-finalized. selectedId overrides once the host picks.
+  const liveId = liveEpisode && !isZeroEpisode(liveEpisode) ? liveEpisode.id : null;
+  const target = episodes.find(e => e.id === selectedId) ?? episodes.find(e => e.id === liveId) ?? episodes[0];
+  if (!target) return null;
+  const isReFinalize = target.manifest.length > 0;
+
+  // Drop pin results when switching episodes so a stale cid from a prior
+  // target can't be saved against the wrong episode.
+  const onSelect = (id: string) => {
+    setSelectedId(id);
+    setRecording(null);
+    setCid("");
+    setManifestCid("");
+    setBytesPinned(0);
+    setPinTotal(0);
+    setError("");
+  };
 
   const handle401 = (): string =>
     `Not signed in as host on the relay. Visit ${RELAY_HTTP_URL} and sign in with this wallet first.`;
@@ -326,7 +355,7 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
       // roomFromReq, and a missing slug silently finalizes the relay's
       // DEFAULT_SLUG ("debug") room, pinning the wrong room's chat +
       // transcript into the manifest.
-      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(liveEpisode.slug)}`, {
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(target.slug)}`, {
         method: "POST",
         credentials: "include",
       });
@@ -391,7 +420,7 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
     setError("");
     const url = `ipfs://${manifestCid}`;
     try {
-      await writeContractAsync({ functionName: "setManifest", args: [liveEpisode.id, url] });
+      await writeContractAsync({ functionName: "setManifest", args: [target.id, url] });
       onUrlUpdated();
     } catch (e) {
       setError((e as Error).message || "tx failed");
@@ -404,11 +433,30 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
   const pct = pinTotal > 0 ? Math.min(100, (bytesPinned / pinTotal) * 100) : undefined;
 
   return (
-    <Section label={"// finalize"} title="Pin recording → IPFS → update episode url">
+    <Section label={"// finalize"} title="Pin recording → IPFS → update episode manifest">
       <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
-        after the show ends, pull the latest MediaMTX recording, pin it to our self-hosted IPFS node, and swap the
-        on-chain url from the HLS stream to {"ipfs://<cid>"}. host session cookie on {RELAY_HTTP_URL} is required.
+        pull the latest MediaMTX recording, pin it + the room&apos;s chat/transcript to our self-hosted IPFS node, and
+        write the manifest CID on-chain. works on a past episode too — re-finalize regenerates the manifest (transcript
+        + AI description/one-liner). host session cookie on {RELAY_HTTP_URL} is required.
       </p>
+
+      <label className="flex flex-col gap-1">
+        <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+          episode {isReFinalize ? "(re-finalize — already has a manifest)" : ""}
+        </span>
+        <select
+          value={target.id}
+          onChange={e => onSelect(e.target.value)}
+          className="slop-textfield"
+          disabled={pinning}
+        >
+          {episodes.map(ep => (
+            <option key={ep.id} value={ep.id}>
+              {(ep.name || ep.slug || "untitled") + (ep.id === liveId ? " · live" : "")}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => void check()} disabled={checking || pinning}>
@@ -467,7 +515,7 @@ const FinalizePanel = ({ liveEpisode, onUrlUpdated }: { liveEpisode: Episode; on
             <Button
               variant="primary"
               onClick={() => void saveManifest()}
-              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === liveEpisode.manifest}
+              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
             >
               {isMining ? "Signing…" : "Save manifest on-chain"}
             </Button>
