@@ -37,7 +37,7 @@ Register the episode on-chain ahead of time so `slop.computer/<slug>` resolves t
 
 - [ ] Host signed in via SIWE on `live.slop.computer` (sets the `slop_session` cookie that the relay's `/admin/*` endpoints will gate on later — same cookie works on the `slop.computer` /admin Finalize panel because both subdomains share eTLD+1).
 - [ ] Guests invited / joined the desktop. Cam + screen-share windows laid out.
-- [ ] OBS scene composed against the `live.slop.computer` desktop.
+- [ ] OBS scene composed against the `live.slop.computer` desktop **in god mode** — god mode is the spectator session that sees every peer's cam + screen-share without joining the mesh as a participant. Compose against a non-godmode session and OBS will be missing windows.
 
 ## 1. Start the stream (OBS → MediaMTX)
 
