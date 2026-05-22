@@ -90,6 +90,7 @@ const EpisodePage: NextPage<PageProps> = ({ params }) => {
 const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean }) => {
   const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
   const [manifestLoading, setManifestLoading] = useState(false);
+  const [vodFailed, setVodFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +113,13 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
 
   const videoCid = manifest?.video?.cid;
   const videoSrc = isLive ? HLS_URL : videoCid ? gatewayUrl(`ipfs://${videoCid}`, `${episode.slug}.mp4`) : null;
+  // When there's no playable video yet (scheduled episode pre-finalize) OR the
+  // VOD failed to load, fall back to the per-room card image the live relay
+  // publishes — same PNG that's used for og:image. If the card 404s (host
+  // hasn't saved it yet) we hide the <img> and the underlying text placeholder
+  // shows through.
+  const showCardFallback = !isLive && (!videoSrc || vodFailed);
+  const cardUrl = `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
   const contractShort =
     episode.contractAddr && episode.contractAddr !== ZERO_ADDRESS
       ? `${episode.contractAddr.slice(0, 6)}…${episode.contractAddr.slice(-4)}`
@@ -152,7 +160,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
 
       <div className="flex flex-col gap-4">
         <div
-          className="overflow-hidden bg-black"
+          className="overflow-hidden bg-black relative"
           style={{
             border: "1px solid rgba(255, 62, 201, 0.4)",
             boxShadow: "0 16px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
@@ -160,19 +168,42 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             aspectRatio: "16 / 9",
           }}
         >
-          {videoSrc ? (
+          {videoSrc && (!showCardFallback || isLive) ? (
             isLive ? (
               // Dynamic import so the live HLS bundle isn't pulled into the page when not needed.
               <LazyHlsPlayer src={videoSrc} />
             ) : (
-              <video src={videoSrc} controls playsInline className="block w-full h-full" />
+              <video
+                src={videoSrc}
+                controls
+                playsInline
+                onError={() => setVodFailed(true)}
+                className="block w-full h-full"
+              />
             )
-          ) : manifestLoading ? (
-            <PlayerPlaceholder label="Loading manifest…" />
           ) : (
-            <PlayerPlaceholder
-              label={episode.manifest ? "Manifest is missing video.cid" : "Recording publishing soon"}
-            />
+            <>
+              <PlayerPlaceholder
+                label={
+                  manifestLoading
+                    ? "Loading manifest…"
+                    : episode.manifest
+                      ? "Manifest is missing video.cid"
+                      : "Recording publishing soon"
+                }
+              />
+              {showCardFallback ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={cardUrl}
+                  alt=""
+                  onError={e => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                  className="absolute inset-0 block w-full h-full object-cover"
+                />
+              ) : null}
+            </>
           )}
         </div>
 
@@ -284,6 +315,22 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 className="slop-link slop-mono text-[11px]"
               >
                 full transcript ↗
+              </a>
+            </section>
+          ) : null}
+
+          {episode.manifest ? (
+            <section className="flex flex-col gap-2">
+              <h2 className="text-base uppercase tracking-wide m-0" style={{ color: "var(--slop-text)" }}>
+                Manifest
+              </h2>
+              <a
+                href={gatewayUrl(episode.manifest)}
+                target="_blank"
+                rel="noreferrer"
+                className="slop-link slop-mono text-[11px] break-all"
+              >
+                {episode.manifest} ↗
               </a>
             </section>
           ) : null}
