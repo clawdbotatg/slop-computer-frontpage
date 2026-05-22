@@ -171,7 +171,7 @@ export const Chat = ({ slug }: { slug: string }) => {
   );
 };
 
-const ChatRow = ({ msg, isMine }: { msg: ChatMessage; isMine: boolean }) => {
+export const ChatRow = ({ msg, isMine }: { msg: ChatMessage; isMine: boolean }) => {
   const sourceTag = msg.source === "agent" ? "AGENT" : msg.source === "live" ? "LIVE" : null;
   return (
     <div className="flex gap-2">
