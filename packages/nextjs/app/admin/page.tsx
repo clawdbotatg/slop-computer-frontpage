@@ -150,13 +150,13 @@ const OwnerConsole = () => {
       ) : null}
       <AddFutureEpisodeForm onDone={refreshAll} />
       <GoLiveForm onDone={refreshAll} />
-      <AddEpisodeForm onDone={refreshAll} />
       <EpisodeTable
         episodes={episodes}
         liveId={liveId}
         totalCount={episodeCount !== undefined ? Number(episodeCount) : undefined}
         onChange={refreshAll}
       />
+      <AddEpisodeForm onDone={refreshAll} />
     </div>
   );
 };
