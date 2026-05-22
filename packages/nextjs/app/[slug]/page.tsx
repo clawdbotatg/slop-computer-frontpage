@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Address } from "@scaffold-ui/components";
 import type { NextPage } from "next";
 import { Chat } from "~~/components/Chat";
+import { LiveTranscript } from "~~/components/LiveTranscript";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import {
   type Episode,
@@ -231,6 +232,37 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             {isLive ? <Chat /> : <ChatArchivePlaceholder cid={manifest?.chat?.cid} />}
           </div>
         </aside>
+
+        {isLive ? (
+          <aside
+            className="flex flex-col h-[360px]"
+            style={{
+              border: "1px solid rgba(255, 62, 201, 0.4)",
+              background: "rgba(10, 15, 36, 0.85)",
+              borderRadius: 8,
+              backdropFilter: "blur(12px)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              className="px-3 py-2 text-[11px] uppercase tracking-wide flex items-center gap-2"
+              style={{
+                background: "linear-gradient(180deg, var(--slop-magenta) 0%, var(--slop-magenta-dim) 100%)",
+                color: "#fff",
+                fontFamily: "var(--slop-font-display)",
+              }}
+            >
+              <span>▣ Live transcript</span>
+              <span className="slop-mono text-[10px] opacity-80">
+                ({"// from "}
+                <code>/v1/transcript</code>)
+              </span>
+            </div>
+            <div className="flex-1 min-h-0">
+              <LiveTranscript slug={episode.slug} />
+            </div>
+          </aside>
+        ) : null}
 
         <div className="flex flex-col gap-3 min-w-0">
           {manifest?.description ? (
