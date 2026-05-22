@@ -13,6 +13,14 @@ Two surfaces involved:
 - [ ] Copy/paste the link to the guest (or put it on the cal).
 - [ ] Follow the link yourself and fire up the **Card** app to generate the guest's card.
 
+## Reserve the slug on slop.computer
+
+Register the episode on-chain ahead of time so `slop.computer/<slug>` resolves to a placeholder page — gives you a real URL to share in the tweet / cal invite, and means the audience can pre-load the page.
+
+- [ ] On `slop.computer/admin` → **Add a future episode** form, fill in `name`, `slug` (e.g. `ep-1`), and (optional) datetime. Submit.
+- [ ] Tx is `addEpisode(name, slug, "", 0x0, unix)` — empty manifest, zero contract addr, no live pointer touched.
+- [ ] Confirm `slop.computer/<slug>` loads the placeholder. You now have a shareable URL.
+
 ## Schedule the YouTube broadcast
 
 - [ ] YouTube Studio → **Create** → **Go Live** → **Manage** → **Schedule** → **Select previous one** → reuse everything, then swap in the new card.
@@ -53,15 +61,25 @@ Notes / gotchas:
 - **X / Twitter** keys are per-broadcast — regenerate in `studio.x.com → Producer` before each show.
 - **If OBS drops and reconnects** (like it just did), the fanout ffmpeg children exit because their RTMP source vanished. The registry entry is cleared by the exit handler. **Re-Start each fanout** from the Fanouts panel after OBS comes back, or YouTube goes silent for the rest of the show.
 
-## 3. Flip the front page live (contract `goLive`)
+## 3. Flip the front page live
 
-In `/admin` on this site → **Go Live** form:
+Two paths depending on whether you already reserved the slug ahead of the show:
+
+### 3a. If you already scheduled the episode (recommended)
+
+The slug is already on-chain from the **Reserve the slug** step. Just flip the live pointer:
+
+- [ ] In `/admin` → find the row in the episode table → click **◉ Go Live** inline on that row. Calls `setLive(id)`. One tx, no fields to re-enter.
+
+### 3b. If you're going live cold (no pre-scheduled entry)
+
+In `/admin` → **Start a new live show** form:
 
 - [ ] `name` — episode title (e.g. `ep 003 · agents and the death of the email signup`)
 - [ ] `slug` — auto-filled from name; must match `[a-z0-9-]{1,64}`. This is the URL: `slop.computer/<slug>`.
 - [ ] `contract` — per-episode contract or `0x0000…0000` if there isn't one.
 - [ ] `datetime` — local time of the show.
-- [ ] Submit → calls `goLive(name, slug, "", contractAddr, unix)`. `manifest` is intentionally empty for now (audience watches the HLS stream, not IPFS).
+- [ ] Submit → calls `goLive(name, slug, "", contractAddr, unix)` (add + setLive in one tx). `manifest` is intentionally empty for now (audience watches the HLS stream, not IPFS).
 
 On chain:
 
