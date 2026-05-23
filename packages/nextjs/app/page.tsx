@@ -266,29 +266,10 @@ const Hero = () => {
 };
 
 const Manifesto = () => (
-  <section
-    className="grid grid-cols-1 md:grid-cols-[120px_minmax(0,1fr)] gap-3 md:gap-8 items-start"
-    style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}
-  >
-    <div className="slop-mono text-[11px] uppercase tracking-widest" style={{ color: "var(--slop-magenta)" }}>
-      {"// manifesto"}
-    </div>
-    <div
-      className="flex flex-col gap-3 text-sm sm:text-base slop-mono leading-relaxed"
-      style={{ color: "var(--slop-text)", textTransform: "none" }}
-    >
-      <p>
-        every episode is content-addressed — pinned to ipfs, indexed on ethereum mainnet, registered in a singly-linked
-        list on the slop computer contract.
-      </p>
-      <p>
-        when the show is live, the player and the chat <em>are</em> this page. sign in with your wallet, drop a hot
-        take, hang out with other listeners. when the show is off the air, the recording lives forever on ipfs.
-      </p>
-      <p style={{ color: "var(--slop-text-muted)" }}>
-        no app to install. no email signup. no algorithm. one contract, a couple of cids, and people who ship.
-      </p>
-    </div>
+  <section className="flex justify-center" style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}>
+    <p className="slop-mono text-sm sm:text-base" style={{ color: "var(--slop-text-muted)", textTransform: "none" }}>
+      coming soon…
+    </p>
   </section>
 );
 
