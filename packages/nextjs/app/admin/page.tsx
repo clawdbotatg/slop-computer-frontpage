@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import { isAddress } from "viem";
@@ -149,13 +150,42 @@ const OwnerConsole = () => {
 
   const liveId = liveEpisode && !isZeroEpisode(liveEpisode) ? liveEpisode.id : null;
 
+  // Deep-link from live.slop.computer/admin/<room>:
+  //   /admin?liveSlugToSchedule=<slug>
+  // pre-fills name + slug to the live room's slug and datetime to now+1h.
+  // After contract redeploy with Episode.liveSlug, this URL param can map
+  // to a dedicated liveSlug field while name/slug stay user-editable.
+  const searchParams = useSearchParams();
+  const liveSlugToSchedule = searchParams.get("liveSlugToSchedule") ?? "";
+  const prefill = useMemo(
+    () =>
+      liveSlugToSchedule
+        ? {
+            slug: liveSlugToSchedule,
+            datetime: toLocalDatetimeValue(new Date(Date.now() + 60 * 60 * 1000)),
+          }
+        : null,
+    [liveSlugToSchedule],
+  );
+
+  // Scroll the schedule form into view when the page is opened with a prefill —
+  // saves the host from hunting for it.
+  const scheduleRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (prefill) {
+      scheduleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [prefill]);
+
   return (
     <div className="flex flex-col gap-10">
       <LiveStatusPanel liveEpisode={liveEpisode} onChange={refreshAll} />
       {episodes && episodes.length > 0 ? (
         <FinalizePanel episodes={episodes} liveEpisode={liveEpisode} onUrlUpdated={refreshAll} />
       ) : null}
-      <AddFutureEpisodeForm onDone={refreshAll} />
+      <div ref={scheduleRef}>
+        <AddFutureEpisodeForm onDone={refreshAll} prefill={prefill} />
+      </div>
       <GoLiveForm onDone={refreshAll} />
       <EpisodeTable
         episodes={episodes}
@@ -585,13 +615,23 @@ const FinalizePanel = ({
   );
 };
 
-const AddFutureEpisodeForm = ({ onDone }: { onDone: () => void }) => {
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
+const AddFutureEpisodeForm = ({
+  onDone,
+  prefill,
+}: {
+  onDone: () => void;
+  prefill?: { slug: string; datetime: string } | null;
+}) => {
+  // Lazy useState so we read prefill only on first mount — once filled in,
+  // the user is in charge of edits even if the URL param hangs around.
+  const [name, setName] = useState(() => prefill?.slug ?? "");
+  const [slug, setSlug] = useState(() => prefill?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(false);
   // Default to "now" so the contract gets a real datetime (it's part of
   // getId and immutable post-add). Clear the field to schedule with 0.
-  const [datetime, setDatetime] = useState(toLocalDatetimeValue(new Date()));
+  // Prefill pushes it out to "now + 1h" — gives the host a window to set
+  // up OBS without immediately broadcasting an in-the-past airtime.
+  const [datetime, setDatetime] = useState(() => prefill?.datetime ?? toLocalDatetimeValue(new Date()));
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
