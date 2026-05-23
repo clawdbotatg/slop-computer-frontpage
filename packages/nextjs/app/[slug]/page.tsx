@@ -407,8 +407,15 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               </h2>
               <ul className="flex flex-col gap-1">
                 {manifest.participants.map(p => (
-                  <li key={p.address} className="flex items-center gap-2 text-sm">
-                    <Address address={p.address as `0x${string}`} />
+                  <li
+                    key={p.address ?? p.anonId ?? p.handle}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    {p.address ? (
+                      <Address address={p.address as `0x${string}`} />
+                    ) : (
+                      <span style={{ color: "var(--slop-text)" }}>{p.handle ?? "Anon"}</span>
+                    )}
                     {p.role ? (
                       <span className="slop-mono text-[10px]" style={{ color: "var(--slop-text-muted)" }}>
                         {`// ${p.role}`}

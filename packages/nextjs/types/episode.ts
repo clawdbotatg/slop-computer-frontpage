@@ -61,11 +61,18 @@ export type EpisodeManifest = {
   meta?: EpisodeMeta;
   /**
    * Long-running participant roster captured by the relay every time a peer
-   * joined the desktop mesh — first-seen wins, dedup by address. The relay
-   * emits `handle` (custom display name set in the room); `ens` is kept as a
-   * legacy alias and either is picked up by the renderer.
+   * joined the desktop mesh — first-seen wins, dedup by address (for SIWE/
+   * passkey peers) or by anonId (for anon peers). For anon entries `address`
+   * is null and the chosen display name is already resolved into `handle`.
+   * `ens` is kept as a legacy alias and either is picked up by the renderer.
    */
-  participants?: { address: string; role?: string; handle?: string | null; ens?: string }[];
+  participants?: {
+    address: string | null;
+    anonId?: string | null;
+    role?: string;
+    handle?: string | null;
+    ens?: string;
+  }[];
   files?: { name: string; cid: string; sizeBytes?: number }[];
   links?: { label: string; url: string }[];
   tags?: string[];
