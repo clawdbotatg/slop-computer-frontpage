@@ -10,7 +10,7 @@ import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
-import { type Episode, ZERO_ADDRESS, formatDate, isZeroEpisode, slugify } from "~~/types/episode";
+import { type Episode, ZERO_ADDRESS, formatDate, isZeroEpisode, relaySlug, slugify } from "~~/types/episode";
 
 const CONTRACT_ADDRESS = externalContracts[1].SlopComputer.address;
 const READ_QUERY = { refetchInterval: 5000, refetchOnWindowFocus: false } as const;
@@ -393,10 +393,11 @@ const FinalizePanel = ({
     setPinning(true);
     try {
       // ?slug= is REQUIRED — /admin/finalize resolves the room via
-      // roomFromReq, and a missing slug silently finalizes the relay's
-      // DEFAULT_SLUG ("debug") room, pinning the wrong room's chat +
-      // transcript into the manifest.
-      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(target.slug)}`, {
+      // roomFromReq. Use `relaySlug(target)` (== liveSlug || slug) so the
+      // relay reads the room the show ACTUALLY ran in. Missing slug or
+      // wrong slug → finalizes an empty room, pins a manifest with no
+      // chat/transcript/participants/card/meta.
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(relaySlug(target))}`, {
         method: "POST",
         credentials: "include",
       });
