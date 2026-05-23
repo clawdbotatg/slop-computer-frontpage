@@ -9,6 +9,7 @@ import {
   fetchManifest,
   formatDate,
   gatewayUrl,
+  relaySlug,
 } from "~~/types/episode";
 
 interface EpisodeCardProps {
@@ -91,7 +92,7 @@ export const EpisodeCard = ({ episode, episodeNumber }: EpisodeCardProps) => {
   // appends a cache-busting query param so a poll-retry actually re-fetches.
   const cardUrlBase = manifest?.card?.cid
     ? gatewayUrl(`ipfs://${manifest.card.cid}`)
-    : `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
+    : `https://live.slop.computer/v1/cards/${encodeURIComponent(relaySlug(episode))}/published.png`;
   const cardUrl = cardRetry > 0 ? `${cardUrlBase}?v=${cardRetry}` : cardUrlBase;
 
   return (

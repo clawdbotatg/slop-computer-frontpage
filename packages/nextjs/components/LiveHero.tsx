@@ -4,7 +4,7 @@ import React from "react";
 import { Chat } from "~~/components/Chat";
 import { HlsPlayer } from "~~/components/HlsPlayer";
 import { LivePulse } from "~~/components/ui";
-import { type Episode, formatDate } from "~~/types/episode";
+import { type Episode, formatDate, relaySlug } from "~~/types/episode";
 
 interface LiveHeroProps {
   episode: Episode;
@@ -80,7 +80,7 @@ export const LiveHero = ({ episode }: LiveHeroProps) => {
           <span style={{ opacity: 0.8 }}>{"// live"}</span>
         </div>
         <div className="flex-1 min-h-0">
-          <Chat slug={episode.slug} />
+          <Chat slug={relaySlug(episode)} />
         </div>
       </aside>
     </section>

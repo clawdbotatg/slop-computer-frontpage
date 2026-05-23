@@ -627,6 +627,11 @@ const AddFutureEpisodeForm = ({
   const [name, setName] = useState(() => prefill?.slug ?? "");
   const [slug, setSlug] = useState(() => prefill?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(false);
+  // liveSlug is the relay-room slug (live.slop.computer/<liveSlug>). Empty
+  // means "same as slug". URL prefill targets this — host can then edit
+  // name/slug to be more descriptive while liveSlug keeps pointing at the
+  // existing studio room.
+  const [liveSlug, setLiveSlug] = useState(() => prefill?.slug ?? "");
   // Default to "now" so the contract gets a real datetime (it's part of
   // getId and immutable post-add). Clear the field to schedule with 0.
   // Prefill pushes it out to "now + 1h" — gives the host a window to set
@@ -644,6 +649,7 @@ const AddFutureEpisodeForm = ({
     setError("");
     if (!name.trim()) return setError("name required");
     if (!slug.trim() || !/^[a-z0-9-]{1,64}$/.test(slug)) return setError("slug must be 1-64 chars of [a-z0-9-]");
+    if (liveSlug && !/^[a-z0-9-]{1,64}$/.test(liveSlug)) return setError("live slug must be 1-64 chars of [a-z0-9-]");
     let unix = 0;
     if (datetime) {
       const t = Math.floor(new Date(datetime).getTime() / 1000);
@@ -653,11 +659,12 @@ const AddFutureEpisodeForm = ({
     try {
       await writeContractAsync({
         functionName: "addEpisode",
-        args: [name.trim(), slug, "", ZERO_ADDRESS, BigInt(unix)],
+        args: [name.trim(), slug, liveSlug, "", ZERO_ADDRESS, BigInt(unix)],
       });
       setName("");
       setSlug("");
       setSlugTouched(false);
+      setLiveSlug("");
       setDatetime("");
       onDone();
     } catch (e) {
@@ -680,6 +687,13 @@ const AddFutureEpisodeForm = ({
           setSlugTouched(true);
         }}
         placeholder="ep-004-<guest>"
+        mono
+      />
+      <FormField
+        label="live slug (live.slop.computer/<liveSlug> — leave empty to reuse slug)"
+        value={liveSlug}
+        onChange={setLiveSlug}
+        placeholder="(same as slug)"
         mono
       />
       <FormField label="datetime (local, optional)" value={datetime} onChange={setDatetime} type="datetime-local" />
@@ -723,7 +737,9 @@ const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
       // finalize panel publishes the manifest CID after the show.
       await writeContractAsync({
         functionName: "goLive",
-        args: [name.trim(), slug, "", contractAddr as `0x${string}`, BigInt(unix)],
+        // liveSlug = "" → relay room defaults to `slug`. For divergent
+        // studio-room setups, use Add a future episode first then setLive.
+        args: [name.trim(), slug, "", "", contractAddr as `0x${string}`, BigInt(unix)],
       });
       setName("");
       setSlug("");
@@ -797,7 +813,9 @@ const AddEpisodeForm = ({ onDone }: { onDone: () => void }) => {
     try {
       await writeContractAsync({
         functionName: "addEpisode",
-        args: [name.trim(), slug, manifest.trim(), contractAddr as `0x${string}`, BigInt(unix)],
+        // liveSlug = "" → relay room defaults to `slug`. Backfill form
+        // doesn't need to set it; host can setLiveSlug per row if needed.
+        args: [name.trim(), slug, "", manifest.trim(), contractAddr as `0x${string}`, BigInt(unix)],
       });
       setName("");
       setSlug("");

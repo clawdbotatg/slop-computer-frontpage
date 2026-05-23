@@ -12,12 +12,21 @@ export type Episode = {
   readonly id: `0x${string}`;
   readonly name: string;
   readonly slug: string;
+  /** `live.slop.computer/<liveSlug>` — the relay room this episode streams from.
+   *  Empty means "same as `slug`"; readers should resolve via {@link relaySlug}. */
+  readonly liveSlug: string;
   /** `ipfs://<cid>` to the manifest JSON. Empty during live (no manifest yet). */
   readonly manifest: string;
   readonly contractAddr: string;
   readonly datetime: bigint;
+  readonly addedAt: bigint;
   readonly nextId: `0x${string}`;
 };
+
+/** The slug used for relay calls (card URL, /v1/chat?slug=, /v1/transcript?slug=).
+ *  Falls back to `episode.slug` when `liveSlug` is empty — the common case. */
+export const relaySlug = (episode: Pick<Episode, "slug" | "liveSlug">): string =>
+  episode.liveSlug || episode.slug;
 
 /**
  * AI-generated episode metadata. The relay's finalize flow runs a pass over

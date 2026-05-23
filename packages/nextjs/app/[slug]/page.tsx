@@ -18,6 +18,7 @@ import {
   formatDate,
   gatewayUrl,
   isZeroEpisode,
+  relaySlug,
 } from "~~/types/episode";
 
 const READ_QUERY = { refetchInterval: 5000, refetchOnWindowFocus: false } as const;
@@ -134,7 +135,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   // back to the centralized live-relay URL for not-yet-finalized episodes.
   const cardUrl = manifest?.card?.cid
     ? gatewayUrl(`ipfs://${manifest.card.cid}`)
-    : `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
+    : `https://live.slop.computer/v1/cards/${encodeURIComponent(relaySlug(episode))}/published.png`;
   const contractShort =
     episode.contractAddr && episode.contractAddr !== ZERO_ADDRESS
       ? `${episode.contractAddr.slice(0, 6)}…${episode.contractAddr.slice(-4)}`
@@ -294,7 +295,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             {isLive ? "▣ Live chat" : "▣ Chat archive"}
           </div>
           <div className="flex-1 min-h-0">
-            {isLive ? <Chat slug={episode.slug} /> : <ChatArchive cid={manifest?.chat?.cid} />}
+            {isLive ? <Chat slug={relaySlug(episode)} /> : <ChatArchive cid={manifest?.chat?.cid} />}
           </div>
         </aside>
 
@@ -324,7 +325,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               </span>
             </div>
             <div className="flex-1 min-h-0">
-              <LiveTranscript slug={episode.slug} />
+              <LiveTranscript slug={relaySlug(episode)} />
             </div>
           </aside>
         ) : null}
