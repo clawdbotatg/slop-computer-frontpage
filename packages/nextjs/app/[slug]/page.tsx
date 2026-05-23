@@ -199,6 +199,8 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 ref={videoRef}
                 src={videoSrc}
                 controls
+                autoPlay
+                muted
                 playsInline
                 onError={() => setVodFailed(true)}
                 className="block w-full h-full"
