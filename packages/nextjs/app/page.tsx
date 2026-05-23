@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { EpisodeCard } from "~~/components/EpisodeCard";
-import { LiveHero } from "~~/components/LiveHero";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { isZeroEpisode } from "~~/types/episode";
 
@@ -67,25 +66,25 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 flex flex-col gap-10">
-      {isLive && liveEpisode ? (
-        <LiveHero episode={liveEpisode} />
-      ) : (
-        // Off-air: keep the slop.computer brand (ASCII title + logo) on top
-        // of the page above the episode stack. When live, LiveHero takes the
-        // brand slot.
-        <Hero />
-      )}
+      <Hero />
 
-      {/* Stack every fetched episode as a full card — image + description +
-          watch button — newest first. Skips the live one because it's
-          already in LiveHero above. Each card's episodeNumber matches its
-          position in the on-chain linked list (head = total - 1). */}
+      {/* Stack every fetched episode as a full card — newest first. The live
+          episode (if any) keeps its natural slot in the list but renders an
+          inline HLS preview + LIVE NOW badge + "Watch live now" CTA via the
+          isLive prop. Each card's episodeNumber matches its position in the
+          on-chain linked list (head = total - 1). */}
       {allEpisodes.length > 0 ? (
         <section className="flex flex-col gap-10">
           {allEpisodes.map((ep, i) => {
-            if (liveId && ep.id === liveId) return null;
             const epNum = total !== undefined ? total - 1 - i : i;
-            return <EpisodeCard key={ep.id} episode={ep} episodeNumber={epNum} />;
+            return (
+              <EpisodeCard
+                key={ep.id}
+                episode={ep}
+                episodeNumber={epNum}
+                isLive={Boolean(liveId && ep.id === liveId)}
+              />
+            );
           })}
         </section>
       ) : null}

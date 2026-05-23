@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Button } from "~~/components/ui";
+import React, { type ReactElement, useEffect, useState } from "react";
+import { Button, LivePulse } from "~~/components/ui";
 import {
   type Episode,
   type EpisodeManifest,
@@ -12,10 +12,41 @@ import {
   relaySlug,
 } from "~~/types/episode";
 
+const HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
+
 interface EpisodeCardProps {
   episode: Episode;
   episodeNumber: number;
+  isLive?: boolean;
 }
+
+// Hls.js is ~120 KB; only pull it in when the homepage actually has a live
+// episode to preview. Mirrors the LazyHlsPlayer in app/[slug]/page.tsx.
+const LazyHlsPreview = ({ src }: { src: string }) => {
+  const [Player, setPlayer] = useState<
+    null | ((p: { src: string; className?: string; controls?: boolean }) => ReactElement)
+  >(null);
+  useEffect(() => {
+    let cancelled = false;
+    import("~~/components/HlsPlayer").then(mod => {
+      if (!cancelled) setPlayer(() => mod.HlsPlayer);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  if (!Player) {
+    return (
+      <div
+        className="absolute inset-0 bg-black flex items-center justify-center slop-mono text-xs"
+        style={{ color: "var(--slop-text-muted)" }}
+      >
+        loading stream…
+      </div>
+    );
+  }
+  return <Player src={src} className="absolute inset-0 w-full h-full" controls={false} />;
+};
 
 const shortAddr = (addr: string) => (addr === ZERO_ADDRESS ? null : `${addr.slice(0, 6)}…${addr.slice(-4)}`);
 
@@ -42,7 +73,7 @@ const formatScheduledTime = (datetime: bigint): string => {
  * scrollable stack of episodes — each card fetches its own manifest so the
  * description / one-liner can come straight from the AI pass.
  */
-export const EpisodeCard = ({ episode, episodeNumber }: EpisodeCardProps) => {
+export const EpisodeCard = ({ episode, episodeNumber, isLive = false }: EpisodeCardProps) => {
   const contractShort = shortAddr(episode.contractAddr);
   const hasManifest = episode.manifest.length > 0;
 
@@ -101,13 +132,49 @@ export const EpisodeCard = ({ episode, episodeNumber }: EpisodeCardProps) => {
       style={{
         background:
           "radial-gradient(120% 100% at 0% 0%, rgba(255,62,201,0.18), transparent 60%), radial-gradient(120% 100% at 100% 100%, rgba(124,77,255,0.18), transparent 60%), rgba(10,15,36,0.7)",
-        border: "1px solid rgba(255, 62, 201, 0.4)",
+        border: isLive ? "1px solid rgba(255, 62, 201, 0.7)" : "1px solid rgba(255, 62, 201, 0.4)",
         borderRadius: 12,
-        boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
+        boxShadow: isLive
+          ? "0 0 48px rgba(255, 62, 201, 0.4), 0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)"
+          : "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
       }}
     >
-      <div className={cardOk ? "grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-6" : "flex flex-col"}>
-        {cardOk ? (
+      <div
+        className={
+          isLive || cardOk ? "grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-6" : "flex flex-col"
+        }
+      >
+        {isLive ? (
+          <a
+            href={`/${episode.slug}`}
+            className="relative block overflow-hidden bg-black self-start w-full"
+            style={{
+              border: "1px solid rgba(255, 62, 201, 0.7)",
+              borderRadius: 8,
+              boxShadow: "0 0 24px rgba(255, 62, 201, 0.45), 0 8px 24px rgba(0,0,0,0.5)",
+              aspectRatio: "16 / 9",
+            }}
+          >
+            <LazyHlsPreview src={HLS_URL} />
+            <span
+              className="absolute top-2 left-2 inline-flex items-center gap-2 px-2 py-1 slop-mono"
+              style={{
+                background: "rgba(6, 3, 13, 0.78)",
+                border: "1px solid var(--slop-live)",
+                borderRadius: 999,
+                fontSize: 10,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--slop-live)",
+                textShadow: "0 0 8px rgba(255, 62, 201, 0.6)",
+                backdropFilter: "blur(4px)",
+                pointerEvents: "none",
+              }}
+            >
+              <LivePulse label="Live now" />
+            </span>
+          </a>
+        ) : cardOk ? (
           <a
             href={`/${episode.slug}`}
             className="block overflow-hidden bg-black self-start w-full"
@@ -166,7 +233,11 @@ export const EpisodeCard = ({ episode, episodeNumber }: EpisodeCardProps) => {
             </p>
           ) : null}
           <div className="flex flex-wrap gap-3 items-center">
-            {hasManifest ? (
+            {isLive ? (
+              <Button as="a" variant="primary" href={`/${episode.slug}`}>
+                ▶ Watch live now
+              </Button>
+            ) : hasManifest ? (
               <Button as="a" variant="primary" href={`/${episode.slug}`}>
                 ▶ Watch episode
               </Button>

@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
+import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { DesktopBackground } from "~~/components/ui";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
@@ -17,6 +18,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <DesktopBackground />
       <div className="relative flex flex-col min-h-screen" style={{ zIndex: 1 }}>
+        <Header />
         <main className="relative flex flex-col flex-1">{children}</main>
         <Footer />
       </div>

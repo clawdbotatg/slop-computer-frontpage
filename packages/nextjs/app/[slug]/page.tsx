@@ -241,6 +241,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                     <span
                       className="slop-mono uppercase flex items-center gap-3 px-5 py-3"
                       style={{
+                        transform: "translateY(-15vh)",
                         fontSize: "clamp(16px, 3.4vw, 30px)",
                         letterSpacing: "0.12em",
                         fontFamily: "var(--slop-font-display)",

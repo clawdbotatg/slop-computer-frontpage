@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
+import { Address } from "@scaffold-ui/components";
+import type { Address as AddressType } from "viem";
 import externalContracts from "~~/contracts/externalContracts";
 
-const contractAddress = externalContracts[1].SlopComputer.address;
-const etherscanUrl = `https://etherscan.io/address/${contractAddress}`;
+const contractAddress = externalContracts[1].SlopComputer.address as AddressType;
 
 export const Footer = () => {
   return (
@@ -19,9 +20,10 @@ export const Footer = () => {
         <span>
           <span style={{ color: "var(--slop-accent)" }}>◆</span> slop.computer · onchain
         </span>
-        <a href={etherscanUrl} target="_blank" rel="noreferrer" className="slop-link break-all">
-          contract · {contractAddress}
-        </a>
+        <div className="flex items-center gap-2">
+          <span>contract ·</span>
+          <Address address={contractAddress} size="xs" format="short" />
+        </div>
       </div>
     </footer>
   );

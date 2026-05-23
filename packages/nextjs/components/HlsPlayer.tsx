@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 interface HlsPlayerProps {
   src: string;
   className?: string;
+  controls?: boolean;
 }
 
 /**
@@ -12,7 +13,7 @@ interface HlsPlayerProps {
  * `muted + playsInline + autoplay` is required for browsers to start
  * playback without a user gesture.
  */
-export const HlsPlayer = ({ src, className }: HlsPlayerProps) => {
+export const HlsPlayer = ({ src, className, controls = true }: HlsPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,12 +60,12 @@ export const HlsPlayer = ({ src, className }: HlsPlayerProps) => {
     <div className={`relative bg-black ${className ?? ""}`.trim()}>
       <video
         ref={videoRef}
-        controls
+        controls={controls}
         autoPlay
         playsInline
         muted
         className="block w-full h-full"
-        style={{ background: "#000" }}
+        style={{ background: "#000", pointerEvents: controls ? "auto" : "none" }}
       />
       {error ? (
         <div
