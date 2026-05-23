@@ -120,7 +120,7 @@ Relay auth: the `slop_session` cookie set during the SIWE pre-flight gates `/adm
 
 ## 6. Verify it landed
 
-- [ ] `slop.computer` — brand `<Hero>` is back on top, `<FeaturedEpisode>` shows the finished episode below it.
+- [ ] `slop.computer` — brand `<Hero>` is back on top, the stack of `<EpisodeCard>`s below shows the finished episode (with card preview + AI description) as the newest entry.
 - [ ] `slop.computer/<slug>` — VOD player loads the manifest, fetches the video CID via gateway, plays in a plain `<video controls>` (no hls.js for VODs).
 - [ ] Manifest CID resolves: `https://media.slop.computer/ipfs/<manifestCid>` shows the JSON; `?filename=` on the video CID plays inline.
 

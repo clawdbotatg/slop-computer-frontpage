@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { NextPage } from "next";
-import { EpisodeList } from "~~/components/EpisodeList";
-import { FeaturedEpisode } from "~~/components/FeaturedEpisode";
+import { EpisodeCard } from "~~/components/EpisodeCard";
 import { LiveHero } from "~~/components/LiveHero";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { isZeroEpisode } from "~~/types/episode";
@@ -59,12 +58,10 @@ const Home: NextPage = () => {
 
   const total = episodeCount !== undefined ? Number(episodeCount) : undefined;
   const isLive = !isZeroEpisode(liveEpisode);
-  const featuredEpisode = isLive ? liveEpisode : episodes?.[0];
-  const featuredId = featuredEpisode?.id;
-  const pastEpisodes = (episodes ?? []).filter(ep => ep.id !== featuredId);
-  const pastTopNumber = total !== undefined ? total - 2 : undefined;
+  const liveId = isLive ? liveEpisode?.id : null;
+  const allEpisodes = episodes ?? [];
 
-  if (!isLive && !featuredEpisode) {
+  if (!isLive && allEpisodes.length === 0 && !isLoading) {
     return <BrandHomepage />;
   }
 
@@ -72,31 +69,24 @@ const Home: NextPage = () => {
     <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 flex flex-col gap-10">
       {isLive && liveEpisode ? (
         <LiveHero episode={liveEpisode} />
-      ) : featuredEpisode ? (
-        <>
-          {/* Off-air: keep the slop.computer brand (ASCII title + logo) on
-              top of the page above the featured episode. When live, the
-              episode title takes the brand slot inside LiveHero. */}
-          <Hero />
-          <FeaturedEpisode episode={featuredEpisode} episodeNumber={(total ?? 1) - 1} />
-        </>
-      ) : null}
+      ) : (
+        // Off-air: keep the slop.computer brand (ASCII title + logo) on top
+        // of the page above the episode stack. When live, LiveHero takes the
+        // brand slot.
+        <Hero />
+      )}
 
-      {pastEpisodes.length > 0 || isLoading ? (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between gap-3 px-1">
-            <h2 className="text-base sm:text-lg uppercase tracking-wide m-0" style={{ color: "var(--slop-text)" }}>
-              {isLive ? "Past episodes" : "Older episodes"}
-            </h2>
-            <span className="text-[11px] slop-mono" style={{ color: "var(--slop-text-muted)" }}>
-              {total !== undefined ? `${total} pinned to ipfs` : "loading…"}
-            </span>
-          </div>
-          <EpisodeList
-            episodes={pastEpisodes}
-            isLoading={isLoading && pastEpisodes.length === 0}
-            topNumber={pastTopNumber}
-          />
+      {/* Stack every fetched episode as a full card — image + description +
+          watch button — newest first. Skips the live one because it's
+          already in LiveHero above. Each card's episodeNumber matches its
+          position in the on-chain linked list (head = total - 1). */}
+      {allEpisodes.length > 0 ? (
+        <section className="flex flex-col gap-10">
+          {allEpisodes.map((ep, i) => {
+            if (liveId && ep.id === liveId) return null;
+            const epNum = total !== undefined ? total - 1 - i : i;
+            return <EpisodeCard key={ep.id} episode={ep} episodeNumber={epNum} />;
+          })}
         </section>
       ) : null}
     </div>

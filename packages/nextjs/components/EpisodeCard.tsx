@@ -11,28 +11,20 @@ import {
   gatewayUrl,
 } from "~~/types/episode";
 
-interface FeaturedEpisodeProps {
+interface EpisodeCardProps {
   episode: Episode;
   episodeNumber: number;
 }
 
 const shortAddr = (addr: string) => (addr === ZERO_ADDRESS ? null : `${addr.slice(0, 6)}…${addr.slice(-4)}`);
 
-// Shown only when the episode has no manifest description yet (still live, or
-// finalized without one). A real description from the manifest takes priority.
-const FALLBACK_BLURB =
-  "slop.computer is an onchain podcast about agents, builders, and the messy reality of shipping software in 2026. every episode is pinned to ipfs and indexed on ethereum mainnet.";
-
 /**
- * Hero for the offline state — hypes the most-recent episode with a big
- * watch CTA. The button links to the per-episode page `/[slug]`, which
- * fetches the manifest JSON and embeds the video player itself.
- *
- * Pulls the manifest here too so the offline homepage shows the episode's
- * own description (post-finalize) instead of the generic blurb, and the
- * per-room card image as the preview.
+ * One-row-per-episode card with the unfurl image on the left and meta + title +
+ * description + watch button on the right. Used to fill the homepage with a
+ * scrollable stack of episodes — each card fetches its own manifest so the
+ * description / one-liner can come straight from the AI pass.
  */
-export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps) => {
+export const EpisodeCard = ({ episode, episodeNumber }: EpisodeCardProps) => {
   const contractShort = shortAddr(episode.contractAddr);
   const hasManifest = episode.manifest.length > 0;
 
@@ -54,12 +46,11 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
   }, [episode.manifest]);
 
   // Prefer the AI-generated one-liner as a punchy lead; fall back to the
-  // full description, then the generic blurb.
+  // full description. No generic-blurb fallback — the homepage stacks many
+  // of these and repeating the same "what is slop.computer" sentence on
+  // every card would be noise.
   const description =
-    manifest?.meta?.oneLiner?.trim() ||
-    manifest?.meta?.description?.trim() ||
-    manifest?.description?.trim() ||
-    FALLBACK_BLURB;
+    manifest?.meta?.oneLiner?.trim() || manifest?.meta?.description?.trim() || manifest?.description?.trim() || "";
   // Prefer the IPFS-pinned card from the manifest (survives the relay box).
   // Fall back to the live relay's per-room card URL while the episode isn't
   // finalized yet (or for episodes that predate the IPFS pin step).
@@ -105,9 +96,7 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
             className="flex flex-wrap items-center gap-3 text-[11px] slop-mono"
             style={{ color: "var(--slop-text-muted)" }}
           >
-            <span style={{ color: "var(--slop-accent)" }}>◆ latest episode</span>
-            <span>·</span>
-            <span>ep.{String(episodeNumber).padStart(3, "0")}</span>
+            <span style={{ color: "var(--slop-accent)" }}>ep.{String(episodeNumber).padStart(3, "0")}</span>
             <span>·</span>
             <span>{formatDate(episode.datetime)}</span>
             {contractShort ? (
@@ -124,15 +113,17 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
               </>
             ) : null}
           </div>
-          <h1
+          <h2
             className="text-3xl sm:text-5xl uppercase tracking-wide leading-tight m-0"
             style={{ color: "var(--slop-text)", textShadow: "0 0 16px rgba(255, 62, 201, 0.4)" }}
           >
             {episode.name || "untitled"}
-          </h1>
-          <p className="max-w-2xl text-sm whitespace-pre-wrap" style={{ color: "var(--slop-text)" }}>
-            {description}
-          </p>
+          </h2>
+          {description ? (
+            <p className="max-w-2xl text-sm whitespace-pre-wrap" style={{ color: "var(--slop-text)" }}>
+              {description}
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-3 items-center">
             <Button as="a" variant="primary" href={`/${episode.slug}`}>
               {hasManifest ? "▶ Watch episode" : "▶ Episode page"}
@@ -142,9 +133,6 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
                 {"// recording publishing soon"}
               </span>
             ) : null}
-            <span className="text-[11px] slop-mono" style={{ color: "var(--slop-text-muted)" }}>
-              {"// next live show: tba"}
-            </span>
           </div>
         </div>
       </div>
@@ -152,4 +140,4 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
   );
 };
 
-export default FeaturedEpisode;
+export default EpisodeCard;
