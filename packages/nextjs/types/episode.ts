@@ -25,8 +25,7 @@ export type Episode = {
 
 /** The slug used for relay calls (card URL, /v1/chat?slug=, /v1/transcript?slug=).
  *  Falls back to `episode.slug` when `liveSlug` is empty — the common case. */
-export const relaySlug = (episode: Pick<Episode, "slug" | "liveSlug">): string =>
-  episode.liveSlug || episode.slug;
+export const relaySlug = (episode: Pick<Episode, "slug" | "liveSlug">): string => episode.liveSlug || episode.slug;
 
 /**
  * AI-generated episode metadata. The relay's finalize flow runs a pass over
