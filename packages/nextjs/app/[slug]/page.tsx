@@ -148,8 +148,12 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
           style={{ color: "var(--slop-text-muted)" }}
         >
           {isLive ? <span style={{ color: "var(--slop-lime)" }}>● LIVE</span> : null}
-          <span>{formatDate(episode.datetime)}</span>
-          <span>·</span>
+          {episode.datetime !== 0n ? (
+            <>
+              <span>{formatDate(episode.datetime)}</span>
+              <span>·</span>
+            </>
+          ) : null}
           <span>/{episode.slug}</span>
           {manifest?.video?.durationSeconds ? (
             <>

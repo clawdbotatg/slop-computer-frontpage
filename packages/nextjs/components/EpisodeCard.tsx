@@ -97,8 +97,12 @@ export const EpisodeCard = ({ episode, episodeNumber }: EpisodeCardProps) => {
             style={{ color: "var(--slop-text-muted)" }}
           >
             <span style={{ color: "var(--slop-accent)" }}>ep.{String(episodeNumber).padStart(3, "0")}</span>
-            <span>·</span>
-            <span>{formatDate(episode.datetime)}</span>
+            {episode.datetime !== 0n ? (
+              <>
+                <span>·</span>
+                <span>{formatDate(episode.datetime)}</span>
+              </>
+            ) : null}
             {contractShort ? (
               <>
                 <span>·</span>

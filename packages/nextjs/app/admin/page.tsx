@@ -589,7 +589,9 @@ const AddFutureEpisodeForm = ({ onDone }: { onDone: () => void }) => {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
-  const [datetime, setDatetime] = useState("");
+  // Default to "now" so the contract gets a real datetime (it's part of
+  // getId and immutable post-add). Clear the field to schedule with 0.
+  const [datetime, setDatetime] = useState(toLocalDatetimeValue(new Date()));
   const [error, setError] = useState("");
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
