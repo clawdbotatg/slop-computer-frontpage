@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "~~/components/ui";
-import { type Episode, type EpisodeManifest, ZERO_ADDRESS, fetchManifest, formatDate } from "~~/types/episode";
+import {
+  type Episode,
+  type EpisodeManifest,
+  ZERO_ADDRESS,
+  fetchManifest,
+  formatDate,
+  gatewayUrl,
+} from "~~/types/episode";
 
 interface FeaturedEpisodeProps {
   episode: Episode;
@@ -53,7 +60,12 @@ export const FeaturedEpisode = ({ episode, episodeNumber }: FeaturedEpisodeProps
     manifest?.meta?.description?.trim() ||
     manifest?.description?.trim() ||
     FALLBACK_BLURB;
-  const cardUrl = `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
+  // Prefer the IPFS-pinned card from the manifest (survives the relay box).
+  // Fall back to the live relay's per-room card URL while the episode isn't
+  // finalized yet (or for episodes that predate the IPFS pin step).
+  const cardUrl = manifest?.card?.cid
+    ? gatewayUrl(`ipfs://${manifest.card.cid}`)
+    : `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
 
   return (
     <section

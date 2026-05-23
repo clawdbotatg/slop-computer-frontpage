@@ -275,6 +275,7 @@ type FinalizeEvent =
   | { phase: "uploading"; bytes: number; totalBytes: number }
   | { phase: "pinning-chat"; messageCount: number }
   | { phase: "pinning-transcript"; segmentCount: number }
+  | { phase: "pinning-card"; sizeBytes: number }
   | { phase: "generating-meta" }
   | { phase: "pinning-manifest" }
   | {
@@ -417,6 +418,10 @@ const FinalizePanel = ({
             setBytesPinned(0);
             setPinTotal(0);
             setPhaseLabel(`pinning transcript · ${ev.segmentCount} segments…`);
+          } else if (ev.phase === "pinning-card") {
+            setBytesPinned(0);
+            setPinTotal(0);
+            setPhaseLabel(`pinning card · ${formatBytes(ev.sizeBytes)}…`);
           } else if (ev.phase === "generating-meta") {
             setBytesPinned(0);
             setPinTotal(0);

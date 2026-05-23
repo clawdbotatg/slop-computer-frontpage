@@ -43,6 +43,13 @@ export type EpisodeManifest = {
   video?: { cid: string; durationSeconds?: number; sizeBytes?: number; format?: string };
   transcript?: { cid: string; format?: string; language?: string; segmentCount?: number };
   chat?: { cid: string; messageCount?: number };
+  /**
+   * Host-baked unfurl card PNG pinned to IPFS during finalize. Lets the per-
+   * episode preview image survive the relay box going away. Renderers should
+   * prefer this over the centralized `live.slop.computer/v1/cards/<slug>/published.png`
+   * URL whenever it's set.
+   */
+  card?: { cid: string; format?: string; sizeBytes?: number };
   meta?: EpisodeMeta;
   /**
    * Long-running participant roster captured by the relay every time a peer

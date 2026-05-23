@@ -130,7 +130,11 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   // hasn't saved it yet) we hide the <img> and the underlying text placeholder
   // shows through.
   const showCardFallback = !isLive && (!videoSrc || vodFailed);
-  const cardUrl = `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
+  // Prefer the IPFS-pinned card from the manifest (finalized episodes); fall
+  // back to the centralized live-relay URL for not-yet-finalized episodes.
+  const cardUrl = manifest?.card?.cid
+    ? gatewayUrl(`ipfs://${manifest.card.cid}`)
+    : `https://live.slop.computer/v1/cards/${encodeURIComponent(episode.slug)}/published.png`;
   const contractShort =
     episode.contractAddr && episode.contractAddr !== ZERO_ADDRESS
       ? `${episode.contractAddr.slice(0, 6)}…${episode.contractAddr.slice(-4)}`
