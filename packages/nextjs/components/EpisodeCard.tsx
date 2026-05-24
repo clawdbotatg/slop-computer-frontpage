@@ -16,7 +16,6 @@ const HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/
 
 interface EpisodeCardProps {
   episode: Episode;
-  episodeNumber: number;
   isLive?: boolean;
 }
 
@@ -73,7 +72,7 @@ const formatScheduledTime = (datetime: bigint): string => {
  * scrollable stack of episodes — each card fetches its own manifest so the
  * description / one-liner can come straight from the AI pass.
  */
-export const EpisodeCard = ({ episode, episodeNumber, isLive = false }: EpisodeCardProps) => {
+export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
   const contractShort = shortAddr(episode.contractAddr);
   const hasManifest = episode.manifest.length > 0;
 
@@ -200,16 +199,10 @@ export const EpisodeCard = ({ episode, episodeNumber, isLive = false }: EpisodeC
             className="flex flex-wrap items-center gap-3 text-[11px] slop-mono"
             style={{ color: "var(--slop-text-muted)" }}
           >
-            <span style={{ color: "var(--slop-accent)" }}>ep.{String(episodeNumber).padStart(3, "0")}</span>
-            {episode.datetime !== 0n ? (
-              <>
-                <span>·</span>
-                <span>{formatDate(episode.datetime)}</span>
-              </>
-            ) : null}
+            {episode.datetime !== 0n ? <span>{formatDate(episode.datetime)}</span> : null}
             {contractShort ? (
               <>
-                <span>·</span>
+                {episode.datetime !== 0n ? <span>·</span> : null}
                 <a
                   href={`https://etherscan.io/address/${episode.contractAddr}`}
                   target="_blank"
@@ -223,7 +216,7 @@ export const EpisodeCard = ({ episode, episodeNumber, isLive = false }: EpisodeC
           </div>
           <h2
             className="text-3xl sm:text-5xl uppercase tracking-wide leading-tight m-0"
-            style={{ color: "var(--slop-text)", textShadow: "0 0 16px rgba(255, 62, 201, 0.4)" }}
+            style={{ color: "var(--slop-cyan)", textShadow: "0 0 16px rgba(255, 62, 201, 0.4)" }}
           >
             {episode.name || "untitled"}
           </h2>

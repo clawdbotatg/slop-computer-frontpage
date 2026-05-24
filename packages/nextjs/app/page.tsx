@@ -40,13 +40,6 @@ const Home: NextPage = () => {
     query: READ_QUERY,
   });
 
-  const { data: episodeCount } = useScaffoldReadContract({
-    contractName: "SlopComputer",
-    functionName: "episodeCount",
-    watch: false,
-    query: READ_QUERY,
-  });
-
   const { data: episodes, isLoading } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "getEpisodes",
@@ -55,7 +48,6 @@ const Home: NextPage = () => {
     query: READ_QUERY,
   });
 
-  const total = episodeCount !== undefined ? Number(episodeCount) : undefined;
   const isLive = !isZeroEpisode(liveEpisode);
   const liveId = isLive ? liveEpisode?.id : null;
   const allEpisodes = episodes ?? [];
@@ -71,21 +63,12 @@ const Home: NextPage = () => {
       {/* Stack every fetched episode as a full card — newest first. The live
           episode (if any) keeps its natural slot in the list but renders an
           inline HLS preview + LIVE NOW badge + "Watch live now" CTA via the
-          isLive prop. Each card's episodeNumber matches its position in the
-          on-chain linked list (head = total - 1). */}
+          isLive prop. */}
       {allEpisodes.length > 0 ? (
         <section className="flex flex-col gap-10">
-          {allEpisodes.map((ep, i) => {
-            const epNum = total !== undefined ? total - 1 - i : i;
-            return (
-              <EpisodeCard
-                key={ep.id}
-                episode={ep}
-                episodeNumber={epNum}
-                isLive={Boolean(liveId && ep.id === liveId)}
-              />
-            );
-          })}
+          {allEpisodes.map(ep => (
+            <EpisodeCard key={ep.id} episode={ep} isLive={Boolean(liveId && ep.id === liveId)} />
+          ))}
         </section>
       ) : null}
     </div>
