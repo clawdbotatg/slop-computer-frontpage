@@ -647,12 +647,11 @@ const FinalizePanel = ({
           point the on-chain <code>contractAddr</code> at whatever the show is about — a session wallet deployed
           mid-show, a per-episode contract, etc. mutable any time. <code>0x0…0</code> = none.
         </p>
-        <FormField
+        <AddressField
           label="contract address"
           value={newContract}
           onChange={setNewContract}
           placeholder={ZERO_ADDRESS}
-          mono
         />
         <div className="flex flex-wrap gap-3 pt-1">
           <Button
@@ -833,7 +832,7 @@ const GoLiveForm = ({ onDone }: { onDone: () => void }) => {
         placeholder="ep-003-agents"
         mono
       />
-      <FormField label="contract" value={contractAddr} onChange={setContractAddr} placeholder={ZERO_ADDRESS} mono />
+      <AddressField label="contract" value={contractAddr} onChange={setContractAddr} placeholder={ZERO_ADDRESS} />
       <FormField label="datetime (local)" value={datetime} onChange={setDatetime} type="datetime-local" />
       {error ? (
         <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
@@ -910,7 +909,7 @@ const AddEpisodeForm = ({ onDone }: { onDone: () => void }) => {
         placeholder="ep-001-agents"
         mono
       />
-      <FormField label="contract" value={contractAddr} onChange={setContractAddr} placeholder={ZERO_ADDRESS} mono />
+      <AddressField label="contract" value={contractAddr} onChange={setContractAddr} placeholder={ZERO_ADDRESS} />
       <FormField
         label="manifest (ipfs://CID — optional)"
         value={manifest}
@@ -1042,7 +1041,7 @@ const EpisodeRow = ({
           <KV k="id" v={episode.id} />
           <FormField label="slug" value={newSlug} onChange={setNewSlug} mono />
           <FormField label="manifest (ipfs://CID)" value={newManifest} onChange={setNewManifest} mono />
-          <FormField label="contract" value={newContract} onChange={setNewContract} mono />
+          <AddressField label="contract" value={newContract} onChange={setNewContract} />
           {error ? (
             <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
               {error}
@@ -1101,6 +1100,28 @@ const EpisodeRow = ({
     </li>
   );
 };
+
+// FormField sibling for Ethereum addresses. Uses scaffold-ui's AddressInput
+// under the hood — ENS resolution, avatar, the blo identicon — wrapped in
+// the same label treatment as FormField so the form layout stays consistent.
+const AddressField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) => (
+  <label className="flex flex-col gap-1">
+    <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+      {label}
+    </span>
+    <AddressInput value={value} onChange={onChange} placeholder={placeholder} />
+  </label>
+);
 
 const FormField = ({
   label,
