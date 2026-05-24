@@ -986,6 +986,10 @@ const EpisodeRow = ({
   const [newSlug, setNewSlug] = useState(episode.slug);
   const [newContract, setNewContract] = useState(episode.contractAddr);
   const [error, setError] = useState("");
+  // A finalized episode already has its manifest pinned. Re-pointing the live
+  // slot at it would let the relay start recording at the same slug and the
+  // next finalize would overwrite the published recording — so hide setLive.
+  const isFinalized = !!episode.manifest;
 
   const tx = async (fn: () => Promise<unknown>) => {
     setError("");
@@ -1015,7 +1019,7 @@ const EpisodeRow = ({
         <Button as="a" href={`/${episode.slug}`} target="_blank" rel="noreferrer">
           view ↗
         </Button>
-        {!isLive ? (
+        {!isLive && !isFinalized ? (
           <Button
             variant="primary"
             onClick={() => tx(() => writeContractAsync({ functionName: "setLive", args: [episode.id] }))}
@@ -1023,6 +1027,11 @@ const EpisodeRow = ({
           >
             {isMining ? "…" : "◉ Go Live"}
           </Button>
+        ) : null}
+        {isFinalized && !isLive ? (
+          <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+            finalized
+          </span>
         ) : null}
         <button
           type="button"
