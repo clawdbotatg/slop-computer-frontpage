@@ -338,6 +338,11 @@ const FinalizePanel = ({
   const [pinTotal, setPinTotal] = useState(0);
   const [phaseLabel, setPhaseLabel] = useState("starting…");
   const [error, setError] = useState("");
+  // Episode contract address — points the on-chain `contractAddr` at whatever
+  // wallet / contract gets deployed during the show (e.g. a session wallet).
+  // Mutable via setEpisodeContract any time. Initialized in the effect below
+  // so changing the picker refreshes the displayed value.
+  const [newContract, setNewContract] = useState(ZERO_ADDRESS);
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
   // The episode being finalized. Defaults to the live one (the in-show
@@ -345,6 +350,15 @@ const FinalizePanel = ({
   // show can be re-finalized. selectedId overrides once the host picks.
   const liveId = liveEpisode && !isZeroEpisode(liveEpisode) ? liveEpisode.id : null;
   const target = episodes.find(e => e.id === selectedId) ?? episodes.find(e => e.id === liveId) ?? episodes[0];
+
+  // Sync the contract input to the on-chain value whenever the picked target
+  // changes. Lives above the early-return so hook order is stable across
+  // renders — the inner `if (target)` keeps it a no-op when episodes is empty.
+  useEffect(() => {
+    if (target) setNewContract(target.contractAddr);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target?.id]);
+
   if (!target) return null;
   const isReFinalize = target.manifest.length > 0;
 
@@ -358,6 +372,20 @@ const FinalizePanel = ({
     setBytesPinned(0);
     setPinTotal(0);
     setError("");
+  };
+
+  const saveContract = async () => {
+    setError("");
+    if (!isAddress(newContract)) return setError("contract address invalid");
+    try {
+      await writeContractAsync({
+        functionName: "setEpisodeContract",
+        args: [target.id, newContract as `0x${string}`],
+      });
+      onUrlUpdated();
+    } catch (e) {
+      setError((e as Error).message || "tx failed");
+    }
   };
 
   const handle401 = (): string =>
@@ -606,6 +634,37 @@ const FinalizePanel = ({
           </div>
         </div>
       ) : null}
+
+      <div
+        className="px-3 py-3 flex flex-col gap-2"
+        style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", marginTop: 4 }}
+      >
+        <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+          {"// episode contract"}
+        </span>
+        <p className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+          point the on-chain <code>contractAddr</code> at whatever the show is about — a session wallet deployed
+          mid-show, a per-episode contract, etc. mutable any time. <code>0x0…0</code> = none.
+        </p>
+        <FormField
+          label="contract address"
+          value={newContract}
+          onChange={setNewContract}
+          placeholder={ZERO_ADDRESS}
+          mono
+        />
+        <div className="flex flex-wrap gap-3 pt-1">
+          <Button
+            onClick={() => void saveContract()}
+            disabled={isMining || newContract.toLowerCase() === target.contractAddr.toLowerCase()}
+          >
+            {isMining ? "Signing…" : "Save contract on-chain"}
+          </Button>
+          <span className="slop-mono text-[10px] self-center" style={{ color: "var(--slop-text-muted)" }}>
+            current: {target.contractAddr}
+          </span>
+        </div>
+      </div>
 
       {error ? (
         <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
