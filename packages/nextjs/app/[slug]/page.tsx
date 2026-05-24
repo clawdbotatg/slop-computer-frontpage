@@ -136,10 +136,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   const cardUrl = manifest?.card?.cid
     ? gatewayUrl(`ipfs://${manifest.card.cid}`)
     : `https://live.slop.computer/v1/cards/${encodeURIComponent(relaySlug(episode))}/published.png`;
-  const contractShort =
-    episode.contractAddr && episode.contractAddr !== ZERO_ADDRESS
-      ? `${episode.contractAddr.slice(0, 6)}…${episode.contractAddr.slice(-4)}`
-      : null;
+  const hasContract = !!episode.contractAddr && episode.contractAddr !== ZERO_ADDRESS;
 
   return (
     <article className="flex flex-col gap-6">
@@ -162,17 +159,10 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               <span>{formatTime(manifest.video.durationSeconds)}</span>
             </>
           ) : null}
-          {contractShort ? (
+          {hasContract ? (
             <>
               <span>·</span>
-              <a
-                href={`https://etherscan.io/address/${episode.contractAddr}`}
-                target="_blank"
-                rel="noreferrer"
-                className="slop-link"
-              >
-                {contractShort}
-              </a>
+              <Address address={episode.contractAddr as `0x${string}`} size="xs" format="short" />
             </>
           ) : null}
         </div>

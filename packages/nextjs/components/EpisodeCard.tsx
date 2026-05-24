@@ -5,7 +5,6 @@ import { Button, LivePulse } from "~~/components/ui";
 import {
   type Episode,
   type EpisodeManifest,
-  ZERO_ADDRESS,
   fetchManifest,
   formatDate,
   gatewayUrl,
@@ -47,8 +46,6 @@ const LazyHlsPreview = ({ src }: { src: string }) => {
   return <Player src={src} className="absolute inset-0 w-full h-full" controls={false} />;
 };
 
-const shortAddr = (addr: string) => (addr === ZERO_ADDRESS ? null : `${addr.slice(0, 6)}…${addr.slice(-4)}`);
-
 // Friendly local-time format for the "going live at …" badge. `0n` collapses
 // to "soon!" so an episode reserved without a datetime still gets a CTA. Drops
 // the year when it matches now so the badge stays tight.
@@ -73,7 +70,6 @@ const formatScheduledTime = (datetime: bigint): string => {
  * description / one-liner can come straight from the AI pass.
  */
 export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
-  const contractShort = shortAddr(episode.contractAddr);
   const hasManifest = episode.manifest.length > 0;
 
   const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
@@ -200,19 +196,6 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
             style={{ color: "var(--slop-text-muted)" }}
           >
             {episode.datetime !== 0n ? <span>{formatDate(episode.datetime)}</span> : null}
-            {contractShort ? (
-              <>
-                {episode.datetime !== 0n ? <span>·</span> : null}
-                <a
-                  href={`https://etherscan.io/address/${episode.contractAddr}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="slop-link"
-                >
-                  contract {contractShort}
-                </a>
-              </>
-            ) : null}
           </div>
           <h2
             className="text-3xl sm:text-5xl uppercase tracking-wide leading-tight m-0"
