@@ -72,13 +72,17 @@ const ChecklistPage: NextPage = () => {
   const live = useLiveEpisodeStatus();
   const recording = useRecordingStatus();
 
-  const items: Array<{
+  type Row = {
     id: string;
     label: string;
     body?: string;
     links?: Array<{ href: string; text: string; external?: boolean }>;
     status?: Status;
-  }> = [
+  };
+  type Divider = { divider: true; label: string };
+  type Entry = Row | Divider;
+
+  const items: Entry[] = [
     {
       id: "live-admin-signin",
       label: "Sign in to live.slop.computer/admin",
@@ -100,12 +104,6 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms", external: true }],
     },
     {
-      id: "obs-godmode",
-      label: "Open the godMode link on the OBS machine + open EQ",
-      body: "On the streaming box: live admin → Rooms → [god] (copies room link with godMode appended). Paste in that machine's browser, then from the MenuBar 🔊 popout the EQ on a second monitor. Confirm OBS is capturing the spectator tab cleanly (right window, audio routed).",
-      links: [{ href: LIVE_ADMIN_URL, text: "live admin · [god] copy", external: true }],
-    },
-    {
       id: "find-pfp",
       label: "Find a pfp for the guest",
       body: "Grab a profile image from Twitter / ENS / wherever. You'll use it for the episode card and the on-screen identity in the room.",
@@ -121,6 +119,13 @@ const ChecklistPage: NextPage = () => {
       label: "Open the frontpage scheduler (click [schedule] in live admin) and put the episode on the board",
       body: "The [schedule] link next to the room in live admin deep-links into slop.computer/admin?liveSlugToSchedule=<slug> with name+slug+datetime pre-filled. Submit it so the episode is on the on-chain board before you go live.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · [schedule]", external: true }],
+    },
+    { divider: true, label: "day of broadcast" },
+    {
+      id: "obs-godmode",
+      label: "Open the godMode link on the OBS machine + open EQ",
+      body: "On the streaming box: live admin → Rooms → [god] (copies room link with godMode appended). Paste in that machine's browser, then from the MenuBar 🔊 popout the EQ on a second monitor. Confirm OBS is capturing the spectator tab cleanly (right window, audio routed).",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · [god] copy", external: true }],
     },
     {
       id: "guest-joined",
@@ -158,11 +163,16 @@ const ChecklistPage: NextPage = () => {
     },
     {
       id: "verify-slug",
-      label: "Verify the slug page loads",
+      label: "Verify the slug page loads — and slop.computer frontpage looks good",
       body: live.slug
-        ? `slop.computer/${live.slug} should be showing the HLS player + chat.`
-        : "Once live, open slop.computer/<slug> in a fresh tab and confirm player + chat.",
-      links: live.slug ? [{ href: `/${live.slug}`, text: `/${live.slug}` }] : undefined,
+        ? `slop.computer/${live.slug} should be showing the HLS player + chat. Also open slop.computer/ and confirm the LIVE banner + episode card render correctly.`
+        : "Once live, open slop.computer/<slug> in a fresh tab (player + chat) and slop.computer/ (LIVE banner + card). Confirm both look right.",
+      links: live.slug
+        ? [
+            { href: `/${live.slug}`, text: `/${live.slug}` },
+            { href: "/", text: "/ (frontpage)" },
+          ]
+        : [{ href: "/", text: "/ (frontpage)" }],
     },
     {
       id: "do-show",
@@ -249,20 +259,30 @@ const ChecklistPage: NextPage = () => {
       </header>
 
       <ol className="flex flex-col gap-3 list-none p-0 m-0">
-        {items.map((item, i) => (
-          <ChecklistRow
-            key={item.id}
-            index={i + 1}
-            item={item}
-            checked={!!checked[item.id]}
-            onToggle={() => toggle(item.id)}
-          />
-        ))}
+        {(() => {
+          let n = 0;
+          return items.map(entry => {
+            if ("divider" in entry) {
+              return <DividerRow key={`div:${entry.label}`} label={entry.label} />;
+            }
+            n += 1;
+            return (
+              <ChecklistRow
+                key={entry.id}
+                index={n}
+                item={entry}
+                checked={!!checked[entry.id]}
+                onToggle={() => toggle(entry.id)}
+              />
+            );
+          });
+        })()}
       </ol>
 
       <div className="pt-2 flex items-center justify-between gap-3">
         <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-          {Object.values(checked).filter(Boolean).length} / {items.length} done · saved locally
+          {Object.values(checked).filter(Boolean).length} / {items.filter(e => !("divider" in e)).length} done · saved
+          locally
         </span>
         <button
           type="button"
@@ -356,6 +376,33 @@ const ChecklistRow = ({
         ) : null}
       </div>
     </label>
+  </li>
+);
+
+const DividerRow = ({ label }: { label: string }) => (
+  <li className="flex items-center gap-3 py-2 select-none" aria-hidden>
+    <span
+      className="flex-1"
+      style={{
+        height: 1,
+        background:
+          "linear-gradient(to right, transparent, rgba(255, 62, 201, 0.4) 30%, rgba(255, 62, 201, 0.4) 70%, transparent)",
+      }}
+    />
+    <span
+      className="slop-mono text-[10px] uppercase tracking-widest px-2"
+      style={{ color: "var(--slop-magenta)", whiteSpace: "nowrap" }}
+    >
+      ── {label} ──
+    </span>
+    <span
+      className="flex-1"
+      style={{
+        height: 1,
+        background:
+          "linear-gradient(to right, transparent, rgba(255, 62, 201, 0.4) 30%, rgba(255, 62, 201, 0.4) 70%, transparent)",
+      }}
+    />
   </li>
 );
 
