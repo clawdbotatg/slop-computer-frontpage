@@ -77,7 +77,7 @@ const ChecklistPage: NextPage = () => {
       id: "host-signin",
       label: "Sign in as host on the relay",
       body: "SIWE with the owner wallet so the relay sets the slop_session cookie. Required for /admin/recording and /admin/finalize.",
-      links: [{ href: RELAY_HTTP_URL, text: RELAY_HTTP_URL, external: true }],
+      links: [{ href: `${RELAY_HTTP_URL}/admin`, text: `${RELAY_HTTP_URL}/admin`, external: true }],
       status: hostStatus,
     },
     {
