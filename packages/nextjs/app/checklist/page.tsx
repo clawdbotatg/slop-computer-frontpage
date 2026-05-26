@@ -155,6 +155,13 @@ const ChecklistPage: NextPage = () => {
       status: fanouts,
     },
     {
+      id: "go-live-on-chain",
+      label: "Click ◉ Go Live on slop.computer/admin",
+      body: "Either ◉ Go Live (one-shot create+live) or schedule then setLive on the row. Either way the homepage flips from list view to the live HLS player — do this BEFORE fanning out so the slop.computer audience sees the show first.",
+      links: [{ href: "/admin", text: "slop.computer/admin", external: false }],
+      status: live.liveOn,
+    },
+    {
       id: "confirm-fanouts-live",
       label: "Click Go Live in YouTube Studio + verify each destination is actually live",
       body: "Starting the fanout only pushes the RTMP — YouTube still needs you to hit Go Live in Studio. Open each destination (YouTube, Twitch, Twitter, Kick) and confirm the stream is visible to viewers, not just received by the platform.",
@@ -162,13 +169,6 @@ const ChecklistPage: NextPage = () => {
         { href: "https://studio.youtube.com/", text: "YouTube Studio ↗", external: true },
         { href: "https://twitter.com/", text: "x.com ↗", external: true },
       ],
-    },
-    {
-      id: "go-live-on-chain",
-      label: "Click ◉ Go Live on slop.computer/admin",
-      body: "Either ◉ Go Live (one-shot create+live) or schedule then setLive on the row. Either way the homepage flips from list view to the live HLS player.",
-      links: [{ href: "/admin", text: "slop.computer/admin", external: false }],
-      status: live.liveOn,
     },
     {
       id: "verify-slug",
