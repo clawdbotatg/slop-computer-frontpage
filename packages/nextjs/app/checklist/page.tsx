@@ -7,15 +7,20 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
 import { isZeroEpisode } from "~~/types/episode";
 
-// Pre-show / show / post-show punch list. Lives next to /stream and /admin
-// as a host-facing utility. Checkboxes persist to localStorage so a reload
-// during the show doesn't blow them away; the "clear" button at the bottom
-// resets everything for the next episode. A handful of items poll live
-// signals (relay auth, HLS, on-chain liveEpisode, recording on disk) and
-// render a green/yellow/red badge alongside the manual checkbox — the box
-// is still hand-toggled (so the host stays in control), the badge is just
-// real-time feedback.
+// Pre-show / show / post-show punch list, in the actual order the host walks
+// through. Checkboxes persist to localStorage so a reload during the show
+// doesn't blow them away; "Clear" resets for the next episode.
+//
+// The flow lives across two admins:
+//   1. live.slop.computer/admin  — relay admin (rooms, broadcast, fanouts, STT)
+//   2. slop.computer/admin       — frontpage admin (on-chain liveEpisode, finalize)
+//
+// Status badges poll the relay (rooms, peers, broadcast, fanouts, recording)
+// and the on-chain liveEpisode pointer. Cookies are needed for /admin/* and
+// /auth/me — sign in at live.slop.computer/admin first or the host-gated
+// badges will sit at "needs host signin".
 const HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
+const LIVE_ADMIN_URL = `${RELAY_HTTP_URL}/admin`;
 const STORAGE_KEY = "slop:checklist:v1";
 
 type Tone = "green" | "yellow" | "red";
@@ -32,14 +37,13 @@ const ChecklistPage: NextPage = () => {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [hydrated, setHydrated] = useState(false);
 
-  // Restore checkbox state from localStorage after mount — SSR can't read it
-  // and we don't want a hydration mismatch flicker.
+  // Restore checkbox state from localStorage after mount — SSR can't read it.
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) setChecked(JSON.parse(raw));
     } catch {
-      // ignore — bad JSON / disabled storage
+      /* ignore */
     }
     setHydrated(true);
   }, []);
@@ -49,7 +53,7 @@ const ChecklistPage: NextPage = () => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
     } catch {
-      // ignore
+      /* ignore */
     }
   }, [checked, hydrated]);
 
@@ -59,13 +63,15 @@ const ChecklistPage: NextPage = () => {
     setChecked({});
   };
 
-  const hostStatus = useHostAuthStatus();
-  const obsStatus = useObsStreamStatus();
+  const host = useHostAuthStatus();
+  const rooms = useRoomsStatus();
+  const peers = usePeersStatus();
+  const broadcast = useBroadcastStatus();
+  const hls = useHlsStatus();
+  const fanouts = useFanoutsStatus();
   const live = useLiveEpisodeStatus();
   const recording = useRecordingStatus();
 
-  // Order matters — this is the actual flow the host walks through. Tweak as
-  // we learn what's missing or out of order.
   const items: Array<{
     id: string;
     label: string;
@@ -74,80 +80,121 @@ const ChecklistPage: NextPage = () => {
     status?: Status;
   }> = [
     {
-      id: "host-signin",
-      label: "Sign in as host on the relay",
-      body: "SIWE with the owner wallet so the relay sets the slop_session cookie. Required for /admin/recording and /admin/finalize.",
-      links: [{ href: `${RELAY_HTTP_URL}/admin`, text: `${RELAY_HTTP_URL}/admin`, external: true }],
-      status: hostStatus,
+      id: "live-admin-signin",
+      label: "Sign in to live.slop.computer/admin",
+      body: "SIWE with the host wallet on the relay admin. Sets the slop_session cookie that every /admin/* endpoint below (rooms, broadcast, fanouts, recording, finalize) reads.",
+      links: [{ href: LIVE_ADMIN_URL, text: LIVE_ADMIN_URL, external: true }],
+      status: host,
     },
     {
-      id: "obs-publish",
-      label: "Start OBS publishing to MediaMTX",
-      body: "Fires up the stream so MediaMTX has segments to serve. Until segments arrive, /stream will sit at a black frame.",
-      status: obsStatus,
+      id: "create-room",
+      label: "Create the room (slug + auto-password)",
+      body: "Live admin → Create a room. Type the slug, hit Create — the relay hashes the password and writes auth.json to disk.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Create a room", external: true }],
+      status: rooms,
+    },
+    {
+      id: "copy-share-link",
+      label: "Copy the invite link and send it to your guest",
+      body: "The Rooms list has a Copy button per row → puts https://live.slop.computer/<slug>?invite=<password> on the clipboard. Send it via Signal/DM/whatever.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms", external: true }],
+    },
+    {
+      id: "guest-joined",
+      label: "Confirm the guest joined the room",
+      body: "Live admin → Connected guests shows every peer on the relay (refreshes every 3s). Wait until you see them before going live.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Connected guests", external: true }],
+      status: peers,
+    },
+    {
+      id: "start-broadcast",
+      label: "Start the broadcast (server-side OR OBS)",
+      body: "Either: live admin → Server-side broadcast → Start (headless chromium + ffmpeg next to mediamtx), OR: live admin → Set up OBS → paste RTMP URL+key into OBS → Start Streaming. Either path produces HLS segments at media.slop.computer.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Broadcast", external: true }],
+      status: broadcast.tone === "green" ? broadcast : hls,
     },
     {
       id: "preview-stream",
       label: "Preview the stream at /stream",
-      body: "Sanity-check the feed plays in a browser before you flip the audience-facing page live.",
+      body: "Sanity-check the feed actually plays in a browser before flipping the audience-facing page live.",
       links: [{ href: "/stream", text: "/stream" }],
     },
     {
-      id: "go-live",
-      label: "Click ◉ Go Live in /admin",
-      body: "Creates the episode on-chain and points liveEpisode at it. slop.computer flips from the homepage list to the live player.",
-      links: [{ href: "/admin", text: "/admin" }],
+      id: "start-fanouts",
+      label: "(Optional) Start restream destinations",
+      body: "Live admin → Restream destinations. Toggle YouTube/Twitch/Twitter/Kick on individually; each runs an ffmpeg -c copy on the relay box.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
+      status: fanouts,
+    },
+    {
+      id: "schedule-on-chain",
+      label: "Open the frontpage scheduler (or click [schedule] from live admin)",
+      body: "Use the [schedule] link next to the room in live admin — it deep-links into slop.computer/admin?liveSlugToSchedule=<slug> with name+slug+datetime pre-filled.",
+      links: [{ href: "/admin", text: "slop.computer/admin" }],
+    },
+    {
+      id: "go-live-on-chain",
+      label: "Click ◉ Go Live on slop.computer/admin",
+      body: "Either ◉ Go Live (one-shot create+live) or schedule then setLive on the row. Either way the homepage flips from list view to the live HLS player.",
+      links: [{ href: "/admin", text: "slop.computer/admin", external: false }],
       status: live.liveOn,
     },
     {
       id: "verify-slug",
       label: "Verify the slug page loads",
       body: live.slug
-        ? `slop.computer/${live.slug} should now be live with the HLS player.`
-        : "Once live, open slop.computer/<slug> in a fresh tab and confirm the player + chat are wired up.",
+        ? `slop.computer/${live.slug} should be showing the HLS player + chat.`
+        : "Once live, open slop.computer/<slug> in a fresh tab and confirm player + chat.",
       links: live.slug ? [{ href: `/${live.slug}`, text: `/${live.slug}` }] : undefined,
     },
     {
-      id: "do-the-show",
+      id: "do-show",
       label: "Do the show",
-      body: "Talk to the chat, run the demos, keep an eye on /admin for anything weird.",
+      body: "Talk to chat, run demos. Keep live admin open for kicks/STT toggles, slop.computer/admin for nothing (you're live now).",
     },
     {
       id: "end-show",
-      label: "End show: hit End show (go offline) in /admin",
-      body: "Clears liveEpisode on-chain. Audience page flips back to the homepage list.",
-      links: [{ href: "/admin", text: "/admin" }],
+      label: "End show: hit End show (go offline) on slop.computer/admin",
+      body: "Clears the on-chain liveEpisode pointer. Homepage flips back to list view immediately.",
+      links: [{ href: "/admin", text: "slop.computer/admin" }],
       status: live.offlineOn,
     },
     {
-      id: "stop-obs",
-      label: "Stop OBS publishing",
-      body: "Once OBS stops, MediaMTX closes the recording file and it's available for finalize.",
+      id: "stop-broadcast",
+      label: "Stop the broadcast",
+      body: "Server-side: live admin → Stop. OBS: Stop Streaming. MediaMTX closes the recording file once the publisher disconnects.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Broadcast", external: true }],
+    },
+    {
+      id: "stop-fanouts",
+      label: "(If used) Stop restream destinations",
+      body: "Toggle each ON destination back to OFF so we're not pushing dead air to YT/Twitch etc.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
     },
     {
       id: "recording-on-disk",
       label: "Confirm the recording landed on disk",
-      body: "Use Check recording in /admin Finalize panel. Polled here too — green = relay sees a file.",
-      links: [{ href: "/admin", text: "/admin · Finalize" }],
+      body: "slop.computer/admin → Finalize panel → Check recording. Polled here too — green = relay sees a fresh file.",
+      links: [{ href: "/admin", text: "slop.computer/admin · Finalize" }],
       status: recording,
     },
     {
       id: "pin-ipfs",
       label: "Pin recording → IPFS",
-      body: "Streams the mp4 + chat + transcript + card + manifest to our self-hosted kubo node. Takes a few minutes.",
-      links: [{ href: "/admin", text: "/admin · Pin to IPFS" }],
+      body: "Streams the mp4 + chat archive + transcript + card + manifest to our self-hosted kubo node. Takes a few minutes; progress bar shows phases.",
+      links: [{ href: "/admin", text: "slop.computer/admin · Pin to IPFS" }],
     },
     {
       id: "save-manifest",
       label: "Save manifest CID on-chain",
-      body: "Writes ipfs://<manifestCid> to setManifest. The slug page now reads from IPFS instead of HLS.",
-      links: [{ href: "/admin", text: "/admin · Save manifest on-chain" }],
+      body: "Writes ipfs://<manifestCid> via setManifest(id, …). The slug page now reads the recording from IPFS instead of HLS.",
+      links: [{ href: "/admin", text: "slop.computer/admin · Save manifest on-chain" }],
     },
     {
       id: "set-contract",
       label: "(Optional) Set the episode contract address",
-      body: "If the show shipped a contract / session wallet, point contractAddr at it so the slug page shows the right address.",
-      links: [{ href: "/admin", text: "/admin · Save contract on-chain" }],
+      body: "If the show shipped a contract or session wallet, point contractAddr at it so the slug page can show the right address.",
+      links: [{ href: "/admin", text: "slop.computer/admin · Save contract on-chain" }],
     },
   ];
 
@@ -172,11 +219,14 @@ const ChecklistPage: NextPage = () => {
           Run-of-show
         </h1>
         <div className="ml-auto flex items-center gap-3 slop-mono text-[11px]">
-          <Link href="/stream" className="slop-link">
-            → /stream
-          </Link>
+          <a href={LIVE_ADMIN_URL} target="_blank" rel="noreferrer" className="slop-link">
+            → live admin ↗
+          </a>
           <Link href="/admin" className="slop-link">
             → /admin
+          </Link>
+          <Link href="/stream" className="slop-link">
+            → /stream
           </Link>
         </div>
       </header>
@@ -310,9 +360,12 @@ const StatusBadge = ({ status }: { status: Status }) => (
 
 const POLL_MS = 5000;
 
-// /auth/me returns the signed-in host (200) or 401 if no cookie. CORS is
-// configured on the relay for slop.computer subdomains, so this works from
-// the audience-facing page too.
+type AuthMe = { authenticated: boolean; role?: string; address?: string | null };
+
+// /auth/me returns 200 with { authenticated: false } when not signed in, or
+// { authenticated: true, role: "host" | "guest" | … }. We need role === "host"
+// for any of the /admin/* endpoints to work, so the badge only goes green for
+// that exact case.
 function useHostAuthStatus(): Status {
   const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
   useEffect(() => {
@@ -321,7 +374,14 @@ function useHostAuthStatus(): Status {
       try {
         const res = await fetch(`${RELAY_HTTP_URL}/auth/me`, { credentials: "include" });
         if (cancelled) return;
-        if (res.ok) setStatus({ tone: "green", text: "signed in" });
+        if (!res.ok) {
+          setStatus({ tone: "red", text: `relay ${res.status}` });
+          return;
+        }
+        const data = (await res.json()) as AuthMe;
+        if (cancelled) return;
+        if (data.authenticated && data.role === "host") setStatus({ tone: "green", text: "signed in as host" });
+        else if (data.authenticated) setStatus({ tone: "red", text: `signed in as ${data.role ?? "?"}` });
         else setStatus({ tone: "red", text: "not signed in" });
       } catch {
         if (!cancelled) setStatus({ tone: "red", text: "relay unreachable" });
@@ -337,19 +397,35 @@ function useHostAuthStatus(): Status {
   return status;
 }
 
-// The HLS playlist returns 404 until MediaMTX has segments. 200 = OBS is
-// pushing. We don't parse the playlist — presence is enough for a status
-// dot. The host watches /stream for the actual frame.
-function useObsStreamStatus(): Status {
+type AdminRoom = { slug: string; createdAt: number | null; paidUntil: number | null; hot: boolean; sttOn: boolean };
+
+// /admin/rooms returns { rooms: AdminRoom[] }. 401 if not host. Surfaces the
+// total count + how many are currently "hot" (peers connected).
+function useRoomsStatus(): Status {
   const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
   useEffect(() => {
     let cancelled = false;
     const check = async () => {
       try {
-        const res = await fetch(HLS_URL, { cache: "no-store" });
+        const res = await fetch(`${RELAY_HTTP_URL}/admin/rooms`, { credentials: "include" });
         if (cancelled) return;
-        if (res.ok) setStatus({ tone: "green", text: "segments live" });
-        else setStatus({ tone: "red", text: `no stream (${res.status})` });
+        if (res.status === 401) {
+          setStatus({ tone: "yellow", text: "needs host signin" });
+          return;
+        }
+        if (!res.ok) {
+          setStatus({ tone: "red", text: `relay ${res.status}` });
+          return;
+        }
+        const j = (await res.json()) as { rooms?: AdminRoom[] };
+        if (cancelled) return;
+        const rooms = j.rooms ?? [];
+        if (rooms.length === 0) {
+          setStatus({ tone: "red", text: "no rooms yet" });
+          return;
+        }
+        const hot = rooms.filter(r => r.hot).length;
+        setStatus({ tone: "green", text: `${rooms.length} room${rooms.length === 1 ? "" : "s"} · ${hot} hot` });
       } catch {
         if (!cancelled) setStatus({ tone: "red", text: "fetch failed" });
       }
@@ -364,9 +440,171 @@ function useObsStreamStatus(): Status {
   return status;
 }
 
-// Two badges off one read: one for "live on-chain" (go-live row) and one for
-// "offline on-chain" (end-show row). Also surface the slug so we can deep-link
-// the verify-slug row.
+type Peer = { id: string; role: string; address: string | null };
+
+// /admin/peers returns { peers: Peer[] }. Green if at least one non-host peer
+// is connected; yellow if only the host is on the relay; red if empty.
+function usePeersStatus(): Status {
+  const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch(`${RELAY_HTTP_URL}/admin/peers`, { credentials: "include" });
+        if (cancelled) return;
+        if (res.status === 401) {
+          setStatus({ tone: "yellow", text: "needs host signin" });
+          return;
+        }
+        if (!res.ok) {
+          setStatus({ tone: "red", text: `relay ${res.status}` });
+          return;
+        }
+        const j = (await res.json()) as { peers?: Peer[] };
+        if (cancelled) return;
+        const peers = j.peers ?? [];
+        const guests = peers.filter(p => p.role !== "host").length;
+        if (guests > 0) {
+          setStatus({ tone: "green", text: `${guests} guest${guests === 1 ? "" : "s"} · ${peers.length} peers` });
+        } else if (peers.length > 0) {
+          setStatus({ tone: "yellow", text: `host only (${peers.length})` });
+        } else {
+          setStatus({ tone: "red", text: "no peers" });
+        }
+      } catch {
+        if (!cancelled) setStatus({ tone: "red", text: "fetch failed" });
+      }
+    };
+    void check();
+    const id = setInterval(check, POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+  return status;
+}
+
+type BroadcastApi = { active: string; enabled: string; activeForSeconds: number | null };
+
+// /admin/broadcast/status reflects the slop-broadcast systemd unit on the
+// relay box. active === "active" means the server-side broadcaster is up; we
+// fall back to HLS-detection if the host's running OBS instead.
+function useBroadcastStatus(): Status {
+  const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch(`${RELAY_HTTP_URL}/admin/broadcast/status`, { credentials: "include" });
+        if (cancelled) return;
+        if (res.status === 401) {
+          setStatus({ tone: "yellow", text: "needs host signin" });
+          return;
+        }
+        if (!res.ok) {
+          setStatus({ tone: "red", text: `relay ${res.status}` });
+          return;
+        }
+        const j = (await res.json()) as BroadcastApi;
+        if (cancelled) return;
+        if (j.active === "active") {
+          const uptime = formatUptime(j.activeForSeconds);
+          setStatus({ tone: "green", text: `broadcasting · ${uptime}` });
+        } else if (j.active === "activating") {
+          setStatus({ tone: "yellow", text: "activating…" });
+        } else {
+          setStatus({ tone: "red", text: `server-side: ${j.active}` });
+        }
+      } catch {
+        if (!cancelled) setStatus({ tone: "red", text: "fetch failed" });
+      }
+    };
+    void check();
+    const id = setInterval(check, POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+  return status;
+}
+
+// MediaMTX HLS playlist as a fallback signal — green when *either* server-
+// side or OBS is producing segments. The broadcast row prefers /admin/broadcast
+// but rolls over to this when server-side is "inactive" but HLS is alive.
+function useHlsStatus(): Status {
+  const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch(HLS_URL, { cache: "no-store" });
+        if (cancelled) return;
+        if (res.ok) setStatus({ tone: "green", text: "HLS live (OBS?)" });
+        else setStatus({ tone: "red", text: `no HLS (${res.status})` });
+      } catch {
+        if (!cancelled) setStatus({ tone: "red", text: "HLS fetch failed" });
+      }
+    };
+    void check();
+    const id = setInterval(check, POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+  return status;
+}
+
+type Fanout = { id: string; name: string; configured: boolean; running: boolean };
+
+// /admin/fanouts returns the restream destination list. Green when any
+// destination is running; yellow when configured but idle; red if relay
+// returned nothing.
+function useFanoutsStatus(): Status {
+  const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
+  useEffect(() => {
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const res = await fetch(`${RELAY_HTTP_URL}/admin/fanouts`, { credentials: "include" });
+        if (cancelled) return;
+        if (res.status === 401) {
+          setStatus({ tone: "yellow", text: "needs host signin" });
+          return;
+        }
+        if (!res.ok) {
+          setStatus({ tone: "red", text: `relay ${res.status}` });
+          return;
+        }
+        const j = (await res.json()) as { fanouts?: Fanout[] };
+        if (cancelled) return;
+        const fanouts = j.fanouts ?? [];
+        const running = fanouts.filter(f => f.running);
+        if (running.length > 0) {
+          setStatus({ tone: "green", text: `${running.map(f => f.name).join(" + ")} live` });
+        } else if (fanouts.some(f => f.configured)) {
+          setStatus({ tone: "yellow", text: "configured · none running" });
+        } else {
+          setStatus({ tone: "red", text: "none configured" });
+        }
+      } catch {
+        if (!cancelled) setStatus({ tone: "red", text: "fetch failed" });
+      }
+    };
+    void check();
+    const id = setInterval(check, POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+  return status;
+}
+
+// Two badges off the one on-chain liveEpisode read: "live: <name>" for the
+// go-live row, and inverted "still live / off air" for the end-show row.
 function useLiveEpisodeStatus(): { liveOn: Status; offlineOn: Status; slug: string | null } {
   const { data: liveEpisode } = useScaffoldReadContract({
     contractName: "SlopComputer",
@@ -382,8 +620,7 @@ function useLiveEpisodeStatus(): { liveOn: Status; offlineOn: Status; slug: stri
   };
 }
 
-// /admin/recording returns { latest: RecordingInfo | null }. 401 if host
-// cookie isn't set (handled by the host-signin row already).
+// /admin/recording returns { latest: RecordingInfo | null }.
 function useRecordingStatus(): Status {
   const [status, setStatus] = useState<Status>({ tone: "yellow", text: "checking…" });
   useEffect(() => {
@@ -427,6 +664,15 @@ function formatBytes(n: number): string {
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
   return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function formatUptime(seconds: number | null): string {
+  if (seconds === null || seconds < 0) return "—";
+  if (seconds < 60) return `${seconds}s`;
+  const m = Math.floor(seconds / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}m`;
 }
 
 export default ChecklistPage;
