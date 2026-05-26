@@ -100,6 +100,12 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms", external: true }],
     },
     {
+      id: "obs-godmode",
+      label: "Open the godMode link on the OBS machine + open EQ",
+      body: "On the streaming box: live admin → Rooms → [god] (copies room link with godMode appended). Paste in that machine's browser, then from the MenuBar 🔊 popout the EQ on a second monitor. Confirm OBS is capturing the spectator tab cleanly (right window, audio routed).",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · [god] copy", external: true }],
+    },
+    {
       id: "guest-joined",
       label: "Confirm the guest joined the room",
       body: "Live admin → Connected guests shows every peer on the relay (refreshes every 3s). Wait until you see them before going live.",
