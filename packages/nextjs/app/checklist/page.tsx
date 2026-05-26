@@ -180,23 +180,23 @@ const ChecklistPage: NextPage = () => {
       body: "Talk to chat, run demos. Keep live admin open for kicks/STT toggles, slop.computer/admin for nothing (you're live now).",
     },
     {
-      id: "end-show",
-      label: "End show: hit End show (go offline) on slop.computer/admin",
-      body: "Clears the on-chain liveEpisode pointer. Homepage flips back to list view immediately.",
-      links: [{ href: "/admin", text: "slop.computer/admin" }],
-      status: live.offlineOn,
-    },
-    {
       id: "stop-broadcast",
       label: "Stop the broadcast",
-      body: "Server-side: live admin → Stop. OBS: Stop Streaming. MediaMTX closes the recording file once the publisher disconnects.",
+      body: "Server-side: live admin → Stop. OBS: Stop Streaming. MediaMTX closes the recording file once the publisher disconnects — that's what unblocks the Finalize panel below.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Broadcast", external: true }],
     },
     {
       id: "stop-fanouts",
-      label: "(If used) Stop restream destinations",
-      body: "Toggle each ON destination back to OFF so we're not pushing dead air to YT/Twitch etc.",
+      label: "Stop restream destinations",
+      body: "Toggle each ON destination back to OFF so we're not pushing dead air to YT/Twitch/etc.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
+    },
+    {
+      id: "end-show",
+      label: "End show: hit End show (go offline) on slop.computer/admin",
+      body: "Clears the on-chain liveEpisode pointer. Homepage flips back to list view. Do this AFTER the broadcast and fanouts are stopped — otherwise the audience sees the live banner over a dead stream.",
+      links: [{ href: "/admin", text: "slop.computer/admin" }],
+      status: live.offlineOn,
     },
     {
       id: "recording-on-disk",
