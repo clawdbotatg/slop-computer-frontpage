@@ -106,6 +106,23 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · [god] copy", external: true }],
     },
     {
+      id: "find-pfp",
+      label: "Find a pfp for the guest",
+      body: "Grab a profile image from Twitter / ENS / wherever. You'll use it for the episode card and the on-screen identity in the room.",
+    },
+    {
+      id: "generate-card",
+      label: "Open the live view and generate the card (kick off research)",
+      body: "In the host's browser, open live.slop.computer/<slug>, generate the card (CardWindow → publish to disk), and kick off any research prompts you want primed before the guest arrives.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms → /<slug>", external: true }],
+    },
+    {
+      id: "schedule-on-chain",
+      label: "Open the frontpage scheduler (click [schedule] in live admin) and put the episode on the board",
+      body: "The [schedule] link next to the room in live admin deep-links into slop.computer/admin?liveSlugToSchedule=<slug> with name+slug+datetime pre-filled. Submit it so the episode is on the on-chain board before you go live.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · [schedule]", external: true }],
+    },
+    {
       id: "guest-joined",
       label: "Confirm the guest joined the room",
       body: "Live admin → Connected guests shows every peer on the relay (refreshes every 3s). Wait until you see them before going live.",
@@ -127,16 +144,10 @@ const ChecklistPage: NextPage = () => {
     },
     {
       id: "start-fanouts",
-      label: "(Optional) Start restream destinations",
+      label: "Start restream destinations",
       body: "Live admin → Restream destinations. Toggle YouTube/Twitch/Twitter/Kick on individually; each runs an ffmpeg -c copy on the relay box.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
       status: fanouts,
-    },
-    {
-      id: "schedule-on-chain",
-      label: "Open the frontpage scheduler (or click [schedule] from live admin)",
-      body: "Use the [schedule] link next to the room in live admin — it deep-links into slop.computer/admin?liveSlugToSchedule=<slug> with name+slug+datetime pre-filled.",
-      links: [{ href: "/admin", text: "slop.computer/admin" }],
     },
     {
       id: "go-live-on-chain",
