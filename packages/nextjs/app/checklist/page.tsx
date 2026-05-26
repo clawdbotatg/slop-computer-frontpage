@@ -148,27 +148,11 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: "/stream", text: "/stream" }],
     },
     {
-      id: "start-fanouts",
-      label: "Start restream destinations",
-      body: "Live admin → Restream destinations. Toggle YouTube/Twitch/Twitter/Kick on individually; each runs an ffmpeg -c copy on the relay box.",
-      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
-      status: fanouts,
-    },
-    {
       id: "go-live-on-chain",
       label: "Click ◉ Go Live on slop.computer/admin",
-      body: "Either ◉ Go Live (one-shot create+live) or schedule then setLive on the row. Either way the homepage flips from list view to the live HLS player — do this BEFORE fanning out so the slop.computer audience sees the show first.",
+      body: "Either ◉ Go Live (one-shot create+live) or schedule then setLive on the row. Either way the homepage flips from list view to the live HLS player. Audience #1 starts watching here before we push anywhere else.",
       links: [{ href: "/admin", text: "slop.computer/admin", external: false }],
       status: live.liveOn,
-    },
-    {
-      id: "confirm-fanouts-live",
-      label: "Click Go Live in YouTube Studio + verify each destination is actually live",
-      body: "Starting the fanout only pushes the RTMP — YouTube still needs you to hit Go Live in Studio. Open each destination (YouTube, Twitch, Twitter, Kick) and confirm the stream is visible to viewers, not just received by the platform.",
-      links: [
-        { href: "https://studio.youtube.com/", text: "YouTube Studio ↗", external: true },
-        { href: "https://twitter.com/", text: "x.com ↗", external: true },
-      ],
     },
     {
       id: "verify-slug",
@@ -184,21 +168,37 @@ const ChecklistPage: NextPage = () => {
         : [{ href: "/", text: "/ (frontpage)" }],
     },
     {
+      id: "start-fanouts",
+      label: "Start restream destinations",
+      body: "Live admin → Restream destinations. Toggle YouTube/Twitch/Twitter/Kick on individually; each runs an ffmpeg -c copy on the relay box.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
+      status: fanouts,
+    },
+    {
+      id: "confirm-fanouts-live",
+      label: "Click Go Live in YouTube Studio + verify each destination is actually live",
+      body: "Starting the fanout only pushes the RTMP — YouTube still needs you to hit Go Live in Studio. Open each destination (YouTube, Twitch, Twitter, Kick) and confirm the stream is visible to viewers, not just received by the platform.",
+      links: [
+        { href: "https://studio.youtube.com/", text: "YouTube Studio ↗", external: true },
+        { href: "https://twitter.com/", text: "x.com ↗", external: true },
+      ],
+    },
+    {
       id: "do-show",
       label: "Do the show",
       body: "Talk to chat, run demos. Keep live admin open for kicks/STT toggles, slop.computer/admin for nothing (you're live now).",
+    },
+    {
+      id: "stop-fanouts",
+      label: "Stop restream destinations",
+      body: "Toggle each ON destination back to OFF first — they're pulling from MediaMTX, so disconnect them before you cut the upstream broadcast so their ffmpegs exit cleanly instead of erroring on EOF.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
     },
     {
       id: "stop-broadcast",
       label: "Stop the broadcast",
       body: "Server-side: live admin → Stop. OBS: Stop Streaming. MediaMTX closes the recording file once the publisher disconnects — that's what unblocks the Finalize panel below.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Broadcast", external: true }],
-    },
-    {
-      id: "stop-fanouts",
-      label: "Stop restream destinations",
-      body: "Toggle each ON destination back to OFF so we're not pushing dead air to YT/Twitch/etc.",
-      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Restream destinations", external: true }],
     },
     {
       id: "end-show",
