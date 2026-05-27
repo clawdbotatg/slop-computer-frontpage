@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { AddressInput } from "@scaffold-ui/components";
 import type { NextPage } from "next";
-import { isAddress } from "viem";
+import { getAddress, isAddress } from "viem";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
@@ -300,6 +300,13 @@ type RecordingInfo = {
   mtime: number;
 };
 
+// Public per-room snapshot from the relay's GET /v1/rooms/:slug/meta. We only
+// consume `wallet` here (to auto-fill the episode contract during finalize),
+// but the endpoint also returns name/createdAt/live/stt/card for other uses.
+type RelayRoomMeta = {
+  wallet: { address: string; label: string; chains: number[] } | null;
+};
+
 type FinalizeEvent =
   | { phase: "starting"; file: string; name: string; totalBytes: number }
   | { phase: "remuxing" }
@@ -344,6 +351,12 @@ const FinalizePanel = ({
   // Mutable via setEpisodeContract any time. Initialized in the effect below
   // so changing the picker refreshes the displayed value.
   const [newContract, setNewContract] = useState(ZERO_ADDRESS);
+  // The session wallet (if any) the relay reports as deployed in this
+  // episode's room. Drives the "deployed wallet detected" cue + the pre-fill.
+  const [detectedWallet, setDetectedWallet] = useState<{ address: string; label: string } | null>(null);
+  // Guards against a slow meta fetch for a previous target landing after the
+  // host has already switched episodes (last request wins).
+  const walletReqId = useRef(0);
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
   // The episode being finalized. Defaults to the live one (the in-show
@@ -352,11 +365,42 @@ const FinalizePanel = ({
   const liveId = liveEpisode && !isZeroEpisode(liveEpisode) ? liveEpisode.id : null;
   const target = episodes.find(e => e.id === selectedId) ?? episodes.find(e => e.id === liveId) ?? episodes[0];
 
+  // Ask the relay whether a session wallet was deployed in this episode's
+  // room (public, cookieless endpoint — works cross-origin and for re-
+  // finalizing old shows). When `allowPrefill`, drop the address into the
+  // contract box, but only if nothing's set on-chain and the host hasn't
+  // already typed something — never clobber a deliberate value.
+  const loadRoomWallet = async (forSlug: string, allowPrefill: boolean) => {
+    const reqId = ++walletReqId.current;
+    try {
+      const res = await fetch(`${RELAY_HTTP_URL}/v1/rooms/${encodeURIComponent(forSlug)}/meta`);
+      if (reqId !== walletReqId.current || !res.ok) return;
+      const meta = (await res.json()) as RelayRoomMeta;
+      if (reqId !== walletReqId.current) return;
+      const raw = meta.wallet?.address;
+      if (!raw || raw.toLowerCase() === ZERO_ADDRESS) return setDetectedWallet(null);
+      let addr: string;
+      try {
+        addr = getAddress(raw); // checksum for clean display; throws on garbage
+      } catch {
+        return;
+      }
+      setDetectedWallet({ address: addr, label: meta.wallet?.label ?? "" });
+      if (allowPrefill) setNewContract(prev => (prev.toLowerCase() === ZERO_ADDRESS ? addr : prev));
+    } catch {
+      /* relay unreachable / no meta — silent, this is a convenience */
+    }
+  };
+
   // Sync the contract input to the on-chain value whenever the picked target
-  // changes. Lives above the early-return so hook order is stable across
+  // changes, then check the room for a freshly-deployed session wallet to
+  // pre-fill. Lives above the early-return so hook order is stable across
   // renders — the inner `if (target)` keeps it a no-op when episodes is empty.
   useEffect(() => {
-    if (target) setNewContract(target.contractAddr);
+    if (!target) return;
+    setNewContract(target.contractAddr);
+    setDetectedWallet(null);
+    void loadRoomWallet(relaySlug(target), target.contractAddr.toLowerCase() === ZERO_ADDRESS);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target?.id]);
 
@@ -404,6 +448,9 @@ const FinalizePanel = ({
       }
       const j = (await res.json()) as { latest: RecordingInfo | null };
       setRecording(j.latest);
+      // Re-pull room meta — a session wallet may have been deployed after the
+      // panel first loaded (common: deploy mid-show, then finalize).
+      void loadRoomWallet(relaySlug(target), target.contractAddr.toLowerCase() === ZERO_ADDRESS);
       if (!j.latest) setError("no recording on disk yet — MediaMTX writes when the host is publishing");
     } catch (e) {
       setError((e as Error).message || "check failed");
@@ -647,6 +694,24 @@ const FinalizePanel = ({
           point the on-chain <code>contractAddr</code> at whatever the show is about — a session wallet deployed
           mid-show, a per-episode contract, etc. mutable any time. <code>0x0…0</code> = none.
         </p>
+        {detectedWallet ? (
+          <div
+            className="slop-mono text-[11px] flex flex-wrap items-center gap-x-2 gap-y-1 px-2 py-1.5"
+            style={{ border: "1px solid rgba(188, 255, 91, 0.5)", background: "rgba(188, 255, 91, 0.06)" }}
+          >
+            <span style={{ color: "var(--slop-lime)" }}>
+              🔑 wallet deployed in room{detectedWallet.label ? ` · ${detectedWallet.label}` : ""}
+            </span>
+            <code style={{ color: "var(--slop-text)" }}>{detectedWallet.address}</code>
+            {newContract.toLowerCase() === detectedWallet.address.toLowerCase() ? (
+              <span style={{ color: "var(--slop-text-muted)" }}>↳ pre-filled — just hit Save</span>
+            ) : (
+              <button type="button" className="slop-link" onClick={() => setNewContract(detectedWallet.address)}>
+                use this →
+              </button>
+            )}
+          </div>
+        ) : null}
         <AddressField
           label="contract address"
           value={newContract}
