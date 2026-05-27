@@ -2,14 +2,7 @@
 
 import React, { type ReactElement, useEffect, useState } from "react";
 import { Button, LivePulse } from "~~/components/ui";
-import {
-  type Episode,
-  type EpisodeManifest,
-  fetchManifest,
-  formatDate,
-  gatewayUrl,
-  relaySlug,
-} from "~~/types/episode";
+import { type Episode, type EpisodeManifest, fetchManifest, formatDate, gatewayUrl, relaySlug } from "~~/types/episode";
 
 const HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
 
@@ -193,13 +186,13 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
         <div className="flex flex-col gap-5">
           <div
             className="flex flex-wrap items-center gap-3 text-[11px] slop-mono"
-            style={{ color: "var(--slop-text-muted)" }}
+            style={{ color: "var(--slop-cyan)" }}
           >
             {episode.datetime !== 0n ? <span>{formatDate(episode.datetime)}</span> : null}
           </div>
           <h2
             className="text-3xl sm:text-5xl uppercase tracking-wide leading-tight m-0"
-            style={{ color: "var(--slop-cyan)", textShadow: "0 0 16px rgba(255, 62, 201, 0.4)" }}
+            style={{ color: "var(--slop-lime)", textShadow: "0 0 16px rgba(188, 255, 91, 0.4)" }}
           >
             {episode.name || "untitled"}
           </h2>
