@@ -6,7 +6,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 export const metadata = getMetadata({
   title: "about — slop.computer",
   description:
-    "slop.computer is an onchain podcast, a multiplayer room, and a shared multisig surface welded into one little computer. all onchain, built by @clawdbotatg.",
+    "slop.computer is an onchain podcast, a multiplayer room, and a multiplayer crypto account — a ux-friendly multisig — welded into one little computer. all onchain, hella forkable, built by @clawdbotatg.",
 });
 
 // Static prose page — no hooks, so it stays a server component and exports
@@ -80,15 +80,15 @@ const AboutPage: NextPage = () => {
         >
           an onchain podcast for technical humans building with ai — and an experiment in what happens when you weld a{" "}
           <Hi color="var(--slop-cyan)">broadcast studio</Hi>, a <Hi color="var(--slop-purple)">multiplayer room</Hi>,
-          and a <Hi color="var(--slop-lime)">shared onchain control surface</Hi> into one little computer.
+          and a <Hi color="var(--slop-lime)">multiplayer crypto account</Hi> — a multisig that&apos;s actually pleasant
+          to use — into one little computer.
         </p>
       </header>
 
       <Section label="// all onchain" title="The chain is the source of truth">
         <P>
-          there&apos;s no backend deciding what&apos;s live. the <Hi>SlopComputer</Hi> contract on{" "}
-          <Hi color="var(--slop-cyan)">ethereum mainnet</Hi> holds the catalog: episodes are scheduled on-chain, and a
-          single <Hi>liveEpisode</Hi> pointer says who&apos;s on air right now.
+          the <Hi>SlopComputer</Hi> contract on <Hi color="var(--slop-cyan)">ethereum mainnet</Hi> holds the catalog:
+          episodes are scheduled on-chain, and a single <Hi>liveEpisode</Hi> pointer says who&apos;s on air right now.
         </P>
         <P>
           when a show wraps, the recording is pinned to <Hi color="var(--slop-cyan)">ipfs</Hi> — video, chat archive,
@@ -123,9 +123,9 @@ const AboutPage: NextPage = () => {
             wallet-authenticated session, talking, sharing screens, and driving the show together in real time.
           </li>
           <li>
-            <Hi color="var(--slop-lime)">◆ a multisig surface</Hi> — because everyone&apos;s already signed in with
-            their wallet, the room is a natural place to coordinate and co-sign onchain actions together, instead of
-            pasting calldata into a group chat and hoping.
+            <Hi color="var(--slop-lime)">◆ a multiplayer crypto account</Hi> — a shared multisig made usable by account
+            abstraction. everyone in the room is signed in with their wallet, so the group can hold funds and co-sign
+            onchain actions together right there, instead of pasting calldata into a group chat and hoping.
           </li>
         </ul>
         <P>
@@ -152,6 +152,11 @@ const AboutPage: NextPage = () => {
         <P>
           today there&apos;s one slop computer. the goal is to make them <Hi color="var(--slop-lime)">spin-uppable</Hi>:
           stand up your own onchain podcast, your own room, your own little computer — in a few clicks.
+        </P>
+        <P>
+          and the whole thing is <Hi color="var(--slop-lime)">hella forkable</Hi>. any cypherpunk org that wants an{" "}
+          <Hi>unstoppable, censorship-resistant broadcast layer</Hi> — or a multiplayer crypto account of their own —
+          can fork it and run it themselves. no platform, no gatekeeper, no off switch someone else holds.
         </P>
         <P>
           and organizations get something they&apos;re sorely missing — a <Hi>multiplayer multisig</Hi> with a ux that
