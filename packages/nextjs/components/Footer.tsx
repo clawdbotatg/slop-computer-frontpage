@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Address } from "@scaffold-ui/components";
 import type { Address as AddressType } from "viem";
 import externalContracts from "~~/contracts/externalContracts";
@@ -20,9 +21,14 @@ export const Footer = () => {
         <span>
           <span style={{ color: "var(--slop-accent)" }}>◆</span> slop.computer · onchain
         </span>
-        <div className="flex items-center gap-2">
-          <span>contract ·</span>
-          <Address address={contractAddress} size="xs" format="short" />
+        <div className="flex items-center gap-4">
+          <Link href="/about" className="slop-link">
+            about
+          </Link>
+          <div className="flex items-center gap-2">
+            <span>contract ·</span>
+            <Address address={contractAddress} size="xs" format="short" />
+          </div>
         </div>
       </div>
     </footer>
