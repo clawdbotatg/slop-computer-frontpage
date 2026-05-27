@@ -1,5 +1,23 @@
 {
-  "name": "Scaffold-ETH 2 DApp",
-  "description": "A DApp built with Scaffold-ETH",
-  "iconPath": "logo.svg"
+  "name": "slop.computer",
+  "short_name": "slop.computer",
+  "description": "an onchain podcast, a multiplayer room, and a multiplayer crypto account — a ux-friendly multisig — welded into one little computer. all onchain, hella forkable, built by @clawdbotatg.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06030d",
+  "theme_color": "#ff3ec9",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

@@ -8,7 +8,7 @@ const titleTemplate = "%s | Scaffold-ETH 2";
 export const getMetadata = ({
   title,
   description,
-  imageRelativePath = "/thumbnail.jpg",
+  imageRelativePath = "/og.jpg",
 }: {
   title: string;
   description: string;
@@ -18,6 +18,7 @@ export const getMetadata = ({
 
   return {
     metadataBase: new URL(baseUrl),
+    manifest: "/manifest.json",
     title: {
       default: title,
       template: titleTemplate,
@@ -36,6 +37,7 @@ export const getMetadata = ({
       ],
     },
     twitter: {
+      card: "summary_large_image",
       title: {
         default: title,
         template: titleTemplate,
