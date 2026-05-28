@@ -81,6 +81,36 @@ const resolveEpisodeMeta = async (slug: string): Promise<ResolvedMeta> => {
   }
 };
 
+// Static export (`yarn ipfs`, NEXT_PUBLIC_IPFS_BUILD=true → output: "export")
+// has no server at request time, so every dynamic route must enumerate its
+// params at build time. We read the full episode list off-chain and emit one
+// path per registered slug. The page body itself is "use client" and refetches
+// live, so a pre-rendered slug still shows fresh data once hydrated — only the
+// *set of slug paths* (and their unfurl metadata) is frozen at export time.
+// Caveat: an episode registered after an export won't have its own /slug page
+// on that IPFS pin (the homepage still lists it via runtime RPC, but the deep
+// link 404s on a static host) — re-run `yarn ipfs` to mint a fresh CID.
+// On any RPC failure we return [] rather than failing the whole build.
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  try {
+    const count = (await publicClient.readContract({
+      address: SLOP.address as `0x${string}`,
+      abi: SLOP.abi,
+      functionName: "episodeCount",
+    })) as bigint;
+    if (!count) return [];
+    const episodes = (await publicClient.readContract({
+      address: SLOP.address as `0x${string}`,
+      abi: SLOP.abi,
+      functionName: "getEpisodes",
+      args: [0n, count],
+    })) as readonly { slug: string }[];
+    return episodes.map(e => ({ slug: e.slug })).filter(p => Boolean(p.slug));
+  } catch {
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const { title, description, cardUrl } = await resolveEpisodeMeta(slug);
