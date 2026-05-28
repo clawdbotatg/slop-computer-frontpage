@@ -1,8 +1,22 @@
 import type { Metadata } from "next";
 
-const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : `http://localhost:${process.env.PORT || 3000}`;
+// Canonical production origin. We use this for the IPFS export because:
+//   1. og:image et al. need *absolute* URLs per the OpenGraph spec, and
+//      `http://localhost:3000/og.jpg` (the dev fallback) is obviously broken
+//      on a static pin — any crawler that hit slopcomputer.eth.limo would
+//      see a missing card image.
+//   2. The IPFS deploy is intentionally a mirror; slop.computer (Vercel) is
+//      the source of truth for fresh per-slug unfurl, so pointing absolute
+//      assets at it means social shares of eth.limo URLs still resolve their
+//      images and canonical against Vercel's edge.
+const PRODUCTION_ORIGIN = "https://slop.computer";
+
+const baseUrl =
+  process.env.NEXT_PUBLIC_IPFS_BUILD === "true"
+    ? PRODUCTION_ORIGIN
+    : process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : `http://localhost:${process.env.PORT || 3000}`;
 const titleTemplate = "%s | Scaffold-ETH 2";
 
 export const getMetadata = ({

@@ -87,27 +87,39 @@ const resolveEpisodeMeta = async (slug: string): Promise<ResolvedMeta> => {
 // path per registered slug. The page body itself is "use client" and refetches
 // live, so a pre-rendered slug still shows fresh data once hydrated — only the
 // *set of slug paths* (and their unfurl metadata) is frozen at export time.
-// Caveat: an episode registered after an export won't have its own /slug page
-// on that IPFS pin (the homepage still lists it via runtime RPC, but the deep
-// link 404s on a static host) — re-run `yarn ipfs` to mint a fresh CID.
-// On any RPC failure we return [] rather than failing the whole build.
+// Anything else (a brand-new episode, an episode the contract owner registered
+// after the export) is served via the SPA fallback wired up in
+// `app/not-found.tsx` + `out/_redirects`, which the gateway hits whenever a
+// path isn't pre-rendered.
+//
+// Next 15 with `output: "export"` rejects an empty `generateStaticParams`
+// return ("missing generateStaticParams") — so when the contract has zero
+// episodes (fresh deploy / RPC failure) we emit a single synthetic slug
+// `__placeholder__`. The double underscores guarantee it never collides
+// with a real registered slug because the contract's slug regex is
+// `^[a-z0-9-]{1,64}$` (no underscores allowed). The page just renders the
+// usual lookup → revert → 404 path, exactly like any other unregistered slug.
+const PLACEHOLDER_SLUG = "__placeholder__";
+
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  const fallback = [{ slug: PLACEHOLDER_SLUG }];
   try {
     const count = (await publicClient.readContract({
       address: SLOP.address as `0x${string}`,
       abi: SLOP.abi,
       functionName: "episodeCount",
     })) as bigint;
-    if (!count) return [];
+    if (!count) return fallback;
     const episodes = (await publicClient.readContract({
       address: SLOP.address as `0x${string}`,
       abi: SLOP.abi,
       functionName: "getEpisodes",
       args: [0n, count],
     })) as readonly { slug: string }[];
-    return episodes.map(e => ({ slug: e.slug })).filter(p => Boolean(p.slug));
+    const real = episodes.map(e => ({ slug: e.slug })).filter(p => Boolean(p.slug));
+    return real.length > 0 ? real : fallback;
   } catch {
-    return [];
+    return fallback;
   }
 }
 

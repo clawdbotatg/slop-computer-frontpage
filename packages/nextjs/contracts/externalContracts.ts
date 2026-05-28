@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const externalContracts = {
   1: {
     SlopComputer: {
-      address: "0x733eb5447bc1ff5c95f2e84e1757fd25fb0420c7",
+      address: "0xF3ce3614fE8cD4294a0bf05D10cFDa9D9cbc4886",
       abi: [
         {
           type: "constructor",
