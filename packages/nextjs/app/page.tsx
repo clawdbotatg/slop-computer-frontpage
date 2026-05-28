@@ -201,6 +201,21 @@ const Hero = () => {
           from cramming, and a font stack starting with SF Mono — its
           box-drawing glyphs render perfectly with no subpixel seams. */}
       <h1 className="sr-only">slop.computer</h1>
+
+      {/* The retro-CRT-with-Ethereum-logo mark. It's black line art on a
+          transparent ground, so on our near-black background it would
+          vanish — invert(1) flips the strokes to white. drop-shadow gives
+          it a faint magenta glow to tie it into the palette. */}
+      <img
+        src="/logo-mark.png"
+        alt=""
+        aria-hidden
+        width={1024}
+        height={1024}
+        className="w-40 h-40 sm:w-52 sm:h-52 object-contain"
+        style={{ filter: "invert(1) drop-shadow(0 0 12px rgba(255, 62, 201, 0.35))" }}
+      />
+
       <div
         aria-hidden
         className="m-0 mx-auto"
