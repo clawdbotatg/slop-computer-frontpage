@@ -202,43 +202,48 @@ const Hero = () => {
           box-drawing glyphs render perfectly with no subpixel seams. */}
       <h1 className="sr-only">slop.computer</h1>
 
-      {/* The retro-CRT-with-Ethereum-logo mark. It's black line art on a
-          transparent ground, so on our near-black background it would
-          vanish — invert(1) flips the strokes to white. drop-shadow gives
-          it a faint magenta glow to tie it into the palette. */}
-      <img
-        src="/logo-mark.png"
-        alt=""
-        aria-hidden
-        width={1024}
-        height={1024}
-        className="w-40 h-40 sm:w-52 sm:h-52 object-contain"
-        style={{ filter: "invert(1) drop-shadow(0 0 12px rgba(255, 62, 201, 0.35))" }}
-      />
+      {/* Logo mark sitting to the left of the ASCII wordmark. Stacks on
+          mobile, sits side-by-side from sm up. */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+        {/* The retro-CRT-with-Ethereum-logo mark, recolored to the magenta
+            brand color (logo-mark-pink.png — generated from the source by
+            mapping the black ink to magenta and dropping the white fill to
+            transparent, so it reads as pink line art). drop-shadow adds the
+            same faint glow the wordmark has. */}
+        <img
+          src="/logo-mark-pink.png"
+          alt=""
+          aria-hidden
+          width={1024}
+          height={1024}
+          className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 object-contain"
+          style={{ filter: "drop-shadow(0 0 10px rgba(255, 62, 201, 0.35))" }}
+        />
 
-      <div
-        aria-hidden
-        className="m-0 mx-auto"
-        style={{
-          fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace",
-          // ASCII block is 103 chars wide. Same scaling formula as
-          // ethskills: take the available width, divide by char count.
-          fontSize: "clamp(0.3rem, calc((100vw - 3rem) / 110), 1rem)",
-          lineHeight: 1,
-          whiteSpace: "pre",
-          color: "var(--slop-magenta)",
-          // CRITICAL: parent has text-center which CSS-inherits into here.
-          // With white-space:pre that centers EACH LINE individually, and
-          // since SF Mono's `█` / `═` glyphs are very-slightly different
-          // widths, lines with different mixes end up with different left
-          // edges. Pinning textAlign: left + width: fit-content anchors all
-          // rows to the same column; the parent's items-center then
-          // centers the block as a whole.
-          textAlign: "left",
-          width: "fit-content",
-        }}
-      >
-        {SLOP_ASCII}
+        <div
+          aria-hidden
+          className="m-0"
+          style={{
+            fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace",
+            // ASCII block is 103 chars wide. Same scaling formula as
+            // ethskills: take the available width, divide by char count.
+            fontSize: "clamp(0.3rem, calc((100vw - 3rem) / 110), 1rem)",
+            lineHeight: 1,
+            whiteSpace: "pre",
+            color: "var(--slop-magenta)",
+            // CRITICAL: parent has text-center which CSS-inherits into here.
+            // With white-space:pre that centers EACH LINE individually, and
+            // since SF Mono's `█` / `═` glyphs are very-slightly different
+            // widths, lines with different mixes end up with different left
+            // edges. Pinning textAlign: left + width: fit-content anchors all
+            // rows to the same column; the parent's items-center then
+            // centers the block as a whole.
+            textAlign: "left",
+            width: "fit-content",
+          }}
+        >
+          {SLOP_ASCII}
+        </div>
       </div>
 
       <ThinkingBlock />
