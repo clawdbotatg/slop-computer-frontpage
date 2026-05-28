@@ -216,7 +216,7 @@ const Hero = () => {
           aria-hidden
           width={1024}
           height={1024}
-          className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 object-contain"
+          className="w-16 h-16 sm:w-24 sm:h-24 shrink-0 object-contain"
           style={{ filter: "drop-shadow(0 0 10px rgba(255, 62, 201, 0.35))" }}
         />
 
