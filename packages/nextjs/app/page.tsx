@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import { EpisodeCard } from "~~/components/EpisodeCard";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
@@ -191,6 +191,79 @@ const ThinkingBlock = () => {
   );
 };
 
+// The locally-installed monospace names render the box-drawing glyphs cleanly
+// where present (macOS/Windows); generic `monospace` is the universal floor.
+const ASCII_FONT_STACK =
+  "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace";
+
+// useLayoutEffect on the server warns; fall back to useEffect during SSR.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/**
+ * The ANSI-Shadow wordmark is live monospace text. The naive way to make it
+ * responsive — shrink font-size to fit (the old `calc(... / 110)` approach) —
+ * breaks on small screens: at a 3–5px font-size the fine ╔═╗ box-drawing lines
+ * can't be rasterized, AND each glyph's advance is rounded to the pixel grid
+ * independently, so the error accumulates across all 102 columns and the right
+ * end ("COMPUTER") collapses into overlapping mush.
+ *
+ * Instead we render the block ONCE at a fixed, legible 16px — where every
+ * column aligns cleanly — then apply a single CSS transform to scale the whole
+ * pre-aligned block down to fit its container. Uniform scaling downsamples a
+ * crisp raster instead of re-rasterizing tiny glyphs, so the columns stay
+ * locked at any width. We never scale past 1 (16px is the design ceiling).
+ */
+const AsciiWordmark = () => {
+  // `fit` fills the available width; `block` is the natural-size wordmark.
+  const fitRef = useRef<HTMLDivElement>(null);
+  const blockRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState<{ scale: number; height: number } | null>(null);
+
+  useIsoLayoutEffect(() => {
+    const fit = fitRef.current;
+    const block = blockRef.current;
+    if (!fit || !block) return;
+    const measure = () => {
+      const available = fit.clientWidth;
+      const naturalWidth = block.scrollWidth;
+      if (!naturalWidth) return;
+      const scale = Math.min(1, available / naturalWidth);
+      setBox({ scale, height: block.scrollHeight * scale });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(fit);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={fitRef}
+      aria-hidden
+      className="w-full min-w-0 overflow-hidden flex justify-center"
+      // Collapse the layout box to the SCALED height; otherwise the shrunken
+      // block reserves its full unscaled height and leaves a gap underneath.
+      style={{ height: box ? `${box.height}px` : undefined }}
+    >
+      <div
+        ref={blockRef}
+        style={{
+          fontFamily: ASCII_FONT_STACK,
+          fontSize: "16px",
+          lineHeight: 1,
+          whiteSpace: "pre",
+          color: "var(--slop-magenta)",
+          textAlign: "left",
+          transform: box ? `scale(${box.scale})` : undefined,
+          transformOrigin: "top center",
+        }}
+      >
+        {SLOP_ASCII}
+      </div>
+    </div>
+  );
+};
+
 const Hero = () => {
   return (
     <section className="flex flex-col items-center text-center gap-6 sm:gap-8 pt-8 sm:pt-16">
@@ -204,7 +277,7 @@ const Hero = () => {
 
       {/* Logo mark sitting to the left of the ASCII wordmark. Stacks on
           mobile, sits side-by-side from sm up. */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 w-full min-w-0">
         {/* The retro-CRT-with-Ethereum-logo mark, recolored to the magenta
             brand color (logo-mark-pink.png — generated from the source by
             mapping the black ink to magenta and dropping the white fill to
@@ -220,36 +293,7 @@ const Hero = () => {
           style={{ filter: "drop-shadow(0 0 10px rgba(255, 62, 201, 0.35))" }}
         />
 
-        <div
-          aria-hidden
-          className="m-0"
-          style={{
-            fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace",
-            // ASCII block is 102 chars wide. Same scaling formula as
-            // ethskills: take the available width, divide by char count.
-            // NOTE: no clamp() lower bound — a fixed floor (we used to pin
-            // 0.3rem) stops the font shrinking below ~576px viewport, so the
-            // block keeps its floored width and overflows narrow phones
-            // (< ~380px), causing horizontal scroll. min() keeps the 1rem cap
-            // on desktop while letting the calc keep scaling all the way down,
-            // and the /110 divisor guarantees the block always fits.
-            fontSize: "min(1rem, calc((100vw - 3rem) / 110))",
-            lineHeight: 1,
-            whiteSpace: "pre",
-            color: "var(--slop-magenta)",
-            // CRITICAL: parent has text-center which CSS-inherits into here.
-            // With white-space:pre that centers EACH LINE individually, and
-            // since SF Mono's `█` / `═` glyphs are very-slightly different
-            // widths, lines with different mixes end up with different left
-            // edges. Pinning textAlign: left + width: fit-content anchors all
-            // rows to the same column; the parent's items-center then
-            // centers the block as a whole.
-            textAlign: "left",
-            width: "fit-content",
-          }}
-        >
-          {SLOP_ASCII}
-        </div>
+        <AsciiWordmark />
       </div>
 
       <ThinkingBlock />
