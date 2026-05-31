@@ -398,10 +398,22 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               <ul className="flex flex-col gap-1">
                 {manifest.participants.map(p => (
                   <li key={p.address ?? p.anonId ?? p.handle} className="flex items-center gap-2 text-sm">
-                    {p.address ? (
+                    {p.handle ? (
+                      // User picked a name via the live UI — chosen name wins
+                      // over ENS reverse-resolution. Truncated address sits
+                      // underneath when one exists, mirroring <Address>.
+                      <div className="flex flex-col">
+                        <span style={{ color: "var(--slop-text)" }}>{p.handle}</span>
+                        {p.address ? (
+                          <span className="slop-mono text-[10px]" style={{ color: "var(--slop-text-muted)" }}>
+                            {`${p.address.slice(0, 6)}…${p.address.slice(-4)}`}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : p.address ? (
                       <Address address={p.address as `0x${string}`} />
                     ) : (
-                      <span style={{ color: "var(--slop-text)" }}>{p.handle ?? "Anon"}</span>
+                      <span style={{ color: "var(--slop-text)" }}>Anon</span>
                     )}
                     {p.role ? (
                       <span className="slop-mono text-[10px]" style={{ color: "var(--slop-text-muted)" }}>
