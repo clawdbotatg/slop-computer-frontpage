@@ -225,9 +225,15 @@ const Hero = () => {
           className="m-0"
           style={{
             fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace",
-            // ASCII block is 103 chars wide. Same scaling formula as
+            // ASCII block is 102 chars wide. Same scaling formula as
             // ethskills: take the available width, divide by char count.
-            fontSize: "clamp(0.3rem, calc((100vw - 3rem) / 110), 1rem)",
+            // NOTE: no clamp() lower bound — a fixed floor (we used to pin
+            // 0.3rem) stops the font shrinking below ~576px viewport, so the
+            // block keeps its floored width and overflows narrow phones
+            // (< ~380px), causing horizontal scroll. min() keeps the 1rem cap
+            // on desktop while letting the calc keep scaling all the way down,
+            // and the /110 divisor guarantees the block always fits.
+            fontSize: "min(1rem, calc((100vw - 3rem) / 110))",
             lineHeight: 1,
             whiteSpace: "pre",
             color: "var(--slop-magenta)",
