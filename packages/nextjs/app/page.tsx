@@ -224,7 +224,13 @@ const Hero = () => {
           aria-hidden
           className="m-0"
           style={{
-            fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace",
+            // Lead with the webfont we actually ship (--font-jetbrains-mono,
+            // loaded via next/font in layout.tsx) so EVERY device renders the
+            // block/box-drawing glyphs at a uniform advance. The locally-
+            // installed names that follow are just fast-path fallbacks for
+            // machines that happen to have them; generic monospace is last.
+            fontFamily:
+              "var(--font-jetbrains-mono), 'SF Mono', 'Cascadia Code', 'Fira Code', 'Menlo', 'Consolas', monospace",
             // ASCII block is 102 chars wide. Same scaling formula as
             // ethskills: take the available width, divide by char count.
             // NOTE: no clamp() lower bound — a fixed floor (we used to pin
