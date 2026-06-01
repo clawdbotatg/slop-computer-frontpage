@@ -30,6 +30,7 @@ export const RPC_CHAIN_NAMES: Record<number, string> = {
   [chains.polygonZkEvm.id]: "polygonzkevm-mainnet",
   [chains.polygonZkEvmTestnet.id]: "polygonzkevm-testnet",
   [chains.base.id]: "base-mainnet",
+  [chains.gnosis.id]: "gnosis-mainnet",
   [chains.baseGoerli.id]: "base-goerli",
   [chains.baseSepolia.id]: "base-sepolia",
   [chains.celo.id]: "celo-mainnet",

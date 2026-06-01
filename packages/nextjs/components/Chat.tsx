@@ -7,6 +7,7 @@ import type { Address as AddressType } from "viem";
 import { useAccount, useSignMessage } from "wagmi";
 import { Button } from "~~/components/ui";
 import { type ChatMessage, RELAY_HTTP_URL, useChat } from "~~/hooks/useChat";
+import { useTip } from "~~/hooks/useTip";
 
 /**
  * Embedded chat — messages + input + SIWE flow. Always-visible, fills its
@@ -21,6 +22,7 @@ export const Chat = ({ slug }: { slug: string }) => {
   const { address: walletAddress, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { openConnectModal } = useConnectModal();
+  const requestTip = useTip(slug);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [errorText, setErrorText] = useState("");
@@ -76,6 +78,15 @@ export const Chat = ({ slug }: { slug: string }) => {
     setBusy(true);
     setErrorText("");
     try {
+      // `/tip <amount> <chain>` sends ETH from the viewer's own wallet to the
+      // room multisig, then announces it (chat line + live-stream flying
+      // card). Progress/errors surface in the status slot; the success line
+      // comes back over SSE as the tip emote.
+      if (/^\/tip(\s|$)/i.test(text)) {
+        await requestTip(text.replace(/^\/tip\s*/i, ""), setErrorText);
+        setDraft("");
+        return;
+      }
       const res = await send(text);
       if (res.ok) {
         setDraft("");
@@ -122,7 +133,7 @@ export const Chat = ({ slug }: { slug: string }) => {
                 type="text"
                 value={draft}
                 maxLength={500}
-                placeholder="say something…"
+                placeholder="say something… or /tip 0.001 base eth"
                 onChange={e => setDraft(e.target.value)}
                 disabled={busy}
                 onKeyDown={e => {

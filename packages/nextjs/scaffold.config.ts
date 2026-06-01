@@ -1,4 +1,4 @@
-import { mainnet as mainnetBase } from "viem/chains";
+import { base as baseBase, gnosis as gnosisBase, mainnet as mainnetBase } from "viem/chains";
 import type { Chain } from "viem/chains";
 
 export type BaseConfig = {
@@ -12,12 +12,15 @@ export type BaseConfig = {
 
 export type ScaffoldConfig = BaseConfig;
 
-const ALCHEMY_MAINNET_RPC = `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? ""}`;
+const ALCHEMY_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? "";
+const ALCHEMY_MAINNET_RPC = `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`;
+const ALCHEMY_BASE_RPC = `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`;
+const ALCHEMY_GNOSIS_RPC = `https://gnosis-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`;
 
-// Patched mainnet: viem ships chains.mainnet with eth.merkle.io as the public RPC,
-// which gets used by any code path that reads chain.rpcUrls directly (ENS,
-// AddressQRCodeModal, etc.) — bypassing wagmi's transport rpcOverrides. Patch the
-// chain definition itself so every path resolves to Alchemy.
+// Patched chains: viem ships these with public RPCs (eth.merkle.io etc.) that
+// get used by any code path reading chain.rpcUrls directly (ENS,
+// AddressQRCodeModal) — bypassing wagmi's transport rpcOverrides. Patch the
+// chain definitions so every path resolves to Alchemy.
 export const mainnet = {
   ...mainnetBase,
   rpcUrls: {
@@ -26,9 +29,22 @@ export const mainnet = {
   },
 } as const satisfies Chain;
 
+// Base + Gnosis are here only so spectators can `/tip` on them — they mirror
+// the relay's TIP_CHAIN_LABELS / the live app's tip chains. mainnet stays
+// targetNetworks[0] (the default network for ENS, ETH price, etc.).
+export const base = {
+  ...baseBase,
+  rpcUrls: { default: { http: [ALCHEMY_BASE_RPC] }, public: { http: [ALCHEMY_BASE_RPC] } },
+} as const satisfies Chain;
+
+export const gnosis = {
+  ...gnosisBase,
+  rpcUrls: { default: { http: [ALCHEMY_GNOSIS_RPC] }, public: { http: [ALCHEMY_GNOSIS_RPC] } },
+} as const satisfies Chain;
+
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [mainnet],
+  targetNetworks: [mainnet, base, gnosis],
   // The interval at which your front-end polls the RPC servers for new data (it has no effect if you only target the local network (default is 4000))
   pollingInterval: 30000,
   // Alchemy API key — required for mainnet. If unset, the patched mainnet URL
@@ -38,6 +54,8 @@ const scaffoldConfig = {
   // The key is the chain ID, and the value is the HTTP RPC URL
   rpcOverrides: {
     [mainnet.id]: ALCHEMY_MAINNET_RPC,
+    [base.id]: ALCHEMY_BASE_RPC,
+    [gnosis.id]: ALCHEMY_GNOSIS_RPC,
   },
   // This is ours WalletConnect's default project ID.
   // You can get your own at https://cloud.walletconnect.com
