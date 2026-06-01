@@ -304,7 +304,7 @@ const Hero = () => {
       >
         an onchain podcast for technical humans building with ai:
         <br />
-        the sloperators, the clawdoggers, the forward deployed context goblins.
+        the cypherpunks, the sloperators, the forward deployed context goblins.
       </p>
 
       <p
