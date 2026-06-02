@@ -15,7 +15,16 @@ import {
   parseEther,
   parseUnits,
 } from "viem";
-import { useAccount, useBalance, useChainId, useReadContract, useSwitchChain } from "wagmi";
+import { namehash, normalize } from "viem/ens";
+import {
+  useAccount,
+  useBalance,
+  useChainId,
+  usePublicClient,
+  useReadContract,
+  useSwitchChain,
+  useWriteContract,
+} from "wagmi";
 import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -1008,51 +1017,191 @@ const AddEpisodeForm = ({ onDone }: { onDone: () => void }) => {
   );
 };
 
-// Sets the contract's primary ENS name via the on-chain ReverseRegistrar
-// (SlopComputer.setName). Point a name's address record at the contract
-// first (e.g. slopcomputer.eth → 0xf3ce…), then claim the reverse record
-// here so explorers show the name instead of the raw address.
-const SetNamePanel = () => {
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
-  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
+// Legacy single-coin (ETH / coinType 60) setter on the ENS public resolver.
+const RESOLVER_SETADDR_ABI = [
+  {
+    type: "function",
+    name: "setAddr",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "node", type: "bytes32" },
+      { name: "a", type: "address" },
+    ],
+    outputs: [],
+  },
+] as const;
 
-  const submit = async () => {
-    setError("");
-    setDone(false);
-    const trimmed = name.trim();
-    if (!trimmed) return setError("name required (e.g. slopcomputer.eth)");
+// Wires up the contract's ENS name in BOTH directions — they're two separate
+// records and two separate txs:
+//   forward (name → contract): setAddr on the name's resolver. Signed by the
+//     ENS name owner (assumed to be the connected wallet).
+//   reverse (contract → name): SlopComputer.setName via the ReverseRegistrar.
+//     Signed by the contract owner.
+const SetNamePanel = () => {
+  const [name, setName] = useState("slopcomputer.eth");
+  const publicClient = usePublicClient();
+
+  // forward — name's address record → this contract
+  const { writeContractAsync: writeForward } = useWriteContract();
+  const [fwdBusy, setFwdBusy] = useState(false);
+  const [fwdError, setFwdError] = useState("");
+  const [fwdDone, setFwdDone] = useState(false);
+
+  // reverse — contract's primary name → this name
+  const { writeContractAsync: writeReverse, isMining: revMining } = useScaffoldWriteContract({
+    contractName: "SlopComputer",
+  });
+  const [revError, setRevError] = useState("");
+  const [revDone, setRevDone] = useState(false);
+
+  // Live: what does the name's address record currently point at? undefined =
+  // loading, null = no record / resolve failed.
+  const [currentAddr, setCurrentAddr] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    const n = name.trim();
+    if (!n || !publicClient) {
+      setCurrentAddr(null);
+      return;
+    }
+    setCurrentAddr(undefined);
+    (async () => {
+      try {
+        const addr = await publicClient.getEnsAddress({ name: normalize(n) });
+        if (!cancelled) setCurrentAddr(addr);
+      } catch {
+        if (!cancelled) setCurrentAddr(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [name, publicClient, fwdDone]);
+
+  const pointsHere = !!currentAddr && currentAddr.toLowerCase() === CONTRACT_ADDRESS.toLowerCase();
+
+  const setForward = async () => {
+    setFwdError("");
+    setFwdDone(false);
+    const n = name.trim();
+    if (!n) return setFwdError("ens name required");
+    if (!publicClient) return setFwdError("no rpc client");
+    let normalized: string;
+    let node: `0x${string}`;
     try {
-      await writeContractAsync({ functionName: "setName", args: [trimmed] });
-      setDone(true);
+      normalized = normalize(n);
+      node = namehash(normalized);
+    } catch {
+      return setFwdError("invalid ens name");
+    }
+    setFwdBusy(true);
+    try {
+      const resolver = await publicClient.getEnsResolver({ name: normalized });
+      if (!resolver || resolver === ZERO_ADDRESS) {
+        setFwdError("no resolver set for this name — set one in the ENS app first");
+        return;
+      }
+      await writeForward({
+        address: resolver,
+        abi: RESOLVER_SETADDR_ABI,
+        functionName: "setAddr",
+        args: [node, CONTRACT_ADDRESS],
+      });
+      setFwdDone(true);
     } catch (e) {
-      setError((e as Error).message || "tx failed");
+      setFwdError((e as Error).message || "tx failed (is this wallet the owner/manager of the ENS name?)");
+    } finally {
+      setFwdBusy(false);
     }
   };
 
+  const setReverse = async () => {
+    setRevError("");
+    setRevDone(false);
+    const n = name.trim();
+    if (!n) return setRevError("ens name required");
+    try {
+      await writeReverse({ functionName: "setName", args: [n] });
+      setRevDone(true);
+    } catch (e) {
+      setRevError((e as Error).message || "tx failed");
+    }
+  };
+
+  const label = name.trim() || "name";
+  const subLabel = "slop-mono text-[11px] uppercase tracking-widest";
+
   return (
-    <Section label={"// ens · primary name"} title="Set the contract's ENS name">
+    <Section label={"// ens · primary name"} title="Wire up the contract's ENS name">
       <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
-        claims the reverse record (addr.reverse) so reverse lookups resolve this contract to a name. first set the
-        name&apos;s address record to point at <span className="break-all">{CONTRACT_ADDRESS}</span>, then claim it
-        here.
+        two independent records, one tx each. <strong>forward</strong> points the name at this contract (you sign as the
+        ENS name owner); <strong>reverse</strong> claims the name as the contract&apos;s primary (you sign as the
+        contract owner).
       </p>
       <FormField label="ens name" value={name} onChange={setName} placeholder="slopcomputer.eth" mono />
-      {error ? (
-        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
-          {error}
+      <KV
+        k="resolves to"
+        v={
+          currentAddr === undefined
+            ? "…"
+            : currentAddr
+              ? `${currentAddr}${pointsHere ? "   ✓ this contract" : "   ✗ not this contract"}`
+              : "(no address record)"
+        }
+      />
+
+      {/* 1 · forward */}
+      <div className="flex flex-col gap-2 pt-1">
+        <span className={subLabel} style={{ color: "var(--slop-magenta)" }}>
+          {"// 1 · forward — "}
+          {label} → contract
+        </span>
+        <span className="slop-mono text-[11px] break-all" style={{ color: "var(--slop-text-muted)" }}>
+          sets {label}&apos;s ETH address record to {CONTRACT_ADDRESS}
+        </span>
+        {fwdError ? (
+          <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+            {fwdError}
+          </div>
+        ) : null}
+        {fwdDone ? (
+          <div className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+            forward record set ✓
+          </div>
+        ) : null}
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => void setForward()} disabled={fwdBusy || pointsHere}>
+            {fwdBusy ? "Signing…" : pointsHere ? "Already points here ✓" : `Point ${label} → contract`}
+          </Button>
         </div>
-      ) : null}
-      {done ? (
-        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
-          name set ✓
+      </div>
+
+      <div style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)" }} className="my-1" />
+
+      {/* 2 · reverse */}
+      <div className="flex flex-col gap-2">
+        <span className={subLabel} style={{ color: "var(--slop-magenta)" }}>
+          {"// 2 · reverse — contract → "}
+          {label}
+        </span>
+        <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+          claims the reverse record (addr.reverse) so explorers show {label} instead of the raw address
+        </span>
+        {revError ? (
+          <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+            {revError}
+          </div>
+        ) : null}
+        {revDone ? (
+          <div className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+            primary name set ✓
+          </div>
+        ) : null}
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => void setReverse()} disabled={revMining}>
+            {revMining ? "Signing…" : `Set ${label} as primary name`}
+          </Button>
         </div>
-      ) : null}
-      <div className="flex flex-wrap gap-3 pt-1">
-        <Button onClick={() => void submit()} disabled={isMining}>
-          {isMining ? "Signing…" : "Set ENS name"}
-        </Button>
       </div>
     </Section>
   );
