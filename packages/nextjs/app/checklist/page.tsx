@@ -149,7 +149,7 @@ const ChecklistPage: NextPage = () => {
     {
       id: "start-broadcast",
       label: "Start the broadcast (server-side OR OBS)",
-      body: "Either: live admin → Server-side broadcast → Start (headless chromium + ffmpeg next to mediamtx), OR: live admin → Set up OBS → paste RTMP URL+key into OBS → Start Streaming. Either path produces HLS segments at media.slop.computer.",
+      body: "Either: live admin → Server-side broadcast → Start (headless chromium + ffmpeg next to mediamtx), OR: live admin → Set up OBS → paste RTMP URL+key into OBS → Start Streaming. Either path produces HLS segments at media.slop.computer. MAKE SURE OBS EQ SEES AUDIO — check the EQ/levels are actually moving before you go live, a dead audio meter means the stream is going out silent.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Broadcast", external: true }],
       status: broadcast.tone === "green" ? broadcast : hls,
     },
