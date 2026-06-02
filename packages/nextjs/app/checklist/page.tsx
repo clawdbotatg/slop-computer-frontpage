@@ -128,11 +128,23 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · [god] copy", external: true }],
     },
     {
+      id: "obs-mobile-record",
+      label: "Open the [mobile] link on the godMode machine + hit Record in OBS",
+      body: "Live admin → Rooms → [mobile] (copies the room link with mobileMode appended → portrait clip-recording layout). Open it in a second tab/window on the streaming box, add it as an OBS source, and hit Record so you capture the vertical mobile feed for clips. Recording is separate from Start Streaming — make sure it's actually rolling.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · [mobile] copy", external: true }],
+    },
+    {
       id: "guest-joined",
       label: "Confirm the guest joined the room",
       body: "Live admin → Connected guests shows every peer on the relay (refreshes every 3s). Wait until you see them before going live.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Connected guests", external: true }],
       status: peers,
+    },
+    {
+      id: "green-room-standby",
+      label: "Drop into green-room standby + clear the STT transcript",
+      body: "On the godMode machine, hit Spacebar to enter the green room — the AirSign flips to STANDBY and viewers see the preview card, not the room, so you can do soundcheck / backstage chatter safely. Then in live admin → Rooms → Reset (→ Confirm) on this room to wipe the STT transcript, so none of the green-room talk lands in the recorded transcript. Spacebar again leaves standby when you're ready to go ON AIR.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms → Reset transcript", external: true }],
     },
     {
       id: "start-broadcast",
