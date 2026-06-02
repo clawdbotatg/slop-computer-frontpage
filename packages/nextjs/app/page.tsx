@@ -226,14 +226,31 @@ const AsciiWordmark = () => {
     const measure = () => {
       const available = fit.clientWidth;
       const naturalWidth = block.scrollWidth;
-      if (!naturalWidth) return;
+      // Bail on a zero-width read (block not laid out yet) — the ResizeObserver
+      // below watches `block`, so it'll re-fire the moment it gains real size.
+      if (!naturalWidth || !available) return;
       const scale = Math.min(1, available / naturalWidth);
       setBox({ scale, height: block.scrollHeight * scale });
     };
     measure();
+    // Observe BOTH the container (width changes → rescale) AND the block
+    // itself. The block observer is what makes this self-healing: if the
+    // first synchronous measure reads a stale/zero size (e.g. a layout race
+    // on the loading→BrandHomepage remount), it fires again the instant the
+    // block's real dimensions land, so we never get stuck unscaled.
     const ro = new ResizeObserver(measure);
     ro.observe(fit);
-    return () => ro.disconnect();
+    ro.observe(block);
+    // Local fonts make glyph metrics available immediately, but re-measure
+    // once fonts settle as cheap insurance against a metric shift.
+    let cancelled = false;
+    document.fonts?.ready.then(() => {
+      if (!cancelled) measure();
+    });
+    return () => {
+      cancelled = true;
+      ro.disconnect();
+    };
   }, []);
 
   return (
@@ -256,6 +273,12 @@ const AsciiWordmark = () => {
           textAlign: "left",
           transform: box ? `scale(${box.scale})` : undefined,
           transformOrigin: "top center",
+          // Stay invisible until measured so the full-size, unscaled block
+          // never paints and gets clipped by the centered overflow-hidden
+          // container (the ".OP.COMPUT" middle-slice bug). measure() runs in
+          // useLayoutEffect before paint, so in the normal path this resolves
+          // within the same frame — no visible delay.
+          visibility: box ? "visible" : "hidden",
         }}
       >
         {SLOP_ASCII}
