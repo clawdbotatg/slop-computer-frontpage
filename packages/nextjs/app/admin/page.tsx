@@ -5,8 +5,17 @@ import { useSearchParams } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { AddressInput } from "@scaffold-ui/components";
 import type { NextPage } from "next";
-import { getAddress, isAddress } from "viem";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import {
+  encodeFunctionData,
+  erc20Abi,
+  formatEther,
+  formatUnits,
+  getAddress,
+  isAddress,
+  parseEther,
+  parseUnits,
+} from "viem";
+import { useAccount, useBalance, useChainId, useReadContract, useSwitchChain } from "wagmi";
 import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -195,6 +204,8 @@ const OwnerConsole = () => {
         onChange={refreshAll}
       />
       <AddEpisodeForm onDone={refreshAll} />
+      <SetNamePanel />
+      <RecoverAssetsPanel />
     </div>
   );
 };
@@ -992,6 +1003,221 @@ const AddEpisodeForm = ({ onDone }: { onDone: () => void }) => {
         <Button onClick={() => void submit()} disabled={isMining}>
           {isMining ? "Signing…" : "Add episode"}
         </Button>
+      </div>
+    </Section>
+  );
+};
+
+// Sets the contract's primary ENS name via the on-chain ReverseRegistrar
+// (SlopComputer.setName). Point a name's address record at the contract
+// first (e.g. slopcomputer.eth → 0xf3ce…), then claim the reverse record
+// here so explorers show the name instead of the raw address.
+const SetNamePanel = () => {
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
+
+  const submit = async () => {
+    setError("");
+    setDone(false);
+    const trimmed = name.trim();
+    if (!trimmed) return setError("name required (e.g. slopcomputer.eth)");
+    try {
+      await writeContractAsync({ functionName: "setName", args: [trimmed] });
+      setDone(true);
+    } catch (e) {
+      setError((e as Error).message || "tx failed");
+    }
+  };
+
+  return (
+    <Section label={"// ens · primary name"} title="Set the contract's ENS name">
+      <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
+        claims the reverse record (addr.reverse) so reverse lookups resolve this contract to a name. first set the
+        name&apos;s address record to point at <span className="break-all">{CONTRACT_ADDRESS}</span>, then claim it
+        here.
+      </p>
+      <FormField label="ens name" value={name} onChange={setName} placeholder="slopcomputer.eth" mono />
+      {error ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+          {error}
+        </div>
+      ) : null}
+      {done ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+          name set ✓
+        </div>
+      ) : null}
+      <div className="flex flex-wrap gap-3 pt-1">
+        <Button onClick={() => void submit()} disabled={isMining}>
+          {isMining ? "Signing…" : "Set ENS name"}
+        </Button>
+      </div>
+    </Section>
+  );
+};
+
+// Owner escape hatch (SlopComputer.execute). Recovers ETH or ERC-20s sent
+// to the contract by mistake:
+//   ETH:    execute(to, amount, "0x")           — contract forwards its own balance
+//   ERC-20: execute(token, 0, transfer(to, amt)) — encoded transfer call
+const RecoverAssetsPanel = () => {
+  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
+
+  // --- ETH ---
+  const { data: ethBalance, refetch: refetchEth } = useBalance({ address: CONTRACT_ADDRESS, query: READ_QUERY });
+  const [ethTo, setEthTo] = useState("");
+  const [ethAmount, setEthAmount] = useState("");
+  const [ethError, setEthError] = useState("");
+
+  const sendEth = async () => {
+    setEthError("");
+    if (!isAddress(ethTo)) return setEthError("recipient address invalid");
+    let value: bigint;
+    try {
+      value = parseEther(ethAmount.trim() || "0");
+    } catch {
+      return setEthError("amount invalid");
+    }
+    if (value <= 0n) return setEthError("amount must be greater than 0");
+    if (ethBalance && value > ethBalance.value) return setEthError("amount exceeds contract balance");
+    try {
+      await writeContractAsync({ functionName: "execute", args: [getAddress(ethTo), value, "0x"] });
+      setEthAmount("");
+      void refetchEth();
+    } catch (e) {
+      setEthError((e as Error).message || "tx failed");
+    }
+  };
+
+  // --- ERC-20 ---
+  const [token, setToken] = useState("");
+  const [tokenTo, setTokenTo] = useState("");
+  const [tokenAmount, setTokenAmount] = useState("");
+  const [tokenError, setTokenError] = useState("");
+  const tokenIsValid = isAddress(token);
+  const tokenAddress = tokenIsValid ? getAddress(token) : undefined;
+  const { data: tokenDecimals } = useReadContract({
+    address: tokenAddress,
+    abi: erc20Abi,
+    functionName: "decimals",
+    query: { enabled: tokenIsValid },
+  });
+  const { data: tokenSymbol } = useReadContract({
+    address: tokenAddress,
+    abi: erc20Abi,
+    functionName: "symbol",
+    query: { enabled: tokenIsValid },
+  });
+  const { data: tokenBalance, refetch: refetchToken } = useReadContract({
+    address: tokenAddress,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [CONTRACT_ADDRESS],
+    query: { enabled: tokenIsValid },
+  });
+  const decimals = tokenDecimals ?? 18;
+
+  const sendToken = async () => {
+    setTokenError("");
+    if (!tokenIsValid) return setTokenError("token address invalid");
+    if (!isAddress(tokenTo)) return setTokenError("recipient address invalid");
+    let amount: bigint;
+    try {
+      amount = parseUnits(tokenAmount.trim() || "0", decimals);
+    } catch {
+      return setTokenError("amount invalid");
+    }
+    if (amount <= 0n) return setTokenError("amount must be greater than 0");
+    if (tokenBalance !== undefined && amount > tokenBalance) return setTokenError("amount exceeds contract balance");
+    const data = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [getAddress(tokenTo), amount],
+    });
+    try {
+      await writeContractAsync({ functionName: "execute", args: [getAddress(token), 0n, data] });
+      setTokenAmount("");
+      void refetchToken();
+    } catch (e) {
+      setTokenError((e as Error).message || "tx failed");
+    }
+  };
+
+  return (
+    <Section label={"// recover · escape hatch"} title="Recover assets sent to the contract">
+      <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
+        forwards an arbitrary call from the contract (owner-only). use it to sweep ETH or tokens that landed here by
+        mistake to a wallet you control.
+      </p>
+
+      {/* ETH */}
+      <div className="flex flex-col gap-3 pt-1">
+        <KV k="eth held" v={ethBalance ? `${formatEther(ethBalance.value)} ETH` : "…"} />
+        <AddressField label="send eth to" value={ethTo} onChange={setEthTo} placeholder={ZERO_ADDRESS} />
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <FormField label="amount (ETH)" value={ethAmount} onChange={setEthAmount} placeholder="0.0" mono />
+          </div>
+          <Button
+            onClick={() => ethBalance && setEthAmount(formatEther(ethBalance.value))}
+            disabled={!ethBalance || ethBalance.value === 0n}
+          >
+            Max
+          </Button>
+        </div>
+        {ethError ? (
+          <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+            {ethError}
+          </div>
+        ) : null}
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => void sendEth()} disabled={isMining}>
+            {isMining ? "Signing…" : "Recover ETH"}
+          </Button>
+        </div>
+      </div>
+
+      <div style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)" }} className="my-2" />
+
+      {/* ERC-20 */}
+      <div className="flex flex-col gap-3">
+        <AddressField label="token contract" value={token} onChange={setToken} placeholder={ZERO_ADDRESS} />
+        {tokenIsValid ? (
+          <KV
+            k="held"
+            v={tokenBalance !== undefined ? `${formatUnits(tokenBalance, decimals)} ${tokenSymbol ?? ""}`.trim() : "…"}
+          />
+        ) : null}
+        <AddressField label="send token to" value={tokenTo} onChange={setTokenTo} placeholder={ZERO_ADDRESS} />
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <FormField
+              label={`amount${tokenSymbol ? ` (${tokenSymbol})` : ""}`}
+              value={tokenAmount}
+              onChange={setTokenAmount}
+              placeholder="0.0"
+              mono
+            />
+          </div>
+          <Button
+            onClick={() => tokenBalance !== undefined && setTokenAmount(formatUnits(tokenBalance, decimals))}
+            disabled={tokenBalance === undefined || tokenBalance === 0n}
+          >
+            Max
+          </Button>
+        </div>
+        {tokenError ? (
+          <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+            {tokenError}
+          </div>
+        ) : null}
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={() => void sendToken()} disabled={isMining}>
+            {isMining ? "Signing…" : "Recover token"}
+          </Button>
+        </div>
       </div>
     </Section>
   );
