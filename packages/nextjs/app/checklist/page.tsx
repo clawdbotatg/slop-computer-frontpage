@@ -76,6 +76,7 @@ const ChecklistPage: NextPage = () => {
     id: string;
     label: string;
     body?: string;
+    subItems?: string[];
     links?: Array<{ href: string; text: string; external?: boolean }>;
     status?: Status;
   };
@@ -132,6 +133,16 @@ const ChecklistPage: NextPage = () => {
       label: "Open the [mobile] link on the godMode machine + hit Record in OBS",
       body: "Live admin → Rooms → [mobile] (copies the room link with mobileMode appended → portrait clip-recording layout). Open it in a second tab/window on the streaming box, add it as an OBS source, and hit Record so you capture the vertical mobile feed for clips. Recording is separate from Start Streaming — make sure it's actually rolling.",
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · [mobile] copy", external: true }],
+    },
+    {
+      id: "bring-clawd-in",
+      label: "Bring clawd into the room",
+      body: "Run the clawd bridge, open OBS, and start the virtual camera/device so clawd's feed is available. Then wire up the audio routing in the room — get every BlackHole channel right before you let clawd talk, or the mix goes out wrong.",
+      subItems: [
+        "System sound IN → BlackHole 16ch",
+        "System sound OUT → BlackHole 16ch (but really this should be BlackHole 2ch)",
+        "Share video in room with mic share → BlackHole 2ch!",
+      ],
     },
     {
       id: "guest-joined",
@@ -335,6 +346,7 @@ const ChecklistRow = ({
     id: string;
     label: string;
     body?: string;
+    subItems?: string[];
     links?: Array<{ href: string; text: string; external?: boolean }>;
     status?: Status;
   };
@@ -378,6 +390,20 @@ const ChecklistRow = ({
           <p className="slop-mono text-[11px] m-0" style={{ color: "var(--slop-text-muted)" }}>
             {item.body}
           </p>
+        ) : null}
+        {item.subItems?.length ? (
+          <ul className="slop-mono text-[11px] m-0 mt-1 p-0 list-none flex flex-col gap-1">
+            {item.subItems.map(s => (
+              <li
+                key={s}
+                className="flex items-start gap-2 pl-2"
+                style={{ color: "var(--slop-text)", borderLeft: "2px solid rgba(255, 62, 201, 0.4)" }}
+              >
+                <span style={{ color: "var(--slop-magenta)" }}>▸</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
         ) : null}
         {item.links?.length ? (
           <div className="flex flex-wrap gap-3 pt-1">
