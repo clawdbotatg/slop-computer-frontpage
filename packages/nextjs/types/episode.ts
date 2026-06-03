@@ -120,6 +120,33 @@ export const formatDate = (datetime: bigint) => {
   return new Date(Number(datetime) * 1000).toISOString().slice(0, 10);
 };
 
+// The show runs out of Mountain Time, so we render every scheduled start in
+// that zone and label it "MT" — every viewer reads the same wall-clock start
+// regardless of their own locale, rather than a time silently shifted into it.
+export const SHOW_TZ = "America/Denver";
+
+/**
+ * Full "Tue, Jun 3, 10:00 AM MT" stamp from a unix-seconds bigint. Pinned to
+ * {@link SHOW_TZ} and suffixed "MT". Drops the year unless it differs from the
+ * current year (compared in the same zone so a late-night slot doesn't flip it).
+ * `0n` → `"—"`, matching {@link formatDate}.
+ */
+export const formatDateTimeMT = (datetime: bigint): string => {
+  if (datetime === 0n) return "—";
+  const d = new Date(Number(datetime) * 1000);
+  const opts: Intl.DateTimeFormatOptions = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: SHOW_TZ,
+  };
+  const yearIn = (when: Date) => new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: SHOW_TZ }).format(when);
+  if (yearIn(d) !== yearIn(new Date())) opts.year = "numeric";
+  return `${new Intl.DateTimeFormat("en-US", opts).format(d)} MT`;
+};
+
 export const isZeroEpisode = (ep: Episode | undefined) => !ep || ep.id === ZERO_BYTES32;
 
 /**

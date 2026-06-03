@@ -13,7 +13,7 @@ import {
   ZERO_ADDRESS,
   ZERO_BYTES32,
   fetchManifest,
-  formatDate,
+  formatDateTimeMT,
   gatewayUrl,
   isZeroEpisode,
   relaySlug,
@@ -148,7 +148,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
           {isLive ? <span style={{ color: "var(--slop-lime)" }}>● LIVE</span> : null}
           {episode.datetime !== 0n ? (
             <>
-              <span>{formatDate(episode.datetime)}</span>
+              <span>{formatDateTimeMT(episode.datetime)}</span>
               <span>·</span>
             </>
           ) : null}

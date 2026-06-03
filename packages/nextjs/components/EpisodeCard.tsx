@@ -2,7 +2,15 @@
 
 import React, { type ReactElement, useEffect, useState } from "react";
 import { Button, LivePulse } from "~~/components/ui";
-import { type Episode, type EpisodeManifest, fetchManifest, formatDate, gatewayUrl, relaySlug } from "~~/types/episode";
+import {
+  type Episode,
+  type EpisodeManifest,
+  fetchManifest,
+  formatDate,
+  formatDateTimeMT,
+  gatewayUrl,
+  relaySlug,
+} from "~~/types/episode";
 
 const HLS_URL = process.env.NEXT_PUBLIC_HLS_URL || "https://media.slop.computer/hls/live/index.m3u8";
 
@@ -39,29 +47,11 @@ const LazyHlsPreview = ({ src }: { src: string }) => {
   return <Player src={src} className="absolute inset-0 w-full h-full" controls={false} />;
 };
 
-// Friendly format for the "going live at …" badge. `0n` collapses to "soon!"
-// so an episode reserved without a datetime still gets a CTA. Drops the year
-// when it matches now so the badge stays tight. We pin the zone to Mountain
-// Time (the show's home tz) and label it "MT" so every viewer — regardless of
-// their own locale — reads the same wall-clock start time.
-const SHOW_TZ = "America/Denver";
-const formatScheduledTime = (datetime: bigint): string => {
-  if (datetime === 0n) return "soon!";
-  const d = new Date(Number(datetime) * 1000);
-  const opts: Intl.DateTimeFormatOptions = {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: SHOW_TZ,
-  };
-  // Compare years in the show's tz so a late-night episode doesn't flip the year.
-  const nowYear = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: SHOW_TZ }).format(new Date());
-  const epYear = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: SHOW_TZ }).format(d);
-  if (epYear !== nowYear) opts.year = "numeric";
-  return `${new Intl.DateTimeFormat("en-US", opts).format(d)} MT`;
-};
+// The "going live at …" badge: `0n` has no scheduled time, so it collapses to
+// "soon!" (still gives the reserved episode a CTA); otherwise the shared
+// Mountain-Time stamp.
+const formatScheduledTime = (datetime: bigint): string =>
+  datetime === 0n ? "soon!" : formatDateTimeMT(datetime);
 
 /**
  * One-row-per-episode card with the unfurl image on the left and meta + title +
