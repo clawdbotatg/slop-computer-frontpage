@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { AddressInput } from "@scaffold-ui/components";
+import { CID } from "multiformats/cid";
 import type { NextPage } from "next";
 import {
   encodeFunctionData,
@@ -214,6 +215,7 @@ const OwnerConsole = () => {
       />
       <AddEpisodeForm onDone={refreshAll} />
       <SetNamePanel />
+      <SetContenthashPanel />
       <RecoverAssetsPanel />
     </div>
   );
@@ -1031,6 +1033,79 @@ const RESOLVER_SETADDR_ABI = [
   },
 ] as const;
 
+// EIP-1577 contenthash get/set on the ENS public resolver. `contenthash` is
+// the website record — eth.limo (and the .eth.link / native ENS gateways)
+// read it and serve whatever it points at. We only ever write an ipfs:// CID.
+const RESOLVER_CONTENTHASH_ABI = [
+  {
+    type: "function",
+    name: "setContenthash",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "node", type: "bytes32" },
+      { name: "hash", type: "bytes" },
+    ],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "contenthash",
+    stateMutability: "view",
+    inputs: [{ name: "node", type: "bytes32" }],
+    outputs: [{ name: "", type: "bytes" }],
+  },
+] as const;
+
+// The CID from the most recent `yarn ipfs` run — pre-fills the box so the
+// happy path is "open /admin → hit the button → sign". Paste a fresh CID here
+// (or in the box) after each app redeploy. New EPISODES don't need a redeploy:
+// the static export reads the registry contract client-side at runtime, so a
+// pin from weeks ago still shows today's episodes. You only re-run this loop
+// when the app code itself changes.
+const PLACEHOLDER_WEBSITE_CID = "bafybeidj23fbokjefsgr5hxvirl4ymh4vjnje3k2nxtfhnzkiqp7sfkcue";
+
+const stripCid = (raw: string): string =>
+  raw
+    .trim()
+    .replace(/^ipfs:\/\//i, "")
+    .replace(/\/+$/, "");
+
+// ipfs:// CID (v0 or v1) → EIP-1577 contenthash bytes. The protocol prefix
+// 0xe301 is the unsigned-varint of the `ipfs-ns` multicodec (0xe3); the rest
+// is the raw CIDv1 bytes. `.toV1()` normalizes a pasted Qm… (v0) so the gateways
+// resolve it. Throws on a malformed CID — caller surfaces the error.
+function cidToContenthash(rawCid: string): `0x${string}` {
+  const cid = CID.parse(stripCid(rawCid)).toV1();
+  const hex = Array.from(cid.bytes, b => b.toString(16).padStart(2, "0")).join("");
+  return `0xe301${hex}`;
+}
+
+// Reverse of the above, for showing the live record. Returns the CID string,
+// or null if the record is empty / not an ipfs-ns contenthash (e.g. ipns,
+// swarm) — we only display+manage ipfs here.
+function contenthashToCid(hash: string | undefined | null): string | null {
+  if (!hash) return null;
+  const lower = hash.toLowerCase();
+  if (!lower.startsWith("0xe301")) return null;
+  try {
+    const body = lower.slice(6);
+    const bytes = new Uint8Array(body.length / 2);
+    for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(body.slice(i * 2, i * 2 + 2), 16);
+    return CID.decode(bytes).toString();
+  } catch {
+    return null;
+  }
+}
+
+const sameCid = (a: string | null | undefined, b: string | null | undefined): boolean => {
+  if (!a || !b) return false;
+  try {
+    return CID.parse(stripCid(a)).toV1().toString() === CID.parse(stripCid(b)).toV1().toString();
+  } catch {
+    return false;
+  }
+};
+
 // Wires up the contract's ENS name in BOTH directions — they're two separate
 // records and two separate txs:
 //   forward (name → contract): setAddr on the name's resolver. Signed by the
@@ -1202,6 +1277,160 @@ const SetNamePanel = () => {
             {revMining ? "Signing…" : `Set ${label} as primary name`}
           </Button>
         </div>
+      </div>
+    </Section>
+  );
+};
+
+// Sets the ENS `contenthash` (website) record so slopcomputer.eth.limo mirrors
+// the slop.computer build. Signed by the ENS NAME owner/manager (not the
+// contract owner) — same resolver as the forward record above. Flow:
+//   yarn ipfs (prints a CID) → paste it here → Set website contenthash → sign.
+const SetContenthashPanel = () => {
+  const [name, setName] = useState("slopcomputer.eth");
+  const [cid, setCid] = useState(PLACEHOLDER_WEBSITE_CID);
+  const publicClient = usePublicClient();
+  const { writeContractAsync } = useWriteContract();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  // Live: what CID does the name's contenthash currently point at? undefined =
+  // loading, null = no ipfs record. `done` in deps re-reads after a successful tx.
+  const [currentCid, setCurrentCid] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    const n = name.trim();
+    if (!n || !publicClient) {
+      setCurrentCid(null);
+      return;
+    }
+    setCurrentCid(undefined);
+    (async () => {
+      try {
+        const normalized = normalize(n);
+        const resolver = await publicClient.getEnsResolver({ name: normalized });
+        if (!resolver || resolver === ZERO_ADDRESS) {
+          if (!cancelled) setCurrentCid(null);
+          return;
+        }
+        const hash = (await publicClient.readContract({
+          address: resolver,
+          abi: RESOLVER_CONTENTHASH_ABI,
+          functionName: "contenthash",
+          args: [namehash(normalized)],
+        })) as string;
+        if (!cancelled) setCurrentCid(contenthashToCid(hash));
+      } catch {
+        if (!cancelled) setCurrentCid(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [name, publicClient, done]);
+
+  const cleanCid = stripCid(cid);
+  const alreadySet = sameCid(currentCid, cleanCid);
+
+  const submit = async () => {
+    setError("");
+    setDone(false);
+    const n = name.trim();
+    if (!n) return setError("ens name required");
+    if (!cleanCid) return setError("cid required");
+    if (!publicClient) return setError("no rpc client");
+    let normalized: string;
+    let node: `0x${string}`;
+    let contenthash: `0x${string}`;
+    try {
+      normalized = normalize(n);
+      node = namehash(normalized);
+    } catch {
+      return setError("invalid ens name");
+    }
+    try {
+      contenthash = cidToContenthash(cleanCid);
+    } catch {
+      return setError("invalid CID — paste the bafy… string printed by `yarn ipfs`");
+    }
+    setBusy(true);
+    try {
+      const resolver = await publicClient.getEnsResolver({ name: normalized });
+      if (!resolver || resolver === ZERO_ADDRESS) {
+        setError("no resolver set for this name — set one in the ENS app first");
+        return;
+      }
+      await writeContractAsync({
+        address: resolver,
+        abi: RESOLVER_CONTENTHASH_ABI,
+        functionName: "setContenthash",
+        args: [node, contenthash],
+      });
+      setDone(true);
+    } catch (e) {
+      setError((e as Error).message || "tx failed (is this wallet the owner/manager of the ENS name?)");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const label = name.trim() || "name";
+
+  return (
+    <Section label={"// ens · website (contenthash)"} title="Mirror the site to slopcomputer.eth.limo">
+      <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
+        points {label}&apos;s <strong>contenthash</strong> at an IPFS build of this site, so <code>{label}.limo</code>{" "}
+        serves it. run <code>yarn ipfs</code> to build + pin (it prints a CID), paste it below, then sign as the ENS
+        name owner. <strong>new episodes don&apos;t need a redeploy</strong> — the pin reads the registry on-chain at
+        runtime; only re-run this when the app code changes.
+      </p>
+      <FormField label="ens name" value={name} onChange={setName} placeholder="slopcomputer.eth" mono />
+      <FormField label="ipfs cid (from `yarn ipfs`)" value={cid} onChange={setCid} placeholder="bafy…" mono />
+      <KV
+        k="currently"
+        v={
+          currentCid === undefined
+            ? "…"
+            : currentCid
+              ? `ipfs://${currentCid}${alreadySet ? "   ✓ matches the CID above" : ""}`
+              : "(no ipfs contenthash set)"
+        }
+      />
+      {cleanCid ? (
+        <div className="flex flex-wrap gap-4">
+          <a
+            className="slop-link slop-mono text-[11px]"
+            href={`https://community.bgipfs.com/ipfs/${cleanCid}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            preview pin on gateway ↗
+          </a>
+          <a
+            className="slop-link slop-mono text-[11px]"
+            href={`https://${label}.limo`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            open {label}.limo ↗
+          </a>
+        </div>
+      ) : null}
+      {error ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+          {error}
+        </div>
+      ) : null}
+      {done ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+          contenthash set ✓ — give the gateways a few minutes, then {label}.limo serves this build
+        </div>
+      ) : null}
+      <div className="flex flex-wrap gap-3 pt-1">
+        <Button variant="primary" onClick={() => void submit()} disabled={busy || !cleanCid || alreadySet}>
+          {busy ? "Signing…" : alreadySet ? "Already set to this CID ✓" : "Set website contenthash"}
+        </Button>
       </div>
     </Section>
   );

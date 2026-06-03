@@ -28,6 +28,7 @@
     "daisyui": "5.0.9",
     "hls.js": "~1.5.17",
     "kubo-rpc-client": "~5.0.2",
+    "multiformats": "~13.4.2",
     "next": "~15.2.8",
     "next-nprogress-bar": "~2.3.13",
     "next-themes": "~0.3.0",
