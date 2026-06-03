@@ -198,9 +198,15 @@ const ChecklistPage: NextPage = () => {
       status: fanouts,
     },
     {
+      id: "youtube-go-live",
+      label: "▶ CLICK GO LIVE ON YOUTUBE",
+      body: "DO NOT SKIP. Starting the fanout only pushes RTMP into YouTube — the stream sits in 'preview' and NO ONE can see it until you hit the Go Live button in YouTube Studio. This is the easiest step to forget and the whole reason this checklist exists. Open Studio, confirm it's ingesting the stream, then press Go Live.",
+      links: [{ href: "https://studio.youtube.com/", text: "YouTube Studio ↗", external: true }],
+    },
+    {
       id: "confirm-fanouts-live",
-      label: "Click Go Live in YouTube Studio + verify each destination is actually live",
-      body: "Starting the fanout only pushes the RTMP — YouTube still needs you to hit Go Live in Studio. Open each destination (YouTube, Twitch, Twitter, Kick) and confirm the stream is visible to viewers, not just received by the platform.",
+      label: "Verify each destination is actually live to viewers",
+      body: "Open each destination (YouTube, Twitch, Twitter, Kick) and confirm the stream is visible to viewers, not just received by the platform. For YouTube specifically, double-check the Go Live above actually flipped it public.",
       links: [
         { href: "https://studio.youtube.com/", text: "YouTube Studio ↗", external: true },
         { href: "https://twitter.com/", text: "x.com ↗", external: true },
