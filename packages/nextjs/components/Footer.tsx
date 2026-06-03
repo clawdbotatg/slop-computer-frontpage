@@ -39,6 +39,9 @@ export const Footer = () => {
             </a>
           ))}
         </div>
+        <a href="https://slopcomputer.eth.limo" target="_blank" rel="noreferrer" className="slop-link">
+          slopcomputer.eth.limo
+        </a>
         <div className="flex items-center gap-4">
           <Link href="/about" className="slop-link">
             about
