@@ -26,6 +26,13 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 const SLOP = externalContracts[1].SlopComputer;
 const FALLBACK_CARD_BASE = "https://live.slop.computer/v1/cards";
 
+// Cards are always baked at a fixed 1536x1024 (see relay `card.ts` SIZE) —
+// both the IPFS-pinned manifest card and the live relay's published.png.
+// Declaring the dimensions lets crawlers lay the card out without first
+// fetching the image, so unfurls resolve on the very first crawl.
+const CARD_WIDTH = 1536;
+const CARD_HEIGHT = 1024;
+
 const publicClient = createPublicClient({ chain: mainnet, transport: http() });
 
 const fallbackCardUrl = (slug: string) => `${FALLBACK_CARD_BASE}/${encodeURIComponent(slug)}/published.png`;
@@ -127,10 +134,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { title, description, cardUrl } = await resolveEpisodeMeta(slug);
   const meta = getMetadata({ title, description });
+  const image = { url: cardUrl, width: CARD_WIDTH, height: CARD_HEIGHT };
   return {
     ...meta,
-    openGraph: { ...(meta.openGraph ?? {}), images: [{ url: cardUrl }] },
-    twitter: { ...(meta.twitter ?? {}), images: [cardUrl] },
+    // `url` is relative — Next resolves it against metadataBase
+    // (https://slop.computer) so og:url is the canonical per-slug page.
+    openGraph: { ...(meta.openGraph ?? {}), url: `/${slug}`, images: [image] },
+    twitter: { ...(meta.twitter ?? {}), images: [image] },
   };
 }
 
