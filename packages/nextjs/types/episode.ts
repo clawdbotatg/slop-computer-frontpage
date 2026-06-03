@@ -95,11 +95,15 @@ export const isIpfsUrl = (url: string) => url.startsWith(IPFS_PREFIX);
 /**
  * Resolve an `ipfs://CID` to an HTTP gateway URL. Pass `filename` for inline
  * playback (mp4 etc.); omit for JSON/text fetches like the manifest itself.
+ * Pass `download` to make kubo emit `Content-Disposition: attachment` so the
+ * browser saves the file instead of playing it in-tab.
  */
-export const gatewayUrl = (ipfsUrl: string, filename?: string): string => {
+export const gatewayUrl = (ipfsUrl: string, filename?: string, download?: boolean): string => {
   if (!isIpfsUrl(ipfsUrl)) return ipfsUrl;
   const cid = ipfsUrl.slice(IPFS_PREFIX.length);
-  return filename ? `${IPFS_GATEWAY}/${cid}?filename=${encodeURIComponent(filename)}` : `${IPFS_GATEWAY}/${cid}`;
+  if (!filename) return `${IPFS_GATEWAY}/${cid}`;
+  const dl = download ? "&download=true" : "";
+  return `${IPFS_GATEWAY}/${cid}?filename=${encodeURIComponent(filename)}${dl}`;
 };
 
 /** Fetch the manifest JSON at `episode.manifest`. Returns null on any failure. */

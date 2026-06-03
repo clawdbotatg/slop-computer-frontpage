@@ -514,6 +514,25 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               </a>
             </section>
           ) : null}
+
+          {!isLive && videoCid ? (
+            <section className="flex flex-col gap-2">
+              <h2 className="text-base uppercase tracking-wide m-0" style={{ color: "var(--slop-text)" }}>
+                Download
+                {manifest?.video?.sizeBytes ? (
+                  <span className="slop-mono text-[11px] ml-2" style={{ color: "var(--slop-text-muted)" }}>
+                    {`// ${(manifest.video.sizeBytes / 1e9).toFixed(1)} GB`}
+                  </span>
+                ) : null}
+              </h2>
+              <a
+                href={gatewayUrl(`ipfs://${videoCid}`, `${episode.slug}.mp4`, true)}
+                className="slop-link slop-mono text-[11px]"
+              >
+                {`${episode.slug}.mp4 ⬇`}
+              </a>
+            </section>
+          ) : null}
         </div>
       </div>
     </article>
