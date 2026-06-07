@@ -78,7 +78,7 @@ const Home: NextPage = () => {
 const BrandHomepage = () => (
   <div className="flex-1 w-full max-w-4xl mx-auto px-4 pt-12 sm:pt-20 pb-12 flex flex-col gap-14 sm:gap-20">
     <Hero />
-    <Manifesto />
+    <EpisodesLoader />
   </div>
 );
 
@@ -340,12 +340,32 @@ const Hero = () => {
   );
 };
 
-const Manifesto = () => (
-  <section className="flex justify-center" style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}>
-    <p className="slop-mono text-sm sm:text-base" style={{ color: "var(--slop-text-muted)", textTransform: "none" }}>
-      coming soon…
-    </p>
-  </section>
-);
+// Replaces the old "coming soon…" empty state with a loader that reads as if
+// we're still fetching from chain. Reuses the SPARKLE_FRAMES sparkle (same as
+// ThinkingBlock) plus animated trailing dots so it feels alive.
+const EpisodesLoader = () => {
+  const [frame, setFrame] = useState(0);
+  const [dots, setDots] = useState(1);
+
+  useEffect(() => {
+    const sparkle = setInterval(() => setFrame(f => (f + 1) % SPARKLE_FRAMES.length), 150);
+    return () => clearInterval(sparkle);
+  }, []);
+
+  useEffect(() => {
+    const tick = setInterval(() => setDots(d => (d % 3) + 1), 450);
+    return () => clearInterval(tick);
+  }, []);
+
+  return (
+    <section className="flex justify-center" style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}>
+      <div className="slop-mono text-sm sm:text-base" style={{ textTransform: "none" }}>
+        <span style={{ color: "var(--slop-cyan)" }}>{SPARKLE_FRAMES[frame]}</span>
+        <span style={{ color: "var(--slop-text)" }}> loading episodes from smart contract</span>
+        <span style={{ color: "var(--slop-cyan)" }}>{".".repeat(dots)}</span>
+      </div>
+    </section>
+  );
+};
 
 export default Home;
