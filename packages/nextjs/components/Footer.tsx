@@ -70,7 +70,7 @@ export const Footer = () => {
           rel="noreferrer"
           className="slop-link flex items-center gap-1.5"
         >
-          <EthLogo size={32} />
+          <EthLogo size={28} />
           slopcomputer.eth.limo
         </a>
         <div className="flex items-center gap-4">
