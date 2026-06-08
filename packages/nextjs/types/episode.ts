@@ -66,6 +66,13 @@ export type EpisodeManifest = {
    * URL whenever it's set.
    */
   card?: { cid: string; format?: string; sizeBytes?: number };
+  /**
+   * AI-generated vertical (9:16) clips + suggested tweet copy, pinned to bgipfs
+   * as clips.json (see clawd-clipper `--publish`). Carried in the manifest; the
+   * episode page renders an ADMIN-ONLY Clips section from it — public viewers
+   * don't see it (curation/review, not a secret: the bundle is public IPFS).
+   */
+  clips?: { cid: string; count?: number; format?: string };
   meta?: EpisodeMeta;
   /**
    * Long-running participant roster captured by the relay every time a peer

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Address } from "@scaffold-ui/components";
 import { Chat } from "~~/components/Chat";
 import { ChatArchive } from "~~/components/ChatArchive";
+import { ClipsSection } from "~~/components/ClipsSection";
 import { LiveTranscript } from "~~/components/LiveTranscript";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import {
@@ -533,6 +534,9 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
               </a>
             </section>
           ) : null}
+
+          {/* Admin-only: the 9:16 clips + tweet copy. Renders nothing for public viewers. */}
+          {!isLive ? <ClipsSection manifest={manifest} slug={episode.slug} /> : null}
         </div>
       </div>
     </article>
