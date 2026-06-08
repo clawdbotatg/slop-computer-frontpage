@@ -129,12 +129,6 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · [god] copy", external: true }],
     },
     {
-      id: "obs-mobile-record",
-      label: "Open the [mobile] link on the godMode machine + hit Record in OBS",
-      body: "Live admin → Rooms → [mobile] (copies the room link with mobileMode appended → portrait clip-recording layout). Open it in a second tab/window on the streaming box, add it as an OBS source, and hit Record so you capture the vertical mobile feed for clips. Recording is separate from Start Streaming — make sure it's actually rolling.",
-      links: [{ href: LIVE_ADMIN_URL, text: "live admin · [mobile] copy", external: true }],
-    },
-    {
       id: "bring-clawd-in",
       label: "Bring clawd into the room",
       body: "Run the clawd bridge, open OBS, and start the virtual camera/device so clawd's feed is available. Then wire up the audio routing in the room — get every BlackHole channel right before you let clawd talk, or the mix goes out wrong.",
