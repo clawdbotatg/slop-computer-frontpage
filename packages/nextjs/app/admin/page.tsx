@@ -1190,7 +1190,7 @@ const RESOLVER_CONTENTHASH_ABI = [
 // the static export reads the registry contract client-side at runtime, so a
 // pin from weeks ago still shows today's episodes. You only re-run this loop
 // when the app code itself changes.
-const PLACEHOLDER_WEBSITE_CID = "bafybeihmnqzg6budyog4abcxnsncxbphma5ihkcawz2mvgpng7zrvcerxa";
+const PLACEHOLDER_WEBSITE_CID = "bafybeifcidzdaw3pgglmj2k2zu663vwwgasfe565nlil7546owptfaxjei";
 
 const stripCid = (raw: string): string =>
   raw
