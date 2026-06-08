@@ -777,8 +777,8 @@ const FinalizePanel = ({
           </span>
           <p className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
             cut the vertical clips for this episode on the relay, pin them to IPFS, and fold them into the manifest. takes
-            a few minutes. when it finishes, a new manifest CID appears above — hit <strong>Save manifest on-chain</strong>{" "}
-            to publish. clips only show to admins on the episode page.
+            a few minutes. when it finishes the new manifest CID fills in below — hit <strong>Save manifest on-chain</strong>{" "}
+            to publish it (you can also paste a CID the clipper printed). clips only show to admins on the episode page.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button onClick={() => void generateClips()} disabled={clipping}>
@@ -787,6 +787,43 @@ const FinalizePanel = ({
             {clipLine ? (
               <span className="slop-mono text-[11px] break-all" style={{ color: "var(--slop-text-muted)" }}>
                 {clipLine}
+              </span>
+            ) : null}
+          </div>
+          {/* Manifest CID to publish — auto-filled by Generate clips, or paste one
+              (e.g. printed by the clipper). Saving = setManifest(episode.id, ipfs://CID). */}
+          <label className="flex flex-col gap-1 mt-1">
+            <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+              manifest CID (with clips)
+            </span>
+            <input
+              className="slop-textfield"
+              value={manifestCid}
+              onChange={e => setManifestCid(e.target.value.replace(/^ipfs:\/\//, "").trim())}
+              placeholder="Qm… (auto-fills after Generate clips, or paste one)"
+            />
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="primary"
+              onClick={() => void saveManifest()}
+              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+            >
+              {isMining ? "Signing…" : "Save manifest on-chain"}
+            </Button>
+            {manifestCid ? (
+              <a
+                className="slop-link slop-mono text-[11px] self-center"
+                href={`https://media.slop.computer/ipfs/${manifestCid}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                inspect manifest ↗
+              </a>
+            ) : null}
+            {`ipfs://${manifestCid}` === target.manifest && manifestCid ? (
+              <span className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+                ✓ already the live manifest
               </span>
             ) : null}
           </div>
