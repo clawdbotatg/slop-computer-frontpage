@@ -2,6 +2,7 @@
 
 import React, { type ReactElement, useEffect, useState } from "react";
 import { Button, LivePulse, ViewerBadge } from "~~/components/ui";
+import { useStreamUp } from "~~/hooks/useStreamUp";
 import { useViewerCount } from "~~/hooks/useViewerCount";
 import {
   type Episode,
@@ -66,6 +67,11 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
   // chat stream (that's the room page's job), so poll the relay's public meta
   // while this card is the live one.
   const viewers = useViewerCount(relaySlug(episode), isLive);
+  // Is the HLS stream actually publishing? On-chain `live` stays true until
+  // finalize, so when the host stops streaming we swap the broken preview for
+  // the card image and flip the badge to "offline" — auto-recovers on poll.
+  const streamUp = useStreamUp(HLS_URL, isLive);
+  const streamDown = streamUp === false;
 
   const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
   const [cardOk, setCardOk] = useState(true);
@@ -145,23 +151,36 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
               aspectRatio: "16 / 9",
             }}
           >
-            <LazyHlsPreview src={HLS_URL} />
+            {streamDown ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={cardUrl}
+                alt={`${episode.name || "episode"} preview`}
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+                className="block w-full h-full object-cover"
+                style={{ opacity: 0.6 }}
+              />
+            ) : (
+              <LazyHlsPreview src={HLS_URL} />
+            )}
             <span
               className="absolute top-2 left-2 inline-flex items-center gap-2 px-2 py-1 slop-mono"
               style={{
                 background: "rgba(6, 3, 13, 0.78)",
-                border: "1px solid var(--slop-live)",
+                border: `1px solid ${streamDown ? "rgba(255, 62, 201, 0.55)" : "var(--slop-live)"}`,
                 borderRadius: 999,
                 fontSize: 10,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "var(--slop-live)",
-                textShadow: "0 0 8px rgba(255, 62, 201, 0.6)",
+                color: streamDown ? "var(--slop-text-muted)" : "var(--slop-live)",
+                textShadow: streamDown ? undefined : "0 0 8px rgba(255, 62, 201, 0.6)",
                 backdropFilter: "blur(4px)",
                 pointerEvents: "none",
               }}
             >
-              <LivePulse label="Live now" />
+              {streamDown ? "● stream offline" : <LivePulse label="Live now" />}
             </span>
             {viewers != null && viewers > 0 ? (
               <span
@@ -220,7 +239,7 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
           <div className="flex flex-wrap gap-3 items-center">
             {isLive ? (
               <Button as="a" variant="primary" href={`/${episode.slug}`}>
-                ▶ Watch live now
+                {streamDown ? "▶ Open episode" : "▶ Watch live now"}
               </Button>
             ) : hasManifest ? (
               <Button as="a" variant="primary" href={`/${episode.slug}`}>

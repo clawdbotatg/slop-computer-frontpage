@@ -9,6 +9,7 @@ import { ClipsSection } from "~~/components/ClipsSection";
 import { LiveTranscript } from "~~/components/LiveTranscript";
 import { ViewerBadge } from "~~/components/ui";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useStreamUp } from "~~/hooks/useStreamUp";
 import {
   type Episode,
   type EpisodeManifest,
@@ -102,6 +103,10 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   // Realtime viewer count, lifted out of the live <Chat> (which holds the SSE
   // the count rides on). Null until the relay reports it.
   const [viewers, setViewers] = useState<number | null>(null);
+  // Is the HLS stream actually publishing? On-chain `live` stays true from
+  // goLive until finalize, so when the host stops the stream mid-episode this
+  // is what flips the player to an "offline" card instead of a broken video.
+  const streamUp = useStreamUp(HLS_URL, isLive);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const seekTo = (seconds: number) => {
@@ -205,8 +210,18 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
         >
           {videoSrc && (!showCardFallback || isLive) ? (
             isLive ? (
-              // Dynamic import so the live HLS bundle isn't pulled into the page when not needed.
-              <LazyHlsPlayer src={videoSrc} />
+              // On-chain says live, but only mount the HLS player while the
+              // stream is actually publishing. streamUp: true → play; false →
+              // offline card (host stopped/paused — auto-recovers on the next
+              // poll); null → still checking on mount.
+              streamUp === false ? (
+                <StreamOffline cardUrl={cardUrl} />
+              ) : streamUp === null ? (
+                <PlayerPlaceholder label="Connecting to live stream…" />
+              ) : (
+                // Dynamic import so the live HLS bundle isn't pulled into the page when not needed.
+                <LazyHlsPlayer src={videoSrc} />
+              )
             ) : (
               <video
                 ref={videoRef}
@@ -567,6 +582,55 @@ const PlayerPlaceholder = ({ label }: { label: string }) => (
   >
     {label}
   </div>
+);
+
+// Shown when the episode is on-chain-live but the HLS stream isn't publishing
+// (host stopped/paused, or ended but hasn't finalized yet). Uses the room's
+// published card as a backdrop with a "back soon" pill — the useStreamUp poll
+// swaps the real player back in automatically if the stream returns.
+const StreamOffline = ({ cardUrl }: { cardUrl: string }) => (
+  <>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
+      src={cardUrl}
+      alt=""
+      onError={e => {
+        (e.currentTarget as HTMLImageElement).style.display = "none";
+      }}
+      className="absolute inset-0 block w-full h-full object-cover"
+      style={{ opacity: 0.55 }}
+    />
+    <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+      <span
+        className="slop-mono uppercase flex items-center gap-3 px-5 py-3"
+        style={{
+          fontSize: "clamp(14px, 2.8vw, 24px)",
+          letterSpacing: "0.12em",
+          fontFamily: "var(--slop-font-display)",
+          color: "var(--slop-text)",
+          background: "rgba(6, 3, 13, 0.82)",
+          border: "1px solid rgba(255, 62, 201, 0.55)",
+          borderRadius: 999,
+          backdropFilter: "blur(6px)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.6)",
+        }}
+      >
+        <span
+          aria-hidden
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            background: "var(--slop-magenta)",
+            boxShadow: "0 0 12px var(--slop-magenta)",
+            animation: "slop-pulse 1.6s ease-in-out infinite",
+            flexShrink: 0,
+          }}
+        />
+        Stream offline — back soon…
+      </span>
+    </div>
+  </>
 );
 
 // Seconds → "m:ss" or "h:mm:ss". Used for chapter markers + video duration.
