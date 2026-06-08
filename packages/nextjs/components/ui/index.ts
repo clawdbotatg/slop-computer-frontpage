@@ -1,5 +1,13 @@
 export { Bevel, bevelStyle } from "./Bevel";
 export { Button } from "./Button";
+export {
+  ClipProgress,
+  CLIP_PHASES,
+  advanceClipProgress,
+  finishClipProgress,
+  initialClipProgress,
+} from "./ClipProgress";
+export type { ClipPhase, ClipProgressState } from "./ClipProgress";
 export { Cursor } from "./Cursor";
 export { DesktopBackground } from "./DesktopBackground";
 export { LivePulse } from "./LivePulse";

@@ -26,7 +26,14 @@ import {
   useSwitchChain,
   useWriteContract,
 } from "wagmi";
-import { Button, LoadingBar } from "~~/components/ui";
+import {
+  Button,
+  ClipProgress,
+  LoadingBar,
+  advanceClipProgress,
+  finishClipProgress,
+  initialClipProgress,
+} from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
@@ -386,6 +393,8 @@ const FinalizePanel = ({
   // Clip generation (POST /admin/generate-clips): the relay spawns clawd-clipper.
   const [clipping, setClipping] = useState(false);
   const [clipLine, setClipLine] = useState("");
+  // Phase-weighted progress parsed from the clipper's streamed log lines.
+  const [clipProg, setClipProg] = useState(initialClipProgress);
   // Episode contract address — points the on-chain `contractAddr` at whatever
   // wallet / contract gets deployed during the show (e.g. a session wallet).
   // Mutable via setEpisodeContract any time. Initialized in the effect below
@@ -615,6 +624,7 @@ const FinalizePanel = ({
   const generateClips = async () => {
     setError("");
     setClipLine("");
+    setClipProg(initialClipProgress);
     setClipping(true);
     try {
       const res = await fetch(`${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}`, {
@@ -655,11 +665,14 @@ const FinalizePanel = ({
             continue;
           }
           if (ev.phase === "starting") setClipLine(`cutting clips for ${ev.slug}… (a few minutes)`);
-          else if (ev.phase === "log") setClipLine(ev.line ?? "");
-          else if (ev.phase === "done") {
+          else if (ev.phase === "log") {
+            setClipLine(ev.line ?? "");
+            setClipProg(s => advanceClipProgress(s, ev.line));
+          } else if (ev.phase === "done") {
             gotManifest = true;
             setManifestCid(String(ev.manifestCid ?? "").replace(/^ipfs:\/\//, ""));
             setClipLine(`✓ ${ev.count ?? ""} clips pinned — save the updated manifest below`);
+            setClipProg(finishClipProgress);
           } else if (ev.phase === "error") setError(ev.message ?? "clip job failed");
         }
       }
@@ -807,12 +820,13 @@ const FinalizePanel = ({
             <Button onClick={() => void generateClips()} disabled={clipping}>
               {clipping ? "Generating clips…" : "Generate clips"}
             </Button>
-            {clipLine ? (
-              <span className="slop-mono text-[11px] break-all" style={{ color: "var(--slop-text-muted)" }}>
+            {clipProg.done && clipLine ? (
+              <span className="slop-mono text-[11px] break-all" style={{ color: "var(--slop-lime)" }}>
                 {clipLine}
               </span>
             ) : null}
           </div>
+          {clipping || clipProg.overall > 0 ? <ClipProgress state={clipProg} /> : null}
           {/* Manifest CID to publish — auto-filled by Generate clips, or paste one
               (e.g. printed by the clipper). Saving = setManifest(episode.id, ipfs://CID). */}
           <label className="flex flex-col gap-1 mt-1">
