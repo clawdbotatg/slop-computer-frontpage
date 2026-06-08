@@ -27,6 +27,7 @@ type ClipEntry = {
   speakers: string[];
   mobile: { cid: string; w: number; h: number; format: string; sizeBytes: number };
   poster?: { cid: string; format: string };
+  landscape?: { cid: string; format: string; sizeBytes: number; poster?: { cid: string; format: string } };
   captions?: { cid: string; format: string };
   tweetShort?: string;
   tweetLong?: string;
@@ -65,6 +66,75 @@ function TweetBlock({ kind, text }: { kind: "short" | "long"; text: string }) {
         {text}
       </p>
     </div>
+  );
+}
+
+function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
+  const hasLandscape = !!c.landscape?.cid;
+  const [fmt, setFmt] = useState<"mobile" | "landscape">("mobile");
+  const land = fmt === "landscape" && hasLandscape;
+  const vid = land ? c.landscape! : c.mobile;
+  const poster = land ? c.landscape?.poster : c.poster;
+  const name = (s: string) => `${slug}-${c.rank}-${s}.mp4`;
+  return (
+    <article
+      className="flex flex-col gap-2 rounded-lg overflow-hidden p-2"
+      style={{ background: "var(--slop-panel, #0a0f24)", border: "1px solid var(--slop-magenta-dim)" }}
+    >
+      <video
+        key={vid.cid}
+        controls
+        preload="none"
+        poster={poster ? gatewayUrl(poster.cid) : undefined}
+        src={gatewayUrl(vid.cid, name(land ? "16x9" : "9x16"))}
+        className="w-full rounded"
+        style={{ aspectRatio: land ? "16 / 9" : "9 / 16", background: "#000", objectFit: "contain" }}
+      />
+      {hasLandscape ? (
+        <div className="flex gap-1">
+          {(["mobile", "landscape"] as const).map(f => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFmt(f)}
+              className="slop-mono text-[10px] uppercase tracking-wide px-2 py-0.5 rounded border"
+              style={{
+                borderColor: "var(--slop-magenta-dim)",
+                color: fmt === f ? "var(--slop-lime)" : "var(--slop-text-muted)",
+                background: fmt === f ? "rgba(188,255,91,0.08)" : "transparent",
+              }}
+            >
+              {f === "mobile" ? "9:16" : "16:9"}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[13px] font-semibold leading-tight" style={{ color: "var(--slop-text)" }}>
+          {`#${c.rank} ${c.title}`}
+        </span>
+        <span className="slop-mono text-[10px] whitespace-nowrap" style={{ color: "var(--slop-text-muted)" }}>
+          {`${Math.round(c.durationSec)}s`}
+        </span>
+      </div>
+      {c.speakers?.length ? (
+        <span className="slop-mono text-[10px]" style={{ color: "var(--slop-text-muted)" }}>
+          {c.speakers.join(" · ")}
+        </span>
+      ) : null}
+      {c.tweetShort ? <TweetBlock kind="short" text={c.tweetShort} /> : null}
+      {c.tweetLong ? <TweetBlock kind="long" text={c.tweetLong} /> : null}
+      <div className="flex flex-wrap gap-x-3 gap-y-1">
+        <a href={gatewayUrl(c.mobile.cid, name("9x16"), true)} className="slop-link slop-mono text-[10px]">
+          9:16 mp4 ⬇
+        </a>
+        {hasLandscape ? (
+          <a href={gatewayUrl(c.landscape!.cid, name("16x9"), true)} className="slop-link slop-mono text-[10px]">
+            16:9 mp4 ⬇
+          </a>
+        ) : null}
+      </div>
+    </article>
   );
 }
 
@@ -126,41 +196,7 @@ export function ClipsSection({ manifest, slug }: { manifest: EpisodeManifest | n
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {clips.map(c => (
-            <article
-              key={c.rank}
-              className="flex flex-col gap-2 rounded-lg overflow-hidden p-2"
-              style={{ background: "var(--slop-panel, #0a0f24)", border: "1px solid var(--slop-magenta-dim)" }}
-            >
-              <video
-                controls
-                preload="none"
-                poster={c.poster ? gatewayUrl(c.poster.cid) : undefined}
-                src={gatewayUrl(c.mobile.cid, `${slug}-${c.rank}.mp4`)}
-                className="w-full rounded"
-                style={{ aspectRatio: "9 / 16", background: "#000", objectFit: "contain" }}
-              />
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="text-[13px] font-semibold leading-tight" style={{ color: "var(--slop-text)" }}>
-                  {`#${c.rank} ${c.title}`}
-                </span>
-                <span className="slop-mono text-[10px] whitespace-nowrap" style={{ color: "var(--slop-text-muted)" }}>
-                  {`${Math.round(c.durationSec)}s`}
-                </span>
-              </div>
-              {c.speakers?.length ? (
-                <span className="slop-mono text-[10px]" style={{ color: "var(--slop-text-muted)" }}>
-                  {c.speakers.join(" · ")}
-                </span>
-              ) : null}
-              {c.tweetShort ? <TweetBlock kind="short" text={c.tweetShort} /> : null}
-              {c.tweetLong ? <TweetBlock kind="long" text={c.tweetLong} /> : null}
-              <a
-                href={gatewayUrl(c.mobile.cid, `${slug}-${c.rank}.mp4`, true)}
-                className="slop-link slop-mono text-[10px]"
-              >
-                download mp4 ⬇
-              </a>
-            </article>
+            <ClipCard key={c.rank} c={c} slug={slug} />
           ))}
         </div>
       )}
