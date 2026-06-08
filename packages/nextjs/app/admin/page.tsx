@@ -195,7 +195,10 @@ const OwnerConsole = () => {
     if (prefill) {
       scheduleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [prefill]);
+    // Re-fire on liveEpisode/episodes so the scroll lands correctly after the
+    // panels above the form (LiveStatusPanel, FinalizePanel) expand once the
+    // async contract reads resolve and push the form further down.
+  }, [prefill, liveEpisode, episodes]);
 
   return (
     <div className="flex flex-col gap-10">
