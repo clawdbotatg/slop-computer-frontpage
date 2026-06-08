@@ -52,6 +52,14 @@ export type EpisodeManifest = {
   transcript?: { cid: string; format?: string; language?: string; segmentCount?: number };
   chat?: { cid: string; messageCount?: number };
   /**
+   * Time-series of window geometry over the episode (geometry.jsonl on IPFS).
+   * The relay logs every shared-desktop window's exact rect during the session
+   * so downstream tools (the clipper's 9:16 mobile crop) can read window
+   * positions deterministically instead of recovering them from the recorded
+   * pixels. Purely carried through here — the frontpage doesn't render it yet.
+   */
+  geometry?: { cid: string; format?: string; sampleCount?: number };
+  /**
    * Host-baked unfurl card PNG pinned to IPFS during finalize. Lets the per-
    * episode preview image survive the relay box going away. Renderers should
    * prefer this over the centralized `live.slop.computer/v1/cards/<slug>/published.png`
