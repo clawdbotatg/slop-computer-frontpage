@@ -368,6 +368,9 @@ const FinalizePanel = ({
   const [pinTotal, setPinTotal] = useState(0);
   const [phaseLabel, setPhaseLabel] = useState("starting…");
   const [error, setError] = useState("");
+  // Clip generation (POST /admin/generate-clips): the relay spawns clawd-clipper.
+  const [clipping, setClipping] = useState(false);
+  const [clipLine, setClipLine] = useState("");
   // Episode contract address — points the on-chain `contractAddr` at whatever
   // wallet / contract gets deployed during the show (e.g. a session wallet).
   // Mutable via setEpisodeContract any time. Initialized in the effect below
@@ -590,6 +593,62 @@ const FinalizePanel = ({
     }
   };
 
+  // Generate 9:16 clips for this (finalized) episode: the relay spawns the
+  // clipper, which cuts + pins the clips and folds them into a new manifest. We
+  // stream its progress and, on `done`, drop the new manifest CID into
+  // `manifestCid` so the existing "Save manifest on-chain" button signs it.
+  const generateClips = async () => {
+    setError("");
+    setClipLine("");
+    setClipping(true);
+    try {
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok || !res.body) {
+        if (res.status === 401) setError(handle401());
+        else if (res.status === 501) setError("clipper isn't configured on the relay (set CLIPPER_DIR)");
+        else if (res.status === 409) setError("a clip job is already running for this episode");
+        else setError(`relay returned ${res.status}`);
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let gotManifest = false;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, nl).trim();
+          buffer = buffer.slice(nl + 1);
+          if (!line) continue;
+          let ev: { phase: string; line?: string; slug?: string; manifestCid?: string; count?: number; message?: string };
+          try {
+            ev = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (ev.phase === "starting") setClipLine(`cutting clips for ${ev.slug}… (a few minutes)`);
+          else if (ev.phase === "log") setClipLine(ev.line ?? "");
+          else if (ev.phase === "done") {
+            gotManifest = true;
+            setManifestCid(String(ev.manifestCid ?? "").replace(/^ipfs:\/\//, ""));
+            setClipLine(`✓ ${ev.count ?? ""} clips pinned — save the updated manifest below`);
+          } else if (ev.phase === "error") setError(ev.message ?? "clip job failed");
+        }
+      }
+      if (!gotManifest && !error) setError("clip job ended without a manifest CID");
+    } catch (e) {
+      setError((e as Error).message || "clip job failed");
+    } finally {
+      setClipping(false);
+    }
+  };
+
   // Percentage for the LoadingBar. Falls back to indeterminate (undefined)
   // until we know totalBytes — kubo starts emitting Bytes within milliseconds
   // so this is brief.
@@ -701,6 +760,35 @@ const FinalizePanel = ({
             >
               inspect manifest ↗
             </a>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Clips: generate the 9:16 clips + tweets for a finalized episode, pin to
+          bgipfs, fold into the manifest. Available once the episode has a video
+          manifest. On done the new manifest CID lands in `manifestCid` above. */}
+      {isReFinalize ? (
+        <div
+          className="px-3 py-3 flex flex-col gap-2"
+          style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", marginTop: 4 }}
+        >
+          <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+            {"// clips (9:16 + tweets)"}
+          </span>
+          <p className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+            cut the vertical clips for this episode on the relay, pin them to IPFS, and fold them into the manifest. takes
+            a few minutes. when it finishes, a new manifest CID appears above — hit <strong>Save manifest on-chain</strong>{" "}
+            to publish. clips only show to admins on the episode page.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={() => void generateClips()} disabled={clipping}>
+              {clipping ? "Generating clips…" : "Generate clips"}
+            </Button>
+            {clipLine ? (
+              <span className="slop-mono text-[11px] break-all" style={{ color: "var(--slop-text-muted)" }}>
+                {clipLine}
+              </span>
+            ) : null}
           </div>
         </div>
       ) : null}

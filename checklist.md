@@ -116,6 +116,16 @@ The `<FinalizePanel>` has an episode picker and stays visible whether or not an 
 - [ ] **Save manifest on-chain** → `setManifest(episode.id, "ipfs://" + manifestCid)`. One tx from the owner wallet.
 - [ ] **End show (go offline)** → `goOffline()`. Clears the `live` pointer.
 
+### Generate clips (9:16 + tweets)
+
+After the episode is finalized + saved, cut the vertical clips so they're ready to post. The relay runs the clipper; you sign one more `setManifest`.
+
+- [ ] In `/admin` → **Finalize** panel → **Generate clips** (`POST /admin/generate-clips?slug=<slug>`). The relay spawns `clawd-clipper --vertical --publish`: it cuts the 9:16 clips + suggested tweets, pins them to bgipfs, folds a `clips` field into the manifest, and streams progress. Takes a few minutes.
+- [ ] When it finishes a **new manifest CID** appears in the panel → **Save manifest on-chain** again (one more `setManifest` tx) to publish the clips.
+- [ ] Confirm: on `slop.computer/<slug>`, signed in as an admin (`austingriffith.eth` / `clawdbotatg.eth`), the **Clips** section shows at the bottom with each clip's video + short/long tweet. Normal viewers don't see it.
+
+Requires `CLIPPER_DIR` set on the relay (path to a clawd-clipper checkout with its `.env`); without it the button 501s and clips stay a local `yarn clip <slug> --vertical --publish` flow.
+
 Relay auth: the `slop_session` cookie set during the SIWE pre-flight gates `/admin/recording` and `/admin/finalize`. If you get a 401, sign in on `live.slop.computer` with the host wallet first.
 
 ## 6. Verify it landed
