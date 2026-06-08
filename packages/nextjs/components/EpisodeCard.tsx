@@ -1,7 +1,8 @@
 "use client";
 
 import React, { type ReactElement, useEffect, useState } from "react";
-import { Button, LivePulse } from "~~/components/ui";
+import { Button, LivePulse, ViewerBadge } from "~~/components/ui";
+import { useViewerCount } from "~~/hooks/useViewerCount";
 import {
   type Episode,
   type EpisodeManifest,
@@ -61,6 +62,11 @@ const formatScheduledTime = (datetime: bigint): string =>
  */
 export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
   const hasManifest = episode.manifest.length > 0;
+
+  // Live viewer count for the on-card preview. The homepage doesn't hold a
+  // chat stream (that's the room page's job), so poll the relay's public meta
+  // while this card is the live one.
+  const viewers = useViewerCount(relaySlug(episode), isLive);
 
   const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
   const [cardOk, setCardOk] = useState(true);
@@ -158,6 +164,20 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
             >
               <LivePulse label="Live now" />
             </span>
+            {viewers != null && viewers > 0 ? (
+              <span
+                className="absolute top-2 right-2 inline-flex items-center px-2 py-1"
+                style={{
+                  background: "rgba(6, 3, 13, 0.78)",
+                  border: "1px solid var(--slop-live)",
+                  borderRadius: 999,
+                  backdropFilter: "blur(4px)",
+                  pointerEvents: "none",
+                }}
+              >
+                <ViewerBadge count={viewers} style={{ color: "var(--slop-live)" }} />
+              </span>
+            ) : null}
           </a>
         ) : cardOk ? (
           <a

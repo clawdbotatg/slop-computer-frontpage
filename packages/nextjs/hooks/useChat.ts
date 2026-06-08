@@ -36,6 +36,10 @@ export function useChat(slug: string) {
   const [auth, setAuth] = useState<ChatAuth>({ authenticated: false, address: null, handle: null });
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string>("");
+  // Live viewer count for this room — the relay pushes a `viewers` SSE event
+  // (one per open chat-stream connection) on every join/leave, so it ticks in
+  // realtime without polling. Null until the first event lands.
+  const [viewers, setViewers] = useState<number | null>(null);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -96,6 +100,14 @@ export function useChat(slug: string) {
           /* skip bad chat msg */
         }
       });
+      es.addEventListener("viewers", e => {
+        try {
+          const data = JSON.parse((e as MessageEvent).data) as { count: number };
+          if (typeof data.count === "number") setViewers(data.count);
+        } catch {
+          /* skip bad viewers event */
+        }
+      });
       es.onopen = () => setConnected(true);
       es.onerror = () => {
         setConnected(false);
@@ -110,6 +122,7 @@ export function useChat(slug: string) {
     // Drop any messages from a previously-watched room so a slug change
     // doesn't flash the old room's scrollback before the new `init` lands.
     setMessages([]);
+    setViewers(null);
     connect();
     return () => {
       cancelled = true;
@@ -139,5 +152,5 @@ export function useChat(slug: string) {
     [slug],
   );
 
-  return { messages, auth, connected, error, send, refreshAuth };
+  return { messages, auth, connected, error, viewers, send, refreshAuth };
 }

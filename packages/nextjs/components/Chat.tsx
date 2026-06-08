@@ -17,8 +17,8 @@ import { useTip } from "~~/hooks/useTip";
  * `slug` is the live episode's slug — it scopes every relay call to that
  * episode's room. Without it the relay defaults to the "debug" room.
  */
-export const Chat = ({ slug }: { slug: string }) => {
-  const { messages, auth, send, refreshAuth } = useChat(slug);
+export const Chat = ({ slug, onViewers }: { slug: string; onViewers?: (count: number) => void }) => {
+  const { messages, auth, send, refreshAuth, viewers } = useChat(slug);
   const { address: walletAddress, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { openConnectModal } = useConnectModal();
@@ -28,6 +28,13 @@ export const Chat = ({ slug }: { slug: string }) => {
   const [errorText, setErrorText] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const wasAtBottomRef = useRef(true);
+
+  // Lift the realtime viewer count up so the page header can show it next to
+  // the LIVE badge — this component already holds the open chat stream the
+  // count rides on, so no extra connection is needed.
+  useEffect(() => {
+    if (viewers != null) onViewers?.(viewers);
+  }, [viewers, onViewers]);
 
   useEffect(() => {
     const el = listRef.current;

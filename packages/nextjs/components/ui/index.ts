@@ -7,4 +7,5 @@ export { LoadingBar } from "./LoadingBar";
 export { MenuBar } from "./MenuBar";
 export { TextField } from "./TextField";
 export { TitleBar } from "./TitleBar";
+export { ViewerBadge } from "./ViewerBadge";
 export { Window } from "./Window";

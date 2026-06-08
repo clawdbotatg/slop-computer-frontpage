@@ -7,6 +7,7 @@ import { Chat } from "~~/components/Chat";
 import { ChatArchive } from "~~/components/ChatArchive";
 import { ClipsSection } from "~~/components/ClipsSection";
 import { LiveTranscript } from "~~/components/LiveTranscript";
+import { ViewerBadge } from "~~/components/ui";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import {
   type Episode,
@@ -95,6 +96,9 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
   const [manifestLoading, setManifestLoading] = useState(false);
   const [vodFailed, setVodFailed] = useState(false);
+  // Realtime viewer count, lifted out of the live <Chat> (which holds the SSE
+  // the count rides on). Null until the relay reports it.
+  const [viewers, setViewers] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const seekTo = (seconds: number) => {
@@ -147,6 +151,12 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
           style={{ color: "var(--slop-text-muted)" }}
         >
           {isLive ? <span style={{ color: "var(--slop-lime)" }}>● LIVE</span> : null}
+          {isLive && viewers != null ? (
+            <>
+              <ViewerBadge count={viewers} style={{ color: "var(--slop-lime)" }} />
+              <span>·</span>
+            </>
+          ) : null}
           {episode.datetime !== 0n ? (
             <>
               <span>{formatDateTimeMT(episode.datetime)}</span>
@@ -287,7 +297,11 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             {isLive ? "▣ Live chat" : "▣ Chat archive"}
           </div>
           <div className="flex-1 min-h-0">
-            {isLive ? <Chat slug={relaySlug(episode)} /> : <ChatArchive cid={manifest?.chat?.cid} />}
+            {isLive ? (
+              <Chat slug={relaySlug(episode)} onViewers={setViewers} />
+            ) : (
+              <ChatArchive cid={manifest?.chat?.cid} />
+            )}
           </div>
         </aside>
 
