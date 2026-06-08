@@ -51,8 +51,7 @@ const LazyHlsPreview = ({ src }: { src: string }) => {
 // The "going live at …" badge: `0n` has no scheduled time, so it collapses to
 // "soon!" (still gives the reserved episode a CTA); otherwise the shared
 // Mountain-Time stamp.
-const formatScheduledTime = (datetime: bigint): string =>
-  datetime === 0n ? "soon!" : formatDateTimeMT(datetime);
+const formatScheduledTime = (datetime: bigint): string => (datetime === 0n ? "soon!" : formatDateTimeMT(datetime));
 
 /**
  * One-row-per-episode card with the unfurl image on the left and meta + title +

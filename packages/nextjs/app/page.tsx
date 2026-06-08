@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import { EpisodeCard } from "~~/components/EpisodeCard";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { isZeroEpisode } from "~~/types/episode";
+import { SLOP_CHAIN_ID, isZeroEpisode } from "~~/types/episode";
 
 // Tuned for the off-air → live transition. Host calls goLive from /admin
 // in one tab and expects the slop.computer tab to flip without a reload.
@@ -36,6 +36,7 @@ const Home: NextPage = () => {
   const { data: liveEpisode } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "liveEpisode",
+    chainId: SLOP_CHAIN_ID,
     watch: false,
     query: READ_QUERY,
   });
@@ -44,6 +45,7 @@ const Home: NextPage = () => {
     contractName: "SlopComputer",
     functionName: "getEpisodes",
     args: [0n, PAGE_SIZE],
+    chainId: SLOP_CHAIN_ID,
     watch: false,
     query: READ_QUERY,
   });
@@ -193,8 +195,7 @@ const ThinkingBlock = () => {
 
 // The locally-installed monospace names render the box-drawing glyphs cleanly
 // where present (macOS/Windows); generic `monospace` is the universal floor.
-const ASCII_FONT_STACK =
-  "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace";
+const ASCII_FONT_STACK = "'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Menlo', 'Consolas', monospace";
 
 // useLayoutEffect on the server warns; fall back to useEffect during SSR.
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -358,7 +359,10 @@ const EpisodesLoader = () => {
   }, []);
 
   return (
-    <section className="flex justify-center" style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}>
+    <section
+      className="flex justify-center"
+      style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}
+    >
       <div className="slop-mono text-sm sm:text-base" style={{ textTransform: "none" }}>
         <span style={{ color: "var(--slop-cyan)" }}>{SPARKLE_FRAMES[frame]}</span>
         <span style={{ color: "var(--slop-text)" }}> loading episodes from smart contract</span>

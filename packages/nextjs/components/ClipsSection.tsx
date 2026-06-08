@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { type EpisodeManifest, gatewayUrl } from "~~/types/episode";
+import { type EpisodeManifest, SLOP_CHAIN_ID, gatewayUrl } from "~~/types/episode";
 
 // ADMIN-ONLY clips review, rendered at the bottom of an episode page. The clips
 // themselves live in public bgipfs and are referenced by the manifest, so this
@@ -142,7 +142,12 @@ export function ClipsSection({ manifest, slug }: { manifest: EpisodeManifest | n
   const { address } = useAccount();
   const me = address?.toLowerCase();
   // Only read owner() once a wallet is connected — public visitors never trigger it.
-  const { data: owner } = useScaffoldReadContract({ contractName: "SlopComputer", functionName: "owner", query: { enabled: !!me } });
+  const { data: owner } = useScaffoldReadContract({
+    contractName: "SlopComputer",
+    functionName: "owner",
+    chainId: SLOP_CHAIN_ID,
+    query: { enabled: !!me },
+  });
   const isAdmin = !!me && (me === owner?.toLowerCase() || ADMIN_ADDRESSES.includes(me));
 
   const cid = manifest?.clips?.cid;

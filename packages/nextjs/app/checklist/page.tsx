@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
-import { isZeroEpisode } from "~~/types/episode";
+import { SLOP_CHAIN_ID, isZeroEpisode } from "~~/types/episode";
 
 // Pre-show / show / post-show punch list, in the actual order the host walks
 // through. Checkboxes persist to localStorage so a reload during the show
@@ -720,6 +720,7 @@ function useLiveEpisodeStatus(): { liveOn: Status; offlineOn: Status; slug: stri
   const { data: liveEpisode } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "liveEpisode",
+    chainId: SLOP_CHAIN_ID,
     query: { refetchInterval: POLL_MS, refetchOnWindowFocus: false },
   });
   const isLive = !!liveEpisode && !isZeroEpisode(liveEpisode);

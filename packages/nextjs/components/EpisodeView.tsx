@@ -12,6 +12,7 @@ import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import {
   type Episode,
   type EpisodeManifest,
+  SLOP_CHAIN_ID,
   ZERO_ADDRESS,
   ZERO_BYTES32,
   fetchManifest,
@@ -59,12 +60,14 @@ export const EpisodeView = ({ slug, notFound }: { slug: string; notFound: ReactN
     contractName: "SlopComputer",
     functionName: "getEpisodeBySlug",
     args: [slug],
+    chainId: SLOP_CHAIN_ID,
     query: READ_QUERY,
   });
 
   const { data: liveId } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "live",
+    chainId: SLOP_CHAIN_ID,
     query: READ_QUERY,
   });
 

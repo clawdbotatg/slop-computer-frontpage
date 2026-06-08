@@ -30,7 +30,15 @@ import { Button, LoadingBar } from "~~/components/ui";
 import externalContracts from "~~/contracts/externalContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
-import { type Episode, ZERO_ADDRESS, formatDate, isZeroEpisode, relaySlug, slugify } from "~~/types/episode";
+import {
+  type Episode,
+  SLOP_CHAIN_ID,
+  ZERO_ADDRESS,
+  formatDate,
+  isZeroEpisode,
+  relaySlug,
+  slugify,
+} from "~~/types/episode";
 
 const CONTRACT_ADDRESS = externalContracts[1].SlopComputer.address;
 const READ_QUERY = { refetchInterval: 5000, refetchOnWindowFocus: false } as const;
@@ -51,6 +59,7 @@ const AdminPage: NextPage = () => {
   const { data: owner } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "owner",
+    chainId: SLOP_CHAIN_ID,
   });
 
   const ownerLower = owner?.toLowerCase();
@@ -149,17 +158,20 @@ const OwnerConsole = () => {
   const { data: liveEpisode, refetch: refetchLive } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "liveEpisode",
+    chainId: SLOP_CHAIN_ID,
     query: READ_QUERY,
   });
   const { data: episodes, refetch: refetchEpisodes } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "getEpisodes",
     args: [0n, 100n],
+    chainId: SLOP_CHAIN_ID,
     query: READ_QUERY,
   });
   const { data: episodeCount } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "episodeCount",
+    chainId: SLOP_CHAIN_ID,
     query: READ_QUERY,
   });
 
@@ -629,7 +641,14 @@ const FinalizePanel = ({
           const line = buffer.slice(0, nl).trim();
           buffer = buffer.slice(nl + 1);
           if (!line) continue;
-          let ev: { phase: string; line?: string; slug?: string; manifestCid?: string; count?: number; message?: string };
+          let ev: {
+            phase: string;
+            line?: string;
+            slug?: string;
+            manifestCid?: string;
+            count?: number;
+            message?: string;
+          };
           try {
             ev = JSON.parse(line);
           } catch {
@@ -779,9 +798,10 @@ const FinalizePanel = ({
             {"// clips (9:16 + tweets)"}
           </span>
           <p className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-            cut the vertical clips for this episode on the relay, pin them to IPFS, and fold them into the manifest. takes
-            a few minutes. when it finishes the new manifest CID fills in below — hit <strong>Save manifest on-chain</strong>{" "}
-            to publish it (you can also paste a CID the clipper printed). clips only show to admins on the episode page.
+            cut the vertical clips for this episode on the relay, pin them to IPFS, and fold them into the manifest.
+            takes a few minutes. when it finishes the new manifest CID fills in below — hit{" "}
+            <strong>Save manifest on-chain</strong> to publish it (you can also paste a CID the clipper printed). clips
+            only show to admins on the episode page.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button onClick={() => void generateClips()} disabled={clipping}>
@@ -796,7 +816,10 @@ const FinalizePanel = ({
           {/* Manifest CID to publish — auto-filled by Generate clips, or paste one
               (e.g. printed by the clipper). Saving = setManifest(episode.id, ipfs://CID). */}
           <label className="flex flex-col gap-1 mt-1">
-            <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+            <span
+              className="slop-mono text-[10px] uppercase tracking-widest"
+              style={{ color: "var(--slop-text-muted)" }}
+            >
               manifest CID (with clips)
             </span>
             <input

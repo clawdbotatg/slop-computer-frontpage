@@ -23,6 +23,21 @@ export type Episode = {
   readonly nextId: `0x${string}`;
 };
 
+/**
+ * Chain the SlopComputer contract lives on (Ethereum mainnet). EVERY
+ * `useScaffoldReadContract({ contractName: "SlopComputer", … })` MUST pass
+ * `chainId: SLOP_CHAIN_ID`.
+ *
+ * Why: scaffold-eth's `useTargetNetwork` follows the connected wallet's chain
+ * whenever it's one of `scaffold.config.targetNetworks` — and we keep `base`
+ * + `gnosis` in that list so `/tip`'s `switchChain` works. Without an explicit
+ * chainId, a visitor whose wallet is on Base (e.g. right after tipping) would
+ * resolve SlopComputer's address on Base, where it isn't deployed, and every
+ * episode read would hang forever on "loading…". Pinning the read to mainnet
+ * decouples episode data from whatever chain the wallet is roaming on.
+ */
+export const SLOP_CHAIN_ID = 1 as const;
+
 /** The slug used for relay calls (card URL, /v1/chat?slug=, /v1/transcript?slug=).
  *  Falls back to `episode.slug` when `liveSlug` is empty — the common case. */
 export const relaySlug = (episode: Pick<Episode, "slug" | "liveSlug">): string => episode.liveSlug || episode.slug;
