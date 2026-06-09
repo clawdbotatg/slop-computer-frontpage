@@ -27,6 +27,7 @@ type ClipEntry = {
   speakers: string[];
   mobile: { cid: string; w: number; h: number; format: string; sizeBytes: number };
   poster?: { cid: string; format: string };
+  altMobile?: { cid: string; w: number; h: number; format: string; sizeBytes: number; poster?: { cid: string; format: string } };
   landscape?: { cid: string; format: string; sizeBytes: number; poster?: { cid: string; format: string } };
   captions?: { cid: string; format: string };
   tweetShort?: string;
@@ -69,42 +70,52 @@ function TweetBlock({ kind, text }: { kind: "short" | "long"; text: string }) {
   );
 }
 
+type FmtKey = "mobile" | "altMobile" | "landscape";
+
 function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
-  const hasLandscape = !!c.landscape?.cid;
-  const [fmt, setFmt] = useState<"mobile" | "landscape">("mobile");
-  const land = fmt === "landscape" && hasLandscape;
-  const vid = land ? c.landscape! : c.mobile;
-  const poster = land ? c.landscape?.poster : c.poster;
   const name = (s: string) => `${slug}-${c.rank}-${s}.mp4`;
+  // Available formats in display order: default 9:16, ALT 9:16 (geometry/alt
+  // take, when published), 16:9 landscape. Each carries its own poster + aspect.
+  const formats: { key: FmtKey; label: string; cid: string; poster?: string; ar: string; dl: string }[] = [
+    { key: "mobile", label: "9:16", cid: c.mobile.cid, poster: c.poster?.cid, ar: "9 / 16", dl: "9x16" },
+    ...(c.altMobile?.cid
+      ? [{ key: "altMobile" as const, label: "ALT 9:16", cid: c.altMobile.cid, poster: c.altMobile.poster?.cid, ar: "9 / 16", dl: "9x16-alt" }]
+      : []),
+    ...(c.landscape?.cid
+      ? [{ key: "landscape" as const, label: "16:9", cid: c.landscape.cid, poster: c.landscape.poster?.cid, ar: "16 / 9", dl: "16x9" }]
+      : []),
+  ];
+  const [fmt, setFmt] = useState<FmtKey>("mobile");
+  const cur = formats.find(f => f.key === fmt) ?? formats[0]!;
   return (
     <article
       className="flex flex-col gap-2 rounded-lg overflow-hidden p-2"
       style={{ background: "var(--slop-panel, #0a0f24)", border: "1px solid var(--slop-magenta-dim)" }}
     >
       <video
-        key={vid.cid}
+        key={cur.cid}
         controls
         preload="none"
-        poster={poster ? gatewayUrl(poster.cid) : undefined}
-        src={gatewayUrl(vid.cid, name(land ? "16x9" : "9x16"))}
+        poster={cur.poster ? gatewayUrl(cur.poster) : undefined}
+        src={gatewayUrl(cur.cid, name(cur.dl))}
         className="w-full rounded"
-        style={{ aspectRatio: land ? "16 / 9" : "9 / 16", background: "#000", objectFit: "contain" }}
+        style={{ aspectRatio: cur.ar, background: "#000", objectFit: "contain" }}
       />
-      {hasLandscape ? (
+      {formats.length > 1 ? (
         <div className="flex gap-1">
-          {(["mobile", "landscape"] as const).map(f => (
+          {formats.map(f => (
             <button
-              key={f}
+              key={f.key}
               type="button"
-              onClick={() => setFmt(f)}
+              onClick={() => setFmt(f.key)}
               className="slop-mono text-[10px] uppercase tracking-wide px-2 py-0.5 rounded border"
               style={{
                 borderColor: "var(--slop-magenta-dim)",
-                color: fmt === f ? "var(--slop-lime)" : "var(--slop-text-muted)",
-                background: fmt === f ? "rgba(188,255,91,0.08)" : "transparent",
+                color: fmt === f.key ? "var(--slop-lime)" : "var(--slop-text-muted)",
+                background: fmt === f.key ? "rgba(188,255,91,0.08)" : "transparent",
               }}
             >
-              {f === "mobile" ? "9:16" : "16:9"}
+              {f.label}
             </button>
           ))}
         </div>
@@ -125,14 +136,11 @@ function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
       {c.tweetShort ? <TweetBlock kind="short" text={c.tweetShort} /> : null}
       {c.tweetLong ? <TweetBlock kind="long" text={c.tweetLong} /> : null}
       <div className="flex flex-wrap gap-x-3 gap-y-1">
-        <a href={gatewayUrl(c.mobile.cid, name("9x16"), true)} className="slop-link slop-mono text-[10px]">
-          9:16 mp4 ⬇
-        </a>
-        {hasLandscape ? (
-          <a href={gatewayUrl(c.landscape!.cid, name("16x9"), true)} className="slop-link slop-mono text-[10px]">
-            16:9 mp4 ⬇
+        {formats.map(f => (
+          <a key={f.key} href={gatewayUrl(f.cid, name(f.dl), true)} className="slop-link slop-mono text-[10px]">
+            {`${f.label} mp4 ⬇`}
           </a>
-        ) : null}
+        ))}
       </div>
     </article>
   );
