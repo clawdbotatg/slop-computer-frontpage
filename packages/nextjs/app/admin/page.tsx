@@ -406,6 +406,9 @@ const FinalizePanel = ({
   // Guards against a slow meta fetch for a previous target landing after the
   // host has already switched episodes (last request wins).
   const walletReqId = useRef(0);
+  // In-flight clip stream — aborted when a newer start/attach supersedes it
+  // (episode switch, unmount) so a stale stream can't clobber fresh state.
+  const clipFetch = useRef<AbortController | null>(null);
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
   // The episode being finalized. Defaults to the live one (the in-show
@@ -453,6 +456,17 @@ const FinalizePanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target?.id]);
 
+  // Clip jobs run server-side and survive a page reload. On mount / episode
+  // switch, probe the relay (attach=1): a running job re-streams its progress,
+  // a recently finished one replays its `done` event so the manifest CID
+  // auto-fills, and a 404 (nothing to resume) stays silent.
+  useEffect(() => {
+    if (!target) return;
+    void generateClips(true);
+    return () => clipFetch.current?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target?.id]);
+
   if (!target) return null;
   const isReFinalize = target.manifest.length > 0;
 
@@ -466,6 +480,8 @@ const FinalizePanel = ({
     setBytesPinned(0);
     setPinTotal(0);
     setError("");
+    setClipLine("");
+    setClipProg(initialClipProgress);
   };
 
   const saveContract = async () => {
@@ -621,22 +637,36 @@ const FinalizePanel = ({
   // clipper, which cuts + pins the clips and folds them into a new manifest. We
   // stream its progress and, on `done`, drop the new manifest CID into
   // `manifestCid` so the existing "Save manifest on-chain" button signs it.
-  const generateClips = async () => {
+  // The job is detached from this request on the relay, so it survives a page
+  // reload — `attach` mode re-attaches to a running (or recently finished) job
+  // instead of starting a new one; the relay replays the buffered log so the
+  // phase-weighted progress bar fast-forwards to where the job actually is.
+  const generateClips = async (attach = false) => {
+    clipFetch.current?.abort();
+    const ctrl = new AbortController();
+    clipFetch.current = ctrl;
     setError("");
-    setClipLine("");
-    setClipProg(initialClipProgress);
-    setClipping(true);
+    if (!attach) {
+      setClipLine("");
+      setClipProg(initialClipProgress);
+      setClipping(true);
+    }
     try {
-      const res = await fetch(`${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}${attach ? "&attach=1" : ""}`,
+        { method: "POST", credentials: "include", signal: ctrl.signal },
+      );
+      if (attach && res.status === 404) return; // nothing to resume — stay quiet
       if (!res.ok || !res.body) {
         if (res.status === 401) setError(handle401());
         else if (res.status === 501) setError("clipper isn't configured on the relay (set CLIPPER_DIR)");
-        else if (res.status === 409) setError("a clip job is already running for this episode");
         else setError(`relay returned ${res.status}`);
         return;
+      }
+      if (attach) {
+        setClipLine("resuming clip job…");
+        setClipProg(initialClipProgress);
+        setClipping(true);
       }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -678,9 +708,12 @@ const FinalizePanel = ({
       }
       if (!gotManifest && !error) setError("clip job ended without a manifest CID");
     } catch (e) {
+      if (ctrl.signal.aborted) return; // superseded by a newer attach/start
       setError((e as Error).message || "clip job failed");
     } finally {
-      setClipping(false);
+      // Only the still-current stream may clear the spinner — an aborted
+      // predecessor finishing late must not stomp its successor's state.
+      if (clipFetch.current === ctrl) setClipping(false);
     }
   };
 
