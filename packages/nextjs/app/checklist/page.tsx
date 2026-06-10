@@ -249,6 +249,13 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: "/admin", text: "slop.computer/admin · Save manifest on-chain" }],
     },
     {
+      id: "end-show",
+      label: "End show: hit End show (go offline) on slop.computer/admin",
+      body: "Clears the on-chain liveEpisode pointer; homepage flips back to list view. Do this AFTER the recording is finalized — pinned to IPFS and manifest saved — so the slug page is already reading the archive from IPFS by the time the live pointer drops. Clips + contract address below can happen any time after, off air.",
+      links: [{ href: "/admin", text: "slop.computer/admin" }],
+      status: live.offlineOn,
+    },
+    {
       id: "generate-clips",
       label: "Generate clips",
       body: "Finalize panel → Generate clips. The relay runs clawd-clipper (--vertical --publish): cuts the 9:16 clips + suggested tweets, pins them to bgipfs, and folds a clips field into the manifest. Takes a few minutes. When it finishes, hit Save manifest on-chain AGAIN (one more setManifest tx) or the clips never publish. Admins then see the Clips section at the bottom of slop.computer/<slug>.",
@@ -259,13 +266,6 @@ const ChecklistPage: NextPage = () => {
       label: "(Optional) Set the episode contract address",
       body: "If the show shipped a contract or session wallet, point contractAddr at it so the slug page can show the right address.",
       links: [{ href: "/admin", text: "slop.computer/admin · Save contract on-chain" }],
-    },
-    {
-      id: "end-show",
-      label: "End show: hit End show (go offline) on slop.computer/admin",
-      body: "Last thing. Clears the on-chain liveEpisode pointer; homepage flips back to list view. Do this AFTER the recording is finalized — pinned to IPFS and manifest saved — so the slug page is already reading the archive from IPFS by the time the live pointer drops.",
-      links: [{ href: "/admin", text: "slop.computer/admin" }],
-      status: live.offlineOn,
     },
   ];
 
