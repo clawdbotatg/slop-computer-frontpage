@@ -249,6 +249,12 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: "/admin", text: "slop.computer/admin · Save manifest on-chain" }],
     },
     {
+      id: "generate-clips",
+      label: "Generate clips",
+      body: "Finalize panel → Generate clips. The relay runs clawd-clipper (--vertical --publish): cuts the 9:16 clips + suggested tweets, pins them to bgipfs, and folds a clips field into the manifest. Takes a few minutes. When it finishes, hit Save manifest on-chain AGAIN (one more setManifest tx) or the clips never publish. Admins then see the Clips section at the bottom of slop.computer/<slug>.",
+      links: [{ href: "/admin", text: "slop.computer/admin · Generate clips" }],
+    },
+    {
       id: "set-contract",
       label: "(Optional) Set the episode contract address",
       body: "If the show shipped a contract or session wallet, point contractAddr at it so the slug page can show the right address.",
