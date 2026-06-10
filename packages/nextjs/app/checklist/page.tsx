@@ -139,6 +139,12 @@ const ChecklistPage: NextPage = () => {
       ],
     },
     {
+      id: "refresh-timeline-ticker",
+      label: "Refresh the timeline ticker",
+      body: "In the room (as host), click the TIMELINE badge on the bottom-bar marquee to pull a fresh Twitter home timeline from the relay. It only auto-polls every 24h, so without a manual refresh the on-stream ticker shows day-old tweets.",
+      links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms → /<slug>", external: true }],
+    },
+    {
       id: "guest-joined",
       label: "Confirm the guest joined the room",
       body: "Live admin → Connected guests shows every peer on the relay (refreshes every 3s). Wait until you see them before going live.",
