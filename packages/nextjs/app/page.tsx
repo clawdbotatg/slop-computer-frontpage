@@ -108,6 +108,7 @@ const ANNOYING_PHRASES = [
   "Making a belt-and-suspenders fix.",
   "You're right. I've been confidently wrong twice already.",
   "Let me actually verify, not guess.",
+  "You're right to be pissed",
 ];
 
 // Claude Code's terminal thinking indicator cycles a sparkle through a
