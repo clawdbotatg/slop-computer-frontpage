@@ -393,6 +393,10 @@ const FinalizePanel = ({
   // Clip generation (POST /admin/generate-clips): the relay spawns clawd-clipper.
   const [clipping, setClipping] = useState(false);
   const [clipLine, setClipLine] = useState("");
+  // Clip failures render inline next to the Generate clips button — the shared
+  // `error` block sits at the bottom of a long panel and a fast 401 (expired
+  // host session) is invisible there: the button just flashes and gives up.
+  const [clipError, setClipError] = useState("");
   // Phase-weighted progress parsed from the clipper's streamed log lines.
   const [clipProg, setClipProg] = useState(initialClipProgress);
   // Episode contract address — points the on-chain `contractAddr` at whatever
@@ -481,6 +485,7 @@ const FinalizePanel = ({
     setPinTotal(0);
     setError("");
     setClipLine("");
+    setClipError("");
     setClipProg(initialClipProgress);
   };
 
@@ -645,7 +650,7 @@ const FinalizePanel = ({
     clipFetch.current?.abort();
     const ctrl = new AbortController();
     clipFetch.current = ctrl;
-    setError("");
+    setClipError("");
     if (!attach) {
       setClipLine("");
       setClipProg(initialClipProgress);
@@ -658,9 +663,9 @@ const FinalizePanel = ({
       );
       if (attach && res.status === 404) return; // nothing to resume — stay quiet
       if (!res.ok || !res.body) {
-        if (res.status === 401) setError(handle401());
-        else if (res.status === 501) setError("clipper isn't configured on the relay (set CLIPPER_DIR)");
-        else setError(`relay returned ${res.status}`);
+        if (res.status === 401) setClipError(handle401());
+        else if (res.status === 501) setClipError("clipper isn't configured on the relay (set CLIPPER_DIR)");
+        else setClipError(`relay returned ${res.status}`);
         return;
       }
       if (attach) {
@@ -672,6 +677,7 @@ const FinalizePanel = ({
       const decoder = new TextDecoder();
       let buffer = "";
       let gotManifest = false;
+      let gotError = false;
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -703,13 +709,16 @@ const FinalizePanel = ({
             setManifestCid(String(ev.manifestCid ?? "").replace(/^ipfs:\/\//, ""));
             setClipLine(`✓ ${ev.count ?? ""} clips pinned — save the updated manifest below`);
             setClipProg(finishClipProgress);
-          } else if (ev.phase === "error") setError(ev.message ?? "clip job failed");
+          } else if (ev.phase === "error") {
+            gotError = true;
+            setClipError(ev.message ?? "clip job failed");
+          }
         }
       }
-      if (!gotManifest && !error) setError("clip job ended without a manifest CID");
+      if (!gotManifest && !gotError) setClipError("clip job ended without a manifest CID");
     } catch (e) {
       if (ctrl.signal.aborted) return; // superseded by a newer attach/start
-      setError((e as Error).message || "clip job failed");
+      setClipError((e as Error).message || "clip job failed");
     } finally {
       // Only the still-current stream may clear the spinner — an aborted
       // predecessor finishing late must not stomp its successor's state.
@@ -859,6 +868,19 @@ const FinalizePanel = ({
               </span>
             ) : null}
           </div>
+          {clipError ? (
+            <span className="slop-mono text-[11px] break-all" style={{ color: "var(--slop-accent)" }}>
+              ✗ {clipError}
+              {clipError.includes("sign in") ? (
+                <>
+                  {" "}
+                  <a className="slop-link" href={RELAY_HTTP_URL} target="_blank" rel="noreferrer">
+                    sign in ↗
+                  </a>
+                </>
+              ) : null}
+            </span>
+          ) : null}
           {clipping || clipProg.overall > 0 ? <ClipProgress state={clipProg} /> : null}
           {/* Manifest CID to publish — auto-filled by Generate clips, or paste one
               (e.g. printed by the clipper). Saving = setManifest(episode.id, ipfs://CID). */}
@@ -954,6 +976,14 @@ const FinalizePanel = ({
       {error ? (
         <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
           {error}
+          {error.includes("sign in") ? (
+            <>
+              {" "}
+              <a className="slop-link" href={RELAY_HTTP_URL} target="_blank" rel="noreferrer">
+                sign in ↗
+              </a>
+            </>
+          ) : null}
         </div>
       ) : null}
     </Section>
