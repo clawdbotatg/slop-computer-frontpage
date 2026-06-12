@@ -72,6 +72,19 @@ function TweetBlock({ kind, text }: { kind: "short" | "long"; text: string }) {
 
 type FmtKey = "mobile" | "altMobile" | "landscape";
 
+// "Tweeted" bookkeeping — a purely-local checklist so the admin remembers which
+// clips already went out. One localStorage map keyed by slug|title: titles come
+// from the cached candidates pass, so the mark survives re-renders/re-ranks of
+// an episode (rank and CID both change on a re-publish; the title doesn't).
+const TWEETED_KEY = "slop-tweeted-clips";
+function readTweeted(): Record<string, true> {
+  try {
+    return JSON.parse(localStorage.getItem(TWEETED_KEY) || "{}") as Record<string, true>;
+  } catch {
+    return {};
+  }
+}
+
 function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
   const name = (s: string) => `${slug}-${c.rank}-${s}.mp4`;
   // Available formats in display order: default 9:16, ALT 9:16 (geometry/alt
@@ -87,10 +100,34 @@ function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
   ];
   const [fmt, setFmt] = useState<FmtKey>("mobile");
   const cur = formats.find(f => f.key === fmt) ?? formats[0]!;
+
+  // Read after mount (localStorage doesn't exist during SSR/hydration).
+  const markKey = `${slug}|${c.title}`;
+  const [tweeted, setTweeted] = useState(false);
+  useEffect(() => {
+    setTweeted(!!readTweeted()[markKey]);
+  }, [markKey]);
+  const toggleTweeted = () => {
+    const map = readTweeted();
+    if (map[markKey]) delete map[markKey];
+    else map[markKey] = true;
+    try {
+      localStorage.setItem(TWEETED_KEY, JSON.stringify(map));
+    } catch {
+      /* storage full/blocked — the checkbox still toggles for this page view */
+    }
+    setTweeted(!!map[markKey]);
+  };
+
   return (
     <article
       className="flex flex-col gap-2 rounded-lg overflow-hidden p-2"
-      style={{ background: "var(--slop-panel, #0a0f24)", border: "1px solid var(--slop-magenta-dim)" }}
+      style={{
+        background: "var(--slop-panel, #0a0f24)",
+        border: "1px solid var(--slop-magenta-dim)",
+        opacity: tweeted ? 0.5 : 1,
+        transition: "opacity 0.15s",
+      }}
     >
       <video
         key={cur.cid}
@@ -142,6 +179,15 @@ function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
           </a>
         ))}
       </div>
+      <label className="flex items-center gap-1.5 cursor-pointer select-none mt-0.5">
+        <input type="checkbox" checked={tweeted} onChange={toggleTweeted} className="cursor-pointer" style={{ accentColor: "var(--slop-lime)" }} />
+        <span
+          className="slop-mono text-[10px] uppercase tracking-wide"
+          style={{ color: tweeted ? "var(--slop-lime)" : "var(--slop-text-muted)" }}
+        >
+          tweeted
+        </span>
+      </label>
     </article>
   );
 }
