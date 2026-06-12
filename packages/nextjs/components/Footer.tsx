@@ -35,14 +35,15 @@ const EthLogo = ({ size = 15 }: { size?: number }) => (
 
 // The whole project is open source (MIT). Order mirrors the stack: the page
 // you're on, the chain it reads, the relay it streams from, the clipper the
-// relay spawns to cut episodes into clips, the multisig that owns it, and the
-// background worker.
+// relay spawns to cut episodes into clips, the multisig that owns it, the
+// ai-wallet that talks to it, and the background worker.
 const REPOS: { label: string; href: string }[] = [
   { label: "frontend", href: "https://github.com/clawdbotatg/slop-computer-frontpage" },
   { label: "contracts", href: "https://github.com/clawdbotatg/slop-computer-contracts" },
   { label: "live", href: "https://github.com/clawdbotatg/slop-computer-live" },
   { label: "clipper", href: "https://github.com/clawdbotatg/clawd-clipper" },
   { label: "multisig", href: "https://github.com/clawdbotatg/slop-computer-wallet" },
+  { label: "ai-wallet", href: "https://github.com/clawdbotatg/slop-computer-ai-wallet" },
   { label: "background", href: "https://github.com/clawdbotatg/slop-computer-background" },
 ];
 
