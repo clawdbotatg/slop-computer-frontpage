@@ -386,6 +386,15 @@ const FinalizePanel = ({
   const [manifestCid, setManifestCid] = useState("");
   const [checking, setChecking] = useState(false);
   const [pinning, setPinning] = useState(false);
+  // Meta-only regenerate (POST /admin/regenerate-meta): re-runs the AI metadata
+  // pass on an already-finalized episode without re-pinning its video. Separate
+  // flag from `pinning` so the two buttons disable independently.
+  const [regenerating, setRegenerating] = useState(false);
+  // True once a regenerate produced a fresh manifest CID, so we can show a
+  // dedicated "updated metadata ready → save" block instead of routing the host
+  // through the clips section's shared input. Reset whenever a finalize/clips run
+  // starts so only one "save this manifest" affordance is ever live at a time.
+  const [metaRegenerated, setMetaRegenerated] = useState(false);
   const [bytesPinned, setBytesPinned] = useState(0);
   const [pinTotal, setPinTotal] = useState(0);
   const [phaseLabel, setPhaseLabel] = useState("starting…");
@@ -533,6 +542,7 @@ const FinalizePanel = ({
     setError("");
     setCid("");
     setManifestCid("");
+    setMetaRegenerated(false);
     setBytesPinned(0);
     setPinTotal(0);
     setPhaseLabel("starting…");
@@ -627,6 +637,81 @@ const FinalizePanel = ({
     }
   };
 
+  // Regenerate ONLY the AI metadata for an already-finalized episode. Unlike
+  // `pin()` (which always re-pins the NEWEST recording on disk — wrong for a past
+  // episode), this reads the episode's current on-chain manifest + its pinned
+  // transcript and rewrites only `meta`. The video/transcript/chat CIDs are
+  // untouched. Drops the new manifest CID into `manifestCid` so the existing
+  // "Save manifest on-chain" button signs it — nothing changes on-chain until then.
+  const regenerateMeta = async () => {
+    if (!target.manifest) {
+      setError("this episode has no manifest on-chain yet — finalize it first");
+      return;
+    }
+    setError("");
+    setCid("");
+    setManifestCid("");
+    setMetaRegenerated(false);
+    setBytesPinned(0);
+    setPinTotal(0);
+    setPhaseLabel("starting…");
+    setRegenerating(true);
+    try {
+      const params = new URLSearchParams({ slug: relaySlug(target), manifest: target.manifest });
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/regenerate-meta?${params.toString()}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok || !res.body) {
+        if (res.status === 401) setError(handle401());
+        else setError(`relay returned ${res.status}`);
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let newManifest = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, nl).trim();
+          buffer = buffer.slice(nl + 1);
+          if (!line) continue;
+          let ev: { phase: string; manifestCid?: string; message?: string };
+          try {
+            ev = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (ev.phase === "starting") {
+            setPhaseLabel("reading existing manifest + transcript…");
+          } else if (ev.phase === "fetching-manifest") {
+            setPhaseLabel("reading existing manifest + transcript…");
+          } else if (ev.phase === "generating-meta") {
+            setPhaseLabel("regenerating episode metadata (AI pass — can take 30s+)…");
+          } else if (ev.phase === "pinning-manifest") {
+            setPhaseLabel("pinning updated manifest…");
+          } else if (ev.phase === "done") {
+            newManifest = String(ev.manifestCid ?? "").replace(/^ipfs:\/\//, "");
+            setManifestCid(newManifest);
+            setMetaRegenerated(true);
+            setPhaseLabel("✓ metadata regenerated — review, then save the manifest on-chain");
+          } else if (ev.phase === "error") {
+            setError(ev.message ?? "regenerate failed");
+          }
+        }
+      }
+      if (!newManifest && !error) setError("regenerate ended without a manifest CID");
+    } catch (e) {
+      setError((e as Error).message || "regenerate failed");
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
   const saveManifest = async () => {
     setError("");
     const url = `ipfs://${manifestCid}`;
@@ -655,6 +740,7 @@ const FinalizePanel = ({
       setClipLine("");
       setClipProg(initialClipProgress);
       setClipping(true);
+      setMetaRegenerated(false);
     }
     try {
       const res = await fetch(
@@ -764,9 +850,18 @@ const FinalizePanel = ({
         <Button onClick={() => void pin()} disabled={pinning || checking}>
           {pinning ? "Pinning…" : "Pin to IPFS"}
         </Button>
+        {isReFinalize ? (
+          <Button
+            onClick={() => void regenerateMeta()}
+            disabled={regenerating || pinning || checking}
+            title="Re-run the AI title/description pass on this episode's existing transcript. Does NOT touch the video — only rewrites metadata."
+          >
+            {regenerating ? "Regenerating…" : "Regenerate metadata only"}
+          </Button>
+        ) : null}
       </div>
 
-      {pinning || (pinTotal > 0 && !cid) ? (
+      {pinning || regenerating || (pinTotal > 0 && !cid) ? (
         <div
           className="px-3 py-3 flex flex-col gap-2"
           style={{ border: "1px dashed rgba(255, 62, 201, 0.35)", background: "rgba(0,0,0,0.25)" }}
@@ -829,6 +924,40 @@ const FinalizePanel = ({
             >
               play video ↗
             </a>
+            <a
+              className="slop-link slop-mono text-[11px] self-center"
+              href={`https://media.slop.computer/ipfs/${manifestCid}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              inspect manifest ↗
+            </a>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Meta-only regenerate result: a fresh manifest CID that reuses the same
+          video/transcript/chat as the on-chain one and only rewrites the AI text.
+          Nothing changes on-chain until the host signs Save below; the old CID
+          stays pinned, so this is fully reversible. */}
+      {metaRegenerated && manifestCid ? (
+        <div
+          className="px-3 py-3 flex flex-col gap-3"
+          style={{ border: "1px solid rgba(188, 255, 91, 0.4)", background: "rgba(10, 15, 36, 0.4)" }}
+        >
+          <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+            {"// regenerated metadata (video unchanged)"}
+          </span>
+          <KV k="new manifest cid" v={manifestCid} />
+          <KV k="next manifest" v={`ipfs://${manifestCid}`} />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="primary"
+              onClick={() => void saveManifest()}
+              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+            >
+              {isMining ? "Signing…" : "Save manifest on-chain"}
+            </Button>
             <a
               className="slop-link slop-mono text-[11px] self-center"
               href={`https://media.slop.computer/ipfs/${manifestCid}`}
