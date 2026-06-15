@@ -173,6 +173,11 @@ const ChecklistPage: NextPage = () => {
       status: broadcast.tone === "green" ? broadcast : hls,
     },
     {
+      id: "verify-obs-audio",
+      label: "Verify OBS is getting audio!",
+      body: "Check the OBS / EQ audio meters are actually moving before you go any further. A dead meter means the broadcast is going out silent.",
+    },
+    {
       id: "preview-stream",
       label: "Preview the stream at /stream",
       body: "Sanity-check the feed actually plays in a browser before flipping the audience-facing page live.",
@@ -219,6 +224,11 @@ const ChecklistPage: NextPage = () => {
         { href: "https://studio.youtube.com/", text: "YouTube Studio ↗", external: true },
         { href: "https://twitter.com/", text: "x.com ↗", external: true },
       ],
+    },
+    {
+      id: "verify-fanout-audio",
+      label: "Verify fan-out streams have audio!",
+      body: "Open each destination (YouTube, Twitch, Twitter, Kick) and confirm you can actually hear audio on the restream — not just that video is playing.",
     },
     {
       id: "do-show",
