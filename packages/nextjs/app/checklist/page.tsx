@@ -145,6 +145,14 @@ const ChecklistPage: NextPage = () => {
       links: [{ href: LIVE_ADMIN_URL, text: "live admin · Rooms → /<slug>", external: true }],
     },
     {
+      id: "tweet-out-episode",
+      label: "Tweet out the episode and tag the guest",
+      body: "Promote the upcoming episode on X and tag the guest so their followers see it.",
+      links: [
+        { href: "https://studio.x.com/producer/broadcasts/", text: "studio.x.com · Broadcasts ↗", external: true },
+      ],
+    },
+    {
       id: "guest-joined",
       label: "Confirm the guest joined the room",
       body: "Live admin → Connected guests shows every peer on the relay (refreshes every 3s). Wait until you see them before going live.",
