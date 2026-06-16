@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { LoadingBar } from "./LoadingBar";
 
 /**
@@ -42,7 +43,24 @@ export const CLIP_PHASES: ClipPhase[] = [
   { key: "publishing", label: "publishing to IPFS", match: /▸\s*publishing/i, weight: 3 },
 ];
 
-const TOTAL_WEIGHT = CLIP_PHASES.reduce((a, p) => a + p.weight, 0);
+// The custom-clip path (`--clip-at`) is a SUBSET: no candidate-mining, judge,
+// tweet copy, ALT take, or IPFS publish — just speakers → captions → windows →
+// the one 9:16 cut. Its own phase list so the checklist reads true (no rows that
+// can never light up). Source + transcript are cached on the relay, so download/
+// transcribe fly past; windows (vision) + cutting (ffmpeg burn) are the long poles.
+export const CUSTOM_CLIP_PHASES: ClipPhase[] = [
+  { key: "resolving", label: "resolving episode", match: /▸\s*resolving/i, weight: 1 },
+  { key: "download", label: "loading video (cached)", match: /▸\s*downloading/i, weight: 1 },
+  { key: "transcribe", label: "transcript (cached)", match: /▸\s*transcrib/i, weight: 1 },
+  { key: "window", label: "framing the clip", match: /▸\s*custom clip/i, weight: 1 },
+  { key: "speakers", label: "attributing speakers", match: /▸\s*attributing speak/i, weight: 1 },
+  { key: "captions", label: "correcting captions", match: /▸\s*correcting caption/i, weight: 2 },
+  { key: "windows", label: "detecting 9:16 windows", match: /▸\s*detecting windows/i, weight: 5 },
+  { key: "directing", label: "directing 9:16 content", match: /▸\s*directing/i, weight: 2 },
+  { key: "background", label: "rendering background", match: /▸\s*rendering mobile/i, weight: 1 },
+  { key: "cutting", label: "cutting + burning captions", match: /▸\s*cutting clips/i, weight: 9 },
+];
+
 const COUNTER = /(\d+)\s*\/\s*(\d+)/;
 
 export type ClipProgressState = {
@@ -68,24 +86,30 @@ export const initialClipProgress: ClipProgressState = {
   done: false,
 };
 
-const computeOverall = (phaseIdx: number, sub: number): number => {
+const computeOverall = (phaseIdx: number, sub: number, phases: ClipPhase[]): number => {
   if (phaseIdx < 0) return 0;
+  const total = phases.reduce((a, p) => a + p.weight, 0) || 1;
   let before = 0;
-  for (let k = 0; k < phaseIdx && k < CLIP_PHASES.length; k++) before += CLIP_PHASES[k].weight;
-  const cur = CLIP_PHASES[phaseIdx]?.weight ?? 0;
-  return ((before + sub * cur) / TOTAL_WEIGHT) * 100;
+  for (let k = 0; k < phaseIdx && k < phases.length; k++) before += phases[k].weight;
+  const cur = phases[phaseIdx]?.weight ?? 0;
+  return ((before + sub * cur) / total) * 100;
 };
 
 /**
  * Fold a single raw clipper log line into the progress state. Pure — returns a
- * new state (or the same reference when the line carries no signal).
+ * new state (or the same reference when the line carries no signal). `phases`
+ * defaults to the full publish run; pass CUSTOM_CLIP_PHASES for `--clip-at`.
  */
-export const advanceClipProgress = (state: ClipProgressState, raw: string | undefined): ClipProgressState => {
+export const advanceClipProgress = (
+  state: ClipProgressState,
+  raw: string | undefined,
+  phases: ClipPhase[] = CLIP_PHASES,
+): ClipProgressState => {
   const line = (raw ?? "").replace(/\s+$/, "");
   if (!line.trim()) return state;
 
   // `▸ <phase>…` header → advance to that phase (forward-only).
-  const idx = CLIP_PHASES.findIndex(p => p.match.test(line));
+  const idx = phases.findIndex(p => p.match.test(line));
   if (idx >= 0) {
     const phaseIdx = Math.max(state.phaseIdx, idx);
     return {
@@ -93,7 +117,7 @@ export const advanceClipProgress = (state: ClipProgressState, raw: string | unde
       phaseIdx,
       sub: 0,
       counter: null,
-      overall: Math.max(state.overall, computeOverall(phaseIdx, 0)),
+      overall: Math.max(state.overall, computeOverall(phaseIdx, 0, phases)),
       line: line.trim(),
     };
   }
@@ -109,7 +133,7 @@ export const advanceClipProgress = (state: ClipProgressState, raw: string | unde
         ...state,
         sub: Math.max(state.sub, sub),
         counter: { i, n },
-        overall: Math.max(state.overall, computeOverall(state.phaseIdx, sub)),
+        overall: Math.max(state.overall, computeOverall(state.phaseIdx, sub, phases)),
         line: line.trim(),
       };
     }
@@ -120,9 +144,9 @@ export const advanceClipProgress = (state: ClipProgressState, raw: string | unde
 };
 
 /** Mark the job finished (relay emitted `{phase:"done"}`). */
-export const finishClipProgress = (state: ClipProgressState): ClipProgressState => ({
+export const finishClipProgress = (state: ClipProgressState, phases: ClipPhase[] = CLIP_PHASES): ClipProgressState => ({
   ...state,
-  phaseIdx: CLIP_PHASES.length,
+  phaseIdx: phases.length,
   sub: 1,
   counter: null,
   overall: 100,
@@ -133,9 +157,18 @@ const MUTED = "var(--slop-text-muted)";
 const LIME = "var(--slop-lime, #bcff5b)";
 const MAGENTA = "var(--slop-magenta, #ff3ec9)";
 
-export const ClipProgress = ({ state }: { state: ClipProgressState }) => {
+export const ClipProgress = ({
+  state,
+  phases = CLIP_PHASES,
+  note,
+}: {
+  state: ClipProgressState;
+  phases?: ClipPhase[];
+  /** Optional extra line under the overall bar (e.g. an ETA / elapsed readout). */
+  note?: ReactNode;
+}) => {
   const pct = Math.round(state.overall);
-  const activePhase = state.phaseIdx >= 0 ? CLIP_PHASES[state.phaseIdx] : undefined;
+  const activePhase = state.phaseIdx >= 0 ? phases[state.phaseIdx] : undefined;
   const caption = (
     <span className="slop-mono text-[11px]">
       {pct}%{state.done ? " · done" : activePhase ? ` · ${activePhase.label}` : " · starting…"}
@@ -150,9 +183,15 @@ export const ClipProgress = ({ state }: { state: ClipProgressState }) => {
       {/* overall, phase-weighted */}
       <LoadingBar cells={28} progress={pct} caption={caption} />
 
+      {note ? (
+        <span className="slop-mono text-[11px]" style={{ color: state.done ? LIME : MAGENTA }}>
+          {note}
+        </span>
+      ) : null}
+
       {/* per-phase checklist */}
       <div className="flex flex-col gap-1 mt-1">
-        {CLIP_PHASES.map((p, i) => {
+        {phases.map((p, i) => {
           const status = state.done || i < state.phaseIdx ? "done" : i === state.phaseIdx ? "active" : "pending";
           const marker = status === "done" ? "✓" : status === "active" ? "▸" : "·";
           const color = status === "done" ? LIME : status === "active" ? MAGENTA : MUTED;

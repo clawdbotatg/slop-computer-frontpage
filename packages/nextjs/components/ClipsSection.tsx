@@ -2,6 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
+import {
+  CUSTOM_CLIP_PHASES,
+  ClipProgress,
+  type ClipProgressState,
+  advanceClipProgress,
+  finishClipProgress,
+  initialClipProgress,
+} from "~~/components/ui/ClipProgress";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
 import { useSiweAuth } from "~~/hooks/useSiweAuth";
@@ -257,7 +265,17 @@ function CustomClipForm({ slug }: { slug: string }) {
   const [end, setEnd] = useState("");
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
-  const [statusLine, setStatusLine] = useState("");
+  const [prog, setProg] = useState<ClipProgressState>(initialClipProgress);
+  // Wall-clock for the ETA: startMs is stamped when a render begins; `now` ticks
+  // every second while busy so the elapsed/ETA readout stays live even when the
+  // bar parks on the long ffmpeg burn (which prints no sub-progress counter).
+  const [startMs, setStartMs] = useState(0);
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    if (!busy) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [busy]);
   const [err, setErr] = useState("");
   const [result, setResult] = useState<DoneEvent | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -314,11 +332,12 @@ function CustomClipForm({ slug }: { slug: string }) {
           continue;
         }
         if (ev.phase === "log" && typeof ev.line === "string") {
-          setStatusLine(ev.line.replace(/^[▸✓\s]+/, "").slice(0, 80));
+          setProg(st => advanceClipProgress(st, ev.line as string, CUSTOM_CLIP_PHASES));
         } else if (ev.phase === "error") {
           throw new Error(String(ev.message ?? "render failed"));
         } else if (ev.phase === "done") {
           const d = ev as DoneEvent;
+          setProg(st => finishClipProgress(st, CUSTOM_CLIP_PHASES));
           setResult(d);
           if (d.mobile) setVideoUrl(await fetchClipBlob(d.mobile));
         }
@@ -348,7 +367,9 @@ function CustomClipForm({ slug }: { slug: string }) {
       return;
     }
     setBusy(true);
-    setStatusLine("starting…");
+    setProg(initialClipProgress);
+    setStartMs(Date.now());
+    setNow(Date.now());
     try {
       const url = `${RELAY_HTTP_URL}/admin/clip-at?slug=${encodeURIComponent(slug)}`;
       const body = JSON.stringify({ start: s, end: e, title: title.trim() || undefined });
@@ -361,7 +382,6 @@ function CustomClipForm({ slug }: { slug: string }) {
       let res = await fetch(url, opts);
       if (res.status === 401) {
         // No relay session yet — sign in with the wallet (SIWE), then retry once.
-        setStatusLine("sign in with your wallet to prove you're an admin…");
         const ok = await signIn(setErr);
         if (!ok) {
           setBusy(false);
@@ -378,9 +398,24 @@ function CustomClipForm({ slug }: { slug: string }) {
       setErr((e2 as Error).message);
     } finally {
       setBusy(false);
-      setStatusLine("");
     }
   };
+
+  // Elapsed + a (deliberately rough) ETA for the readout under the bar. Once the
+  // bar has real progress we extrapolate total = elapsed / fraction; before that
+  // we just show elapsed. The 1s `now` ticker keeps it moving during the burn.
+  const elapsed = busy && startMs ? Math.max(0, (now - startMs) / 1000) : 0;
+  const fmtDur = (s: number) =>
+    s >= 60 ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}` : `${Math.ceil(s)}s`;
+  let etaNote: string | undefined;
+  if (busy) {
+    if (prog.overall >= 12 && prog.overall < 100) {
+      const total = elapsed / (prog.overall / 100);
+      etaNote = `~${fmtDur(Math.max(0, total - elapsed))} left · ${fmtDur(elapsed)} elapsed (est.)`;
+    } else {
+      etaNote = `${fmtDur(elapsed)} elapsed`;
+    }
+  }
 
   const field = (label: string, value: string, set: (v: string) => void, placeholder: string, mono = true) => (
     <label className="flex flex-col gap-1">
@@ -432,12 +467,8 @@ function CustomClipForm({ slug }: { slug: string }) {
         >
           {busy ? "rendering…" : "render clip"}
         </button>
-        {busy && statusLine ? (
-          <span className="slop-mono text-[10px] truncate" style={{ color: "var(--slop-text-muted)" }}>
-            {statusLine}
-          </span>
-        ) : null}
       </div>
+      {busy ? <ClipProgress state={prog} phases={CUSTOM_CLIP_PHASES} note={etaNote} /> : null}
       {err ? (
         <p className="slop-mono text-[11px] m-0" style={{ color: "var(--slop-magenta)" }}>
           {err}
