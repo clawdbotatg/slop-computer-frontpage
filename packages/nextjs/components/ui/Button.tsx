@@ -28,7 +28,7 @@ export const Button = (props: ButtonProps) => {
   const cls = buttonClass(variant, props.className);
 
   if (props.as === "a") {
-    const { children, href, target, rel, onClick, id, role, style, "aria-label": ariaLabel } = props;
+    const { children, href, target, rel, onClick, id, role, style, title, "aria-label": ariaLabel } = props;
     return (
       <a
         className={cls}
@@ -39,6 +39,7 @@ export const Button = (props: ButtonProps) => {
         id={id}
         role={role}
         style={style}
+        title={title}
         aria-label={ariaLabel}
       >
         {children}
@@ -46,7 +47,7 @@ export const Button = (props: ButtonProps) => {
     );
   }
 
-  const { children, type, onClick, disabled, id, name, style, "aria-label": ariaLabel } = props;
+  const { children, type, onClick, disabled, id, name, style, title, "aria-label": ariaLabel } = props;
   return (
     <button
       className={cls}
@@ -56,6 +57,7 @@ export const Button = (props: ButtonProps) => {
       id={id}
       name={name}
       style={style}
+      title={title}
       aria-label={ariaLabel}
     >
       {children}
