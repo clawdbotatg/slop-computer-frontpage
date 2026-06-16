@@ -2,14 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAccount } from "wagmi";
-import {
-  CUSTOM_CLIP_PHASES,
-  ClipProgress,
-  type ClipProgressState,
-  advanceClipProgress,
-  finishClipProgress,
-  initialClipProgress,
-} from "~~/components/ui/ClipProgress";
+import { LoadingBar } from "~~/components/ui/LoadingBar";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { RELAY_HTTP_URL } from "~~/hooks/useChat";
 import { useSiweAuth } from "~~/hooks/useSiweAuth";
@@ -265,12 +258,16 @@ function CustomClipForm({ slug }: { slug: string }) {
   const [end, setEnd] = useState("");
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
-  const [prog, setProg] = useState<ClipProgressState>(initialClipProgress);
-  // Wall-clock for the ETA: startMs is stamped when a render begins; `now` ticks
-  // every second while busy so the elapsed/ETA readout stays live even when the
-  // bar parks on the long ffmpeg burn (which prints no sub-progress counter).
+  // Time-based progress: there's no true % to report (the long ffmpeg caption
+  // burn emits no sub-progress), so we ESTIMATE total runtime from the clip
+  // length and fill a bar against elapsed wall-clock — i.e. "a guess at how long
+  // it'll take". `now` ticks every second while busy; `est` is set per render;
+  // `step` is the current activity line; `completed` snaps the bar to 100%.
   const [startMs, setStartMs] = useState(0);
   const [now, setNow] = useState(0);
+  const [est, setEst] = useState(90);
+  const [completed, setCompleted] = useState(false);
+  const [step, setStep] = useState("");
   useEffect(() => {
     if (!busy) return;
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -332,12 +329,18 @@ function CustomClipForm({ slug }: { slug: string }) {
           continue;
         }
         if (ev.phase === "log" && typeof ev.line === "string") {
-          setProg(st => advanceClipProgress(st, ev.line as string, CUSTOM_CLIP_PHASES));
+          // Surface the current activity (cleaned clipper line) under the bar.
+          const clean = ev.line
+            .replace(/^[▸✓\s]+/, "")
+            .replace(/…\s*$/, "")
+            .trim();
+          if (clean) setStep(clean.slice(0, 80));
         } else if (ev.phase === "error") {
           throw new Error(String(ev.message ?? "render failed"));
         } else if (ev.phase === "done") {
           const d = ev as DoneEvent;
-          setProg(st => finishClipProgress(st, CUSTOM_CLIP_PHASES));
+          setCompleted(true);
+          setStep("done");
           setResult(d);
           if (d.mobile) setVideoUrl(await fetchClipBlob(d.mobile));
         }
@@ -367,7 +370,13 @@ function CustomClipForm({ slug }: { slug: string }) {
       return;
     }
     setBusy(true);
-    setProg(initialClipProgress);
+    setCompleted(false);
+    setStep("starting…");
+    // Estimate total runtime: fixed pipeline overhead (cache hits + re-transcribe
+    // + window detection) plus ~2× the clip length for the caption burn. Tuned
+    // against real runs (~42s clip ≈ ~115s). A slight over-estimate so the bar
+    // lands near 100% right as the render finishes rather than pinning early.
+    setEst(Math.max(50, Math.round(45 + 2.0 * (e - s))));
     setStartMs(Date.now());
     setNow(Date.now());
     try {
@@ -401,21 +410,18 @@ function CustomClipForm({ slug }: { slug: string }) {
     }
   };
 
-  // Elapsed + a (deliberately rough) ETA for the readout under the bar. Once the
-  // bar has real progress we extrapolate total = elapsed / fraction; before that
-  // we just show elapsed. The 1s `now` ticker keeps it moving during the burn.
+  // Fill the bar against elapsed/est, capped at 97% until the render reports done
+  // (so it never sits at a fake 100%). The 1s ticker keeps the bar + countdown
+  // moving through the silent caption-burn.
   const elapsed = busy && startMs ? Math.max(0, (now - startMs) / 1000) : 0;
-  const fmtDur = (s: number) =>
-    s >= 60 ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}` : `${Math.ceil(s)}s`;
-  let etaNote: string | undefined;
-  if (busy) {
-    if (prog.overall >= 12 && prog.overall < 100) {
-      const total = elapsed / (prog.overall / 100);
-      etaNote = `~${fmtDur(Math.max(0, total - elapsed))} left · ${fmtDur(elapsed)} elapsed (est.)`;
-    } else {
-      etaNote = `${fmtDur(elapsed)} elapsed`;
-    }
-  }
+  const fmtDur = (n: number) =>
+    n >= 60 ? `${Math.floor(n / 60)}:${String(Math.round(n % 60)).padStart(2, "0")}` : `${Math.ceil(n)}s`;
+  const barPct = completed ? 100 : Math.min(97, Math.round((elapsed / Math.max(1, est)) * 100));
+  const etaNote = completed
+    ? "done"
+    : elapsed < est
+      ? `~${fmtDur(est - elapsed)} left · ${fmtDur(elapsed)} elapsed (est.)`
+      : `wrapping up… · ${fmtDur(elapsed)} elapsed`;
 
   const field = (label: string, value: string, set: (v: string) => void, placeholder: string, mono = true) => (
     <label className="flex flex-col gap-1">
@@ -468,7 +474,22 @@ function CustomClipForm({ slug }: { slug: string }) {
           {busy ? "rendering…" : "render clip"}
         </button>
       </div>
-      {busy ? <ClipProgress state={prog} phases={CUSTOM_CLIP_PHASES} note={etaNote} /> : null}
+      {busy ? (
+        <div
+          className="flex w-full flex-col gap-2 px-3 py-3"
+          style={{ border: "1px dashed rgba(255, 62, 201, 0.35)", background: "rgba(0,0,0,0.25)" }}
+        >
+          <LoadingBar cells={28} progress={barPct} caption={<span className="slop-mono text-[11px]">{barPct}%</span>} />
+          <span className="slop-mono text-[11px]" style={{ color: "var(--slop-magenta, #ff3ec9)" }}>
+            {etaNote}
+          </span>
+          {step ? (
+            <span className="slop-mono text-[10px] break-all" style={{ color: "var(--slop-text-muted)" }}>
+              {step}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       {err ? (
         <p className="slop-mono text-[11px] m-0" style={{ color: "var(--slop-magenta)" }}>
           {err}

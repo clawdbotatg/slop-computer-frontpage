@@ -43,24 +43,6 @@ export const CLIP_PHASES: ClipPhase[] = [
   { key: "publishing", label: "publishing to IPFS", match: /▸\s*publishing/i, weight: 3 },
 ];
 
-// The custom-clip path (`--clip-at`) is a SUBSET: no candidate-mining, judge,
-// tweet copy, ALT take, or IPFS publish — just speakers → captions → windows →
-// the one 9:16 cut. Its own phase list so the checklist reads true (no rows that
-// can never light up). Source + transcript are cached on the relay, so download/
-// transcribe fly past; windows (vision) + cutting (ffmpeg burn) are the long poles.
-export const CUSTOM_CLIP_PHASES: ClipPhase[] = [
-  { key: "resolving", label: "resolving episode", match: /▸\s*resolving/i, weight: 1 },
-  { key: "download", label: "loading video (cached)", match: /▸\s*downloading/i, weight: 1 },
-  { key: "transcribe", label: "transcript (cached)", match: /▸\s*transcrib/i, weight: 1 },
-  { key: "window", label: "framing the clip", match: /▸\s*custom clip/i, weight: 1 },
-  { key: "speakers", label: "attributing speakers", match: /▸\s*attributing speak/i, weight: 1 },
-  { key: "captions", label: "correcting captions", match: /▸\s*correcting caption/i, weight: 2 },
-  { key: "windows", label: "detecting 9:16 windows", match: /▸\s*detecting windows/i, weight: 5 },
-  { key: "directing", label: "directing 9:16 content", match: /▸\s*directing/i, weight: 2 },
-  { key: "background", label: "rendering background", match: /▸\s*rendering mobile/i, weight: 1 },
-  { key: "cutting", label: "cutting + burning captions", match: /▸\s*cutting clips/i, weight: 9 },
-];
-
 const COUNTER = /(\d+)\s*\/\s*(\d+)/;
 
 export type ClipProgressState = {
