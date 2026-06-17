@@ -731,7 +731,7 @@ const FinalizePanel = ({
   // reload — `attach` mode re-attaches to a running (or recently finished) job
   // instead of starting a new one; the relay replays the buffered log so the
   // phase-weighted progress bar fast-forwards to where the job actually is.
-  const generateClips = async (attach = false, force = false) => {
+  const generateClips = async (attach = false, force = false, regenTweets = false) => {
     clipFetch.current?.abort();
     const ctrl = new AbortController();
     clipFetch.current = ctrl;
@@ -744,7 +744,7 @@ const FinalizePanel = ({
     }
     try {
       const res = await fetch(
-        `${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}${attach ? "&attach=1" : ""}${force ? "&force=1" : ""}`,
+        `${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}${attach ? "&attach=1" : ""}${force ? "&force=1" : ""}${regenTweets ? "&tweets=1" : ""}`,
         { method: "POST", credentials: "include", signal: ctrl.signal },
       );
       if (attach && res.status === 404) return; // nothing to resume — stay quiet
@@ -990,6 +990,16 @@ const FinalizePanel = ({
           <div className="flex flex-wrap items-center gap-2">
             <Button onClick={() => void generateClips()} disabled={clipping}>
               {clipping ? "Generating clips…" : "Generate clips"}
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => void generateClips(false, false, true)}
+              disabled={clipping}
+              title={
+                "Re-runs ONLY the tweet pass (--regen-tweets): rewrites the per-clip post copy and re-publishes, reusing every other cache (no re-download / re-transcribe / re-render). Fast + cheap — one LLM call. Use after a tweet-prompt change; then Save manifest on-chain to publish the refreshed copy."
+              }
+            >
+              {clipping ? "Working…" : "Regenerate tweets ⟳"}
             </Button>
             <Button
               variant="default"
