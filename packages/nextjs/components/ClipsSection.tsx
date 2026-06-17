@@ -41,6 +41,7 @@ type ClipEntry = {
   landscape?: { cid: string; format: string; sizeBytes: number; poster?: { cid: string; format: string } };
   captions?: { cid: string; format: string };
   tweetShort?: string;
+  tweetMedium?: string;
   tweetLong?: string;
 };
 type ClipsBundle = { v: number; slug: string; generatedAt: string; clips: ClipEntry[] };
@@ -64,7 +65,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-function TweetBlock({ kind, text }: { kind: "short" | "long"; text: string }) {
+function TweetBlock({ kind, text }: { kind: "short" | "medium" | "long"; text: string }) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
@@ -199,6 +200,7 @@ function ClipCard({ c, slug }: { c: ClipEntry; slug: string }) {
         </span>
       ) : null}
       {c.tweetShort ? <TweetBlock kind="short" text={c.tweetShort} /> : null}
+      {c.tweetMedium ? <TweetBlock kind="medium" text={c.tweetMedium} /> : null}
       {c.tweetLong ? <TweetBlock kind="long" text={c.tweetLong} /> : null}
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {formats.map(f => (
