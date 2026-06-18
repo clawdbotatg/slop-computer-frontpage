@@ -474,7 +474,10 @@ const FinalizePanel = ({
   // a recently finished one replays its `done` event so the manifest CID
   // auto-fills, and a 404 (nothing to resume) stays silent.
   useEffect(() => {
-    if (!target) return;
+    // Only probe finalized episodes. An episode with no manifest was never
+    // finalized — the clipper rejects it ("no manifest yet") — so probing it
+    // just 404s on the relay and clutters its log with phantom slugs.
+    if (!target || target.manifest.length === 0) return;
     void generateClips(true);
     return () => clipFetch.current?.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -987,8 +990,17 @@ const FinalizePanel = ({
             <strong>Save manifest on-chain</strong> to publish it (you can also paste a CID the clipper printed). clips
             only show to admins on the episode page.
           </p>
+          {!isReFinalize ? (
+            <p className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+              this episode isn&apos;t finalized yet (no manifest) — finalize it above before generating clips.
+            </p>
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
-            <Button onClick={() => void generateClips()} disabled={clipping}>
+            <Button
+              onClick={() => void generateClips()}
+              disabled={clipping || !isReFinalize}
+              title={isReFinalize ? undefined : "Finalize this episode (pin its recording above) before clipping — the clipper needs a manifest."}
+            >
               {clipping ? "Generating clips…" : "Generate clips"}
             </Button>
             <Button
@@ -1004,9 +1016,11 @@ const FinalizePanel = ({
             <Button
               variant="default"
               onClick={() => void generateClips(false, true)}
-              disabled={clipping}
+              disabled={clipping || !isReFinalize}
               title={
-                "Regenerate from scratch with --force: ignores every cache — re-downloads, RE-TRANSCRIBES the audio (picks up the 120s-chunk fix that recovers whisper hallucination dead-zones), re-selects, re-judges, re-renders and re-publishes. Slow (minutes) and uses API credits. Use after a transcript/pipeline fix or when clips look wrong; otherwise use plain Generate clips, which reuses caches."
+                !isReFinalize
+                  ? "Finalize this episode (pin its recording above) before clipping — the clipper needs a manifest."
+                  : "Regenerate from scratch with --force: ignores every cache — re-downloads, RE-TRANSCRIBES the audio (picks up the 120s-chunk fix that recovers whisper hallucination dead-zones), re-selects, re-judges, re-renders and re-publishes. Slow (minutes) and uses API credits. Use after a transcript/pipeline fix or when clips look wrong; otherwise use plain Generate clips, which reuses caches."
               }
             >
               {clipping ? "Working…" : "Regenerate (force) ⟳"}
