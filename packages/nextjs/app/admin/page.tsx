@@ -344,6 +344,16 @@ type RecordingInfo = {
   mtime: number;
 };
 
+// When MediaMTX split one show across multiple files (mid-stream reordered-frames
+// rotation), the relay reassembles the contiguous run and stitches it at finalize.
+// `count > 1` means a stitch will happen — surfaced as a heads-up in the preview.
+type RecordingSessionInfo = {
+  count: number;
+  totalBytes: number;
+  startMs: number;
+  names: string[];
+};
+
 // Public per-room snapshot from the relay's GET /v1/rooms/:slug/meta. We only
 // consume `wallet` here (to auto-fill the episode contract during finalize),
 // but the endpoint also returns name/createdAt/live/stt/card for other uses.
@@ -352,8 +362,9 @@ type RelayRoomMeta = {
 };
 
 type FinalizeEvent =
-  | { phase: "starting"; file: string; name: string; totalBytes: number }
+  | { phase: "starting"; file: string; name: string; totalBytes: number; segmentCount: number }
   | { phase: "remuxing" }
+  | { phase: "stitching"; segmentCount: number }
   | { phase: "uploading"; bytes: number; totalBytes: number }
   | { phase: "pinning-chat"; messageCount: number }
   | { phase: "pinning-transcript"; segmentCount: number }
@@ -382,6 +393,7 @@ const FinalizePanel = ({
 }) => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [recording, setRecording] = useState<RecordingInfo | null>(null);
+  const [recordingSession, setRecordingSession] = useState<RecordingSessionInfo | null>(null);
   const [cid, setCid] = useState("");
   const [manifestCid, setManifestCid] = useState("");
   const [checking, setChecking] = useState(false);
@@ -528,8 +540,9 @@ const FinalizePanel = ({
         else setError(`relay returned ${res.status}`);
         return;
       }
-      const j = (await res.json()) as { latest: RecordingInfo | null };
+      const j = (await res.json()) as { latest: RecordingInfo | null; session: RecordingSessionInfo | null };
       setRecording(j.latest);
+      setRecordingSession(j.session);
       // Re-pull room meta — a session wallet may have been deployed after the
       // panel first loaded (common: deploy mid-show, then finalize).
       void loadRoomWallet(relaySlug(target), target.contractAddr.toLowerCase() === ZERO_ADDRESS);
@@ -588,7 +601,12 @@ const FinalizePanel = ({
           if (ev.phase === "starting") {
             setPinTotal(ev.totalBytes);
             setRecording({ name: ev.name, sizeBytes: ev.totalBytes, mtime: Date.now() });
-            setPhaseLabel("preparing…");
+            setPhaseLabel(ev.segmentCount > 1 ? `preparing… (${ev.segmentCount} segments)` : "preparing…");
+          } else if (ev.phase === "stitching") {
+            // Multi-segment session: MediaMTX split the show, relay is concatenating.
+            setBytesPinned(0);
+            setPinTotal(0);
+            setPhaseLabel(`stitching ${ev.segmentCount} split segments…`);
           } else if (ev.phase === "remuxing") {
             // Reset bytes/total so the bar flips to indeterminate during phases
             // that don't have byte progress — otherwise it would stay pinned at
@@ -625,6 +643,7 @@ const FinalizePanel = ({
             setCid(ev.cid);
             setManifestCid(ev.manifestCid);
             setRecording({ name: ev.name, sizeBytes: ev.sizeBytes, mtime: ev.mtime });
+            setRecordingSession(null); // stitched into one pinned file now — drop the heads-up
             setBytesPinned(ev.sizeBytes);
             setPinTotal(ev.sizeBytes);
           } else if (ev.phase === "error") {
@@ -895,8 +914,19 @@ const FinalizePanel = ({
           style={{ border: "1px dashed rgba(255, 62, 201, 0.2)", background: "rgba(0,0,0,0.25)" }}
         >
           <KV k="file" v={recording.name} />
-          <KV k="size" v={formatBytes(recording.sizeBytes)} />
+          <KV
+            k="size"
+            v={formatBytes(
+              recordingSession && recordingSession.count > 1 ? recordingSession.totalBytes : recording.sizeBytes,
+            )}
+          />
           <KV k="mtime" v={new Date(recording.mtime).toLocaleString()} />
+          {recordingSession && recordingSession.count > 1 ? (
+            <div className="slop-mono text-[11px]" style={{ color: "rgb(255, 196, 0)" }}>
+              ⚠ {recordingSession.count} split segments → will be stitched (show starts{" "}
+              {new Date(recordingSession.startMs).toLocaleString()})
+            </div>
+          ) : null}
         </div>
       ) : null}
 
