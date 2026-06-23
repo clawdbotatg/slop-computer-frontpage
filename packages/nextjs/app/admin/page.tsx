@@ -2075,6 +2075,12 @@ const EpisodeRow = ({
   const [newManifest, setNewManifest] = useState(episode.manifest);
   const [newSlug, setNewSlug] = useState(episode.slug);
   const [newContract, setNewContract] = useState(episode.contractAddr);
+  // datetime is part of the immutable on-chain id (getId(name, datetime)) and
+  // has no setter — so "rescheduling" is a delete + re-add under a new id that
+  // carries over every other field. Pre-fill with the current airtime.
+  const [newDatetime, setNewDatetime] = useState(() =>
+    episode.datetime > 0n ? toLocalDatetimeValue(new Date(Number(episode.datetime) * 1000)) : "",
+  );
   const [error, setError] = useState("");
   // A finalized episode already has its manifest pinned. Re-pointing the live
   // slot at it would let the relay start recording at the same slug and the
@@ -2085,6 +2091,40 @@ const EpisodeRow = ({
     setError("");
     try {
       await fn();
+      onChange();
+    } catch (e) {
+      setError((e as Error).message || "tx failed");
+    }
+  };
+
+  // No setDatetime exists (the airtime is hashed into the id), so move an
+  // episode by deleting it and re-adding every field under a new time. Two
+  // sequential txs; the slug — hence the public /<slug> URL — is preserved.
+  const reschedule = async () => {
+    setError("");
+    const t = Math.floor(new Date(newDatetime).getTime() / 1000);
+    if (!Number.isFinite(t) || t <= 0) return setError("datetime invalid");
+    if (BigInt(t) === episode.datetime) return setError("datetime unchanged");
+    if (
+      !window.confirm(
+        `Reschedule "${episode.name || "this episode"}" to ${new Date(t * 1000).toLocaleString()}?\n\n` +
+          `This deletes and re-adds it (two signatures, new id). slug/manifest/contract are kept.`,
+      )
+    )
+      return;
+    try {
+      await writeContractAsync({ functionName: "deleteEpisode", args: [episode.id] });
+      await writeContractAsync({
+        functionName: "addEpisode",
+        args: [
+          episode.name,
+          episode.slug,
+          episode.liveSlug,
+          episode.manifest,
+          episode.contractAddr as `0x${string}`,
+          BigInt(t),
+        ],
+      });
       onChange();
     } catch (e) {
       setError((e as Error).message || "tx failed");
@@ -2141,6 +2181,14 @@ const EpisodeRow = ({
           <FormField label="slug" value={newSlug} onChange={setNewSlug} mono />
           <FormField label="manifest (ipfs://CID)" value={newManifest} onChange={setNewManifest} mono />
           <AddressField label="contract" value={newContract} onChange={setNewContract} />
+          {!isLive ? (
+            <FormField
+              label="datetime (local) — Reschedule deletes & re-adds under a new id"
+              value={newDatetime}
+              onChange={setNewDatetime}
+              type="datetime-local"
+            />
+          ) : null}
           {error ? (
             <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
               {error}
@@ -2184,6 +2232,19 @@ const EpisodeRow = ({
             >
               Save contract
             </Button>
+            {!isLive ? (
+              <Button
+                onClick={() => void reschedule()}
+                disabled={
+                  isMining ||
+                  !newDatetime ||
+                  (episode.datetime > 0n &&
+                    newDatetime === toLocalDatetimeValue(new Date(Number(episode.datetime) * 1000)))
+                }
+              >
+                Reschedule
+              </Button>
+            ) : null}
             <Button
               onClick={() => {
                 if (!window.confirm(`Delete ${episode.name || "this episode"}?`)) return;
