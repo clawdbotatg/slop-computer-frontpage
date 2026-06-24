@@ -395,11 +395,17 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 Chapters
               </h2>
               <ul className="flex flex-col">
-                {manifest.meta.chapters.map((ch, i) => (
+                {manifest.meta.chapters.map((ch, i) => {
+                  // Chapters before the start point land inside the pre-show
+                  // countdown — clamp their time (and seek target) up to the
+                  // start point so the first chapter reads e.g. 2:35, not 0:00.
+                  const start = manifest.meta?.startSeconds ?? 0;
+                  const tEff = start > 0 && ch.tStart < start ? start : ch.tStart;
+                  return (
                   <li key={`${ch.tStart}-${i}`}>
                     <button
                       type="button"
-                      onClick={() => seekTo(ch.tStart)}
+                      onClick={() => seekTo(tEff)}
                       disabled={!videoSrc || isLive}
                       className="flex items-baseline gap-3 text-left w-full py-1"
                       style={{
@@ -413,14 +419,15 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                         className={`slop-mono text-[11px]${videoSrc && !isLive ? " slop-link" : ""}`}
                         style={videoSrc && !isLive ? undefined : { color: "var(--slop-text-muted)" }}
                       >
-                        {formatTime(ch.tStart)}
+                        {formatTime(tEff)}
                       </span>
                       <span className="text-sm" style={{ color: "var(--slop-text)" }}>
                         {ch.title}
                       </span>
                     </button>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </section>
           ) : null}
