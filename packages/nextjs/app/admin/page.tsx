@@ -382,6 +382,10 @@ type FinalizeEvent =
     }
   | { phase: "error"; message: string };
 
+// localStorage key for the remembered start point — prefilled on the next
+// episode so a ~constant countdown needs no re-typing.
+const START_POINT_KEY = "slop:startPoint";
+
 // Parse a "mm:ss" / "h:mm:ss" / bare-seconds string into seconds (mirrors the
 // clipper + ClipsSection parser). Returns null on garbage. Empty → null.
 const parseClock = (s: string): number | null => {
@@ -427,11 +431,30 @@ const FinalizePanel = ({
   // through the clips section's shared input. Reset whenever a finalize/clips run
   // starts so only one "save this manifest" affordance is ever live at a time.
   const [metaRegenerated, setMetaRegenerated] = useState(false);
-  // Start-point edit (POST /admin/set-start): patches meta.startSeconds into the
-  // existing manifest and re-pins — video/transcript/chat untouched. Reuses the
-  // metaRegenerated result block (it's a video-unchanged metadata edit).
+  // Start point (mm:ss). Baked into a NEW episode's manifest at finalize (see
+  // pin()), or patched into an existing one via POST /admin/set-start. Remembered
+  // in localStorage so each new episode prefills with the last value used — the
+  // countdown is ~constant, so usually it's already correct and needs no typing.
   const [startInput, setStartInput] = useState("");
   const [settingStart, setSettingStart] = useState(false);
+  // Load the remembered start point once on mount (post-hydration, so SSR and
+  // first client render agree on "").
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(START_POINT_KEY);
+      if (saved) setStartInput(saved);
+    } catch {
+      /* localStorage unavailable (private mode etc.) — just start blank */
+    }
+  }, []);
+  const onStartInputChange = (v: string) => {
+    setStartInput(v);
+    try {
+      localStorage.setItem(START_POINT_KEY, v);
+    } catch {
+      /* best-effort: a failed persist just means no prefill next time */
+    }
+  };
   const [bytesPinned, setBytesPinned] = useState(0);
   const [pinTotal, setPinTotal] = useState(0);
   const [phaseLabel, setPhaseLabel] = useState("starting…");
@@ -594,10 +617,17 @@ const FinalizePanel = ({
       // relay reads the room the show ACTUALLY ran in. Missing slug or
       // wrong slug → finalizes an empty room, pins a manifest with no
       // chat/transcript/participants/card/meta.
-      const res = await fetch(`${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(relaySlug(target))}`, {
-        method: "POST",
-        credentials: "include",
-      });
+      // Bake the start point (if set) into this first manifest so a new
+      // episode skips its countdown without a second re-pin + setManifest tx.
+      const startSecs = parseClock(startInput.trim());
+      const startParam = startSecs && startSecs > 0 ? `&start=${Math.floor(startSecs)}` : "";
+      const res = await fetch(
+        `${RELAY_HTTP_URL}/admin/finalize?slug=${encodeURIComponent(relaySlug(target))}${startParam}`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
       if (!res.ok || !res.body) {
         if (res.status === 401) setError(handle401());
         else setError(`relay returned ${res.status}`);
@@ -970,27 +1000,27 @@ const FinalizePanel = ({
       {/* Start point — auto-skip the pre-episode countdown. Patches
           meta.startSeconds into the existing manifest (video unchanged); the
           new CID flows into the "regenerated metadata" save block below. */}
-      {isReFinalize ? (
-        <div
-          className="px-3 py-3 flex flex-col gap-2"
-          style={{ border: "1px dashed rgba(255, 62, 201, 0.25)" }}
-        >
-          <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
-            {"// start point — skip the countdown"}
-          </span>
-          <p className="m-0 text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-            Where playback auto-starts on first load. Set it ~5s before the countdown ends (e.g. 2:35) so viewers see a
-            few seconds of countdown, then the episode. Blank or 0 plays from the start.
-          </p>
-          <div className="flex flex-wrap gap-2 items-center">
-            <input
-              className="slop-textfield"
-              placeholder="mm:ss (e.g. 2:35)"
-              value={startInput}
-              onChange={e => setStartInput(e.target.value)}
-              disabled={settingStart || pinning || regenerating}
-              style={{ maxWidth: 160 }}
-            />
+      <div className="px-3 py-3 flex flex-col gap-2" style={{ border: "1px dashed rgba(255, 62, 201, 0.25)" }}>
+        <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+          {"// start point — skip the countdown"}
+        </span>
+        <p className="m-0 text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+          Where playback auto-starts on first load. Set it ~5s before the countdown ends (e.g. 2:35) so viewers see a few
+          seconds of countdown, then the episode. Blank or 0 plays from the start. Remembered for next time.{" "}
+          {isReFinalize
+            ? "This episode is already finalized — use “Set start point” to change it (one re-pin, then save on-chain)."
+            : "It’s baked into the manifest when you Pin to IPFS above — no extra step."}
+        </p>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            className="slop-textfield"
+            placeholder="mm:ss (e.g. 2:35)"
+            value={startInput}
+            onChange={e => onStartInputChange(e.target.value)}
+            disabled={settingStart || pinning || regenerating}
+            style={{ maxWidth: 160 }}
+          />
+          {isReFinalize ? (
             <Button
               onClick={() => void setStartPoint()}
               disabled={settingStart || pinning || regenerating || checking}
@@ -998,9 +1028,13 @@ const FinalizePanel = ({
             >
               {settingStart ? "Setting…" : "Set start point"}
             </Button>
-          </div>
+          ) : (
+            <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+              ↑ baked in on “Pin to IPFS”
+            </span>
+          )}
         </div>
-      ) : null}
+      </div>
 
       {pinning || regenerating || (pinTotal > 0 && !cid) ? (
         <div
