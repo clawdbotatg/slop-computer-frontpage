@@ -437,6 +437,11 @@ const FinalizePanel = ({
   // countdown is ~constant, so usually it's already correct and needs no typing.
   const [startInput, setStartInput] = useState("");
   const [settingStart, setSettingStart] = useState(false);
+  // Auto-detect (POST /admin/detect-start): reads the intro countdown timer off
+  // the recording with vision and prefills the field. detectMsg shows the result
+  // or why it couldn't read one.
+  const [detecting, setDetecting] = useState(false);
+  const [detectMsg, setDetectMsg] = useState("");
   // Load the remembered start point once on mount (post-hydration, so SSR and
   // first client render agree on "").
   useEffect(() => {
@@ -848,6 +853,43 @@ const FinalizePanel = ({
     }
   };
 
+  // Auto-detect the start point from the recording's intro countdown. Scans the
+  // latest on-disk recording (the one finalize will pin), so it's meant for a
+  // NEW episode before finalize. Prefills the field; the host reviews/adjusts.
+  const detectStart = async () => {
+    setDetectMsg("");
+    setError("");
+    setDetecting(true);
+    try {
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/detect-start`, { method: "POST", credentials: "include" });
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError(handle401());
+        } else {
+          const j = (await res.json().catch(() => ({}))) as { error?: string };
+          setDetectMsg(`couldn’t detect: ${j.error ?? `relay returned ${res.status}`}`);
+        }
+        return;
+      }
+      const d = (await res.json()) as { startSeconds?: number; lockTimer?: number; lockAt?: number; method?: string };
+      const secs = Number(d.startSeconds);
+      if (!Number.isFinite(secs)) {
+        setDetectMsg("detect returned no value — enter it manually");
+        return;
+      }
+      onStartInputChange(formatClock(secs));
+      const detail =
+        d.lockTimer != null && d.lockAt != null
+          ? ` (read timer ${formatClock(d.lockTimer)} at ${formatClock(d.lockAt)})`
+          : "";
+      setDetectMsg(`✓ detected ${formatClock(secs)}${detail} — review, then finalize`);
+    } catch (e) {
+      setDetectMsg((e as Error).message || "detect failed");
+    } finally {
+      setDetecting(false);
+    }
+  };
+
   const saveManifest = async () => {
     setError("");
     const url = `ipfs://${manifestCid}`;
@@ -1029,11 +1071,28 @@ const FinalizePanel = ({
               {settingStart ? "Setting…" : "Set start point"}
             </Button>
           ) : (
-            <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-              ↑ baked in on “Pin to IPFS”
-            </span>
+            <>
+              <Button
+                onClick={() => void detectStart()}
+                disabled={detecting || pinning || regenerating || checking}
+                title="Read the intro countdown timer off the recording with AI and fill in the start point. Review before finalizing."
+              >
+                {detecting ? "Detecting…" : "✨ Auto-detect"}
+              </Button>
+              <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+                baked in on “Pin to IPFS”
+              </span>
+            </>
           )}
         </div>
+        {detectMsg ? (
+          <span
+            className="slop-mono text-[11px]"
+            style={{ color: detectMsg.startsWith("✓") ? "var(--slop-lime)" : "rgb(255, 196, 0)" }}
+          >
+            {detectMsg}
+          </span>
+        ) : null}
       </div>
 
       {pinning || regenerating || (pinTotal > 0 && !cid) ? (
