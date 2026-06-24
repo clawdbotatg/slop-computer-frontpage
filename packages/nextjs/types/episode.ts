@@ -54,6 +54,15 @@ export type EpisodeMeta = {
   description?: string;
   topics?: string[];
   chapters?: { tStart: number; title: string }[];
+  /**
+   * Seconds into the VOD where playback should auto-start on first load, so
+   * viewers skip the pre-episode countdown. Set to the literal seek position
+   * (e.g. 155 = 00:02:35) — the player jumps straight there, no math. Convention
+   * is to leave ~5s of countdown visible, so set it a few seconds before the
+   * countdown actually hits zero. Human-authored via the admin panel (not the
+   * AI pass). Omitted/0 → play from the start.
+   */
+  startSeconds?: number;
   generatedBy?: string;
   generatedAt?: number;
 };

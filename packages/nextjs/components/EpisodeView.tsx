@@ -108,6 +108,10 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
   // is what flips the player to an "offline" card instead of a broken video.
   const streamUp = useStreamUp(HLS_URL, isLive);
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Auto-jump past the pre-episode countdown on first load. We seek exactly
+  // once per mount (this ref guards it) so a viewer who deliberately scrubs
+  // back into the countdown isn't yanked forward again.
+  const didSeekStart = useRef(false);
 
   const seekTo = (seconds: number) => {
     const v = videoRef.current;
@@ -230,6 +234,17 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 autoPlay
                 muted
                 playsInline
+                onLoadedMetadata={e => {
+                  // Skip the countdown: jump to manifest.meta.startSeconds the
+                  // first time metadata is ready. Guard against a value past the
+                  // end (stale/bad data) so we never strand on a black frame.
+                  const start = manifest?.meta?.startSeconds;
+                  const v = e.currentTarget;
+                  if (didSeekStart.current || !start || start <= 0) return;
+                  if (Number.isFinite(v.duration) && start >= v.duration) return;
+                  didSeekStart.current = true;
+                  v.currentTime = start;
+                }}
                 onError={() => setVodFailed(true)}
                 className="block w-full h-full"
               />

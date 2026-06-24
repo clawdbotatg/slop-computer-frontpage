@@ -382,6 +382,26 @@ type FinalizeEvent =
     }
   | { phase: "error"; message: string };
 
+// Parse a "mm:ss" / "h:mm:ss" / bare-seconds string into seconds (mirrors the
+// clipper + ClipsSection parser). Returns null on garbage. Empty → null.
+const parseClock = (s: string): number | null => {
+  const t = s.trim();
+  if (!t) return null;
+  if (/^\d+(\.\d+)?$/.test(t)) return Number(t);
+  const parts = t.split(":");
+  if (parts.length < 2 || parts.length > 3 || parts.some(p => !/^\d+(\.\d+)?$/.test(p))) return null;
+  return parts.reduce((acc, p) => acc * 60 + Number(p), 0);
+};
+
+// Seconds → "m:ss" / "h:mm:ss" for display.
+const formatClock = (secs: number): string => {
+  const s = Math.floor(secs % 60);
+  const m = Math.floor((secs / 60) % 60);
+  const h = Math.floor(secs / 3600);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+};
+
 const FinalizePanel = ({
   episodes,
   liveEpisode,
@@ -407,6 +427,11 @@ const FinalizePanel = ({
   // through the clips section's shared input. Reset whenever a finalize/clips run
   // starts so only one "save this manifest" affordance is ever live at a time.
   const [metaRegenerated, setMetaRegenerated] = useState(false);
+  // Start-point edit (POST /admin/set-start): patches meta.startSeconds into the
+  // existing manifest and re-pins — video/transcript/chat untouched. Reuses the
+  // metaRegenerated result block (it's a video-unchanged metadata edit).
+  const [startInput, setStartInput] = useState("");
+  const [settingStart, setSettingStart] = useState(false);
   const [bytesPinned, setBytesPinned] = useState(0);
   const [pinTotal, setPinTotal] = useState(0);
   const [phaseLabel, setPhaseLabel] = useState("starting…");
@@ -734,6 +759,65 @@ const FinalizePanel = ({
     }
   };
 
+  // Set (or clear) the VOD start point: patches meta.startSeconds into the
+  // episode's existing on-chain manifest and re-pins. Blank input or 0 clears it
+  // (play from the start). Drops the new CID into `manifestCid` so the existing
+  // "Save manifest on-chain" button signs it — nothing changes on-chain until then.
+  const setStartPoint = async () => {
+    if (!target.manifest) {
+      setError("this episode has no manifest on-chain yet — finalize it first");
+      return;
+    }
+    const trimmed = startInput.trim();
+    let secs = 0;
+    if (trimmed) {
+      const parsed = parseClock(trimmed);
+      if (parsed === null || parsed < 0) {
+        setError("enter a start point like 2:35 (mm:ss) or a number of seconds");
+        return;
+      }
+      secs = parsed;
+    }
+    setError("");
+    setCid("");
+    setManifestCid("");
+    setMetaRegenerated(false);
+    setSettingStart(true);
+    try {
+      const params = new URLSearchParams({
+        slug: relaySlug(target),
+        manifest: target.manifest,
+        start: String(secs),
+      });
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/set-start?${params.toString()}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        if (res.status === 401) setError(handle401());
+        else setError(`relay returned ${res.status}`);
+        return;
+      }
+      const data = (await res.json()) as { manifestCid?: string };
+      const newCid = String(data.manifestCid ?? "").replace(/^ipfs:\/\//, "");
+      if (!newCid) {
+        setError("set-start returned no manifest CID");
+        return;
+      }
+      setManifestCid(newCid);
+      setMetaRegenerated(true);
+      setPhaseLabel(
+        secs > 0
+          ? `✓ start point set to ${formatClock(secs)} — save the manifest on-chain`
+          : "✓ start point cleared — save the manifest on-chain",
+      );
+    } catch (e) {
+      setError((e as Error).message || "set start failed");
+    } finally {
+      setSettingStart(false);
+    }
+  };
+
   const saveManifest = async () => {
     setError("");
     const url = `ipfs://${manifestCid}`;
@@ -882,6 +966,41 @@ const FinalizePanel = ({
           </Button>
         ) : null}
       </div>
+
+      {/* Start point — auto-skip the pre-episode countdown. Patches
+          meta.startSeconds into the existing manifest (video unchanged); the
+          new CID flows into the "regenerated metadata" save block below. */}
+      {isReFinalize ? (
+        <div
+          className="px-3 py-3 flex flex-col gap-2"
+          style={{ border: "1px dashed rgba(255, 62, 201, 0.25)" }}
+        >
+          <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+            {"// start point — skip the countdown"}
+          </span>
+          <p className="m-0 text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+            Where playback auto-starts on first load. Set it ~5s before the countdown ends (e.g. 2:35) so viewers see a
+            few seconds of countdown, then the episode. Blank or 0 plays from the start.
+          </p>
+          <div className="flex flex-wrap gap-2 items-center">
+            <input
+              className="slop-textfield"
+              placeholder="mm:ss (e.g. 2:35)"
+              value={startInput}
+              onChange={e => setStartInput(e.target.value)}
+              disabled={settingStart || pinning || regenerating}
+              style={{ maxWidth: 160 }}
+            />
+            <Button
+              onClick={() => void setStartPoint()}
+              disabled={settingStart || pinning || regenerating || checking}
+              title="Patch meta.startSeconds into this episode's manifest and re-pin. Save on-chain to apply."
+            >
+              {settingStart ? "Setting…" : "Set start point"}
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       {pinning || regenerating || (pinTotal > 0 && !cid) ? (
         <div
