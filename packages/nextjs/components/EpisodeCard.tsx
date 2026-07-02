@@ -73,8 +73,14 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
   const streamUp = useStreamUp(HLS_URL, isLive);
   const streamDown = streamUp === false;
 
-  const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
+  // `undefined` = fetch not settled yet, `null` = no manifest. The distinction
+  // gates the <img> render below: the manifest decides which URL the card gets
+  // (IPFS-pinned vs relay), and rendering the relay URL immediately then
+  // swapping to the IPFS one mid-flight downloaded every card twice.
+  const [manifest, setManifest] = useState<EpisodeManifest | null | undefined>(undefined);
   const [cardOk, setCardOk] = useState(true);
+  // The small preview tier 404'd or failed — fall back to the full-size card.
+  const [previewFailed, setPreviewFailed] = useState(false);
   // Bumps on retry to bust the browser cache for the 404'd card URL — without
   // it, the browser keeps serving the cached 404 even after the host saves
   // the card on live.slop.computer.
@@ -94,6 +100,8 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
     };
   }, [episode.manifest]);
 
+  const manifestSettled = hasManifest ? manifest !== undefined : true;
+
   // While the episode hasn't been finalized, poll for the card to appear —
   // covers the "I had the page open, then disk-saved the card on live" case.
   // Stops as soon as the image loads (cardOk flips true) or the manifest
@@ -102,6 +110,7 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
     if (hasManifest || cardOk) return;
     const id = setInterval(() => {
       setCardOk(true);
+      setPreviewFailed(false);
       setCardRetry(n => n + 1);
     }, 15_000);
     return () => clearInterval(id);
@@ -117,10 +126,22 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
   // Fall back to the live relay's per-room card URL while the episode isn't
   // finalized yet (or for episodes that predate the IPFS pin step). `cardRetry`
   // appends a cache-busting query param so a poll-retry actually re-fetches.
-  const cardUrlBase = manifest?.card?.cid
+  const fullUrlBase = manifest?.card?.cid
     ? gatewayUrl(`ipfs://${manifest.card.cid}`)
     : `https://live.slop.computer/v1/cards/${encodeURIComponent(relaySlug(episode))}/published.png`;
+  // This grid renders the card at ~378×212, so load the small tier (768-wide
+  // JPEG, ~100 KB) instead of the full ~3 MB PNG — the homepage stacks ~20 of
+  // these. `onCardError` falls back to the full image if the preview is
+  // missing (e.g. a manifest or relay that predates the tier).
+  const previewUrlBase = manifest?.card?.previewCid
+    ? gatewayUrl(`ipfs://${manifest.card.previewCid}`)
+    : `https://live.slop.computer/v1/cards/${encodeURIComponent(relaySlug(episode))}/preview.jpg`;
+  const cardUrlBase = previewFailed ? fullUrlBase : previewUrlBase;
   const cardUrl = cardRetry > 0 ? `${cardUrlBase}?v=${cardRetry}` : cardUrlBase;
+  const onCardError = () => {
+    if (previewFailed) setCardOk(false);
+    else setPreviewFailed(true);
+  };
 
   return (
     <section
@@ -137,7 +158,9 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
     >
       <div
         className={
-          isLive || cardOk ? "grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-6" : "flex flex-col"
+          isLive || (cardOk && manifestSettled)
+            ? "grid grid-cols-1 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] gap-6"
+            : "flex flex-col"
         }
       >
         {isLive ? (
@@ -157,7 +180,8 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
                 src={cardUrl}
                 alt={`${episode.name || "episode"} preview`}
                 onError={e => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                  if (!previewFailed) setPreviewFailed(true);
+                  else (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
                 className="block w-full h-full object-cover"
                 style={{ opacity: 0.6 }}
@@ -197,7 +221,7 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
               </span>
             ) : null}
           </a>
-        ) : cardOk ? (
+        ) : cardOk && manifestSettled ? (
           <a
             href={`/${episode.slug}`}
             className="block overflow-hidden bg-black self-start w-full"
@@ -212,7 +236,7 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
             <img
               src={cardUrl}
               alt={`${episode.name || "episode"} preview`}
-              onError={() => setCardOk(false)}
+              onError={onCardError}
               className="block w-full h-full object-cover"
             />
           </a>

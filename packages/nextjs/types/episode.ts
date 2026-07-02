@@ -87,9 +87,11 @@ export type EpisodeManifest = {
    * Host-baked unfurl card PNG pinned to IPFS during finalize. Lets the per-
    * episode preview image survive the relay box going away. Renderers should
    * prefer this over the centralized `live.slop.computer/v1/cards/<slug>/published.png`
-   * URL whenever it's set.
+   * URL whenever it's set. `previewCid` is the small tier (768-wide JPEG,
+   * ~100 KB) baked for list/grid renders — prefer it over the full `cid`
+   * anywhere the card isn't shown near full size.
    */
-  card?: { cid: string; format?: string; sizeBytes?: number };
+  card?: { cid: string; format?: string; sizeBytes?: number; previewCid?: string; previewSizeBytes?: number };
   /**
    * AI-generated vertical (9:16) clips + suggested tweet copy, pinned to bgipfs
    * as clips.json (see clawd-clipper `--publish`). Carried in the manifest; the
