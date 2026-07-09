@@ -1,12 +1,13 @@
 ---
 name: distill-lessons
-description: Crawl every episode transcript (chain → IPFS) and distill recurring themes + standout lessons into LESSONS.md. Use when the user asks to update the lessons file, mine the transcripts, or ask "what have we learned across episodes".
+description: Crawl every episode transcript (chain → IPFS) and distill recurring themes + standout lessons into LESSONS.md and ALL-LESSONS.md. Use when the user asks to update the lessons files, mine the transcripts, or ask "what have we learned across episodes".
 ---
 
 # Distill lessons from all episode transcripts
 
-Three stages: **fetch → extract per episode → synthesize**. Stages 1 and 2 are
-cached on disk, so re-running after new episodes only does the new work.
+Four stages: **fetch → extract per episode → synthesize → compose the flat
+list**. Stages 1 and 2 are cached on disk, so re-running after new episodes
+only does the new work.
 
 ## 1. Fetch transcripts
 
@@ -60,6 +61,20 @@ at the repo root (committed — this is the deliverable):
 Keep it a readable document, not a dump: dedupe aggressively, merge near-
 duplicate lessons into one line with multiple episode tags. Attribution style:
 `(guest-slug)` after each bullet; timestamps only in the per-episode files.
+
+## 4. Compose ALL-LESSONS.md + pin to IPFS
+
+```
+python3 scripts/compose-all-lessons.py
+bgipfs upload ALL-LESSONS.md --config ~/.bgipfs/credentials.json
+```
+
+The script concatenates every episode's Lessons bullets into **`ALL-LESSONS.md`**
+(committed), one flat list, oldest episode first. The `bgipfs` upload (CLI +
+credentials already set up on this machine; see https://www.bgipfs.com/SKILL.md)
+pins it and prints a CID — the file is then live at
+`https://<CID>.ipfs.community.bgipfs.com/`. Report the fresh CID to the user;
+it changes on every regeneration.
 
 ## Notes
 
