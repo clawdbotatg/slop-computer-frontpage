@@ -46,21 +46,21 @@ whose transcript CID changed in `index.json`), launch one subagent per episode
 ## 3. Synthesize LESSONS.md
 
 Read all `transcripts/lessons/*.md` (they're small) and rewrite **`LESSONS.md`**
-at the repo root (committed — this is the deliverable):
+at the repo root (committed — this is the deliverable).
 
-- **Recurring themes** first — things that come up in 3+ episodes, strongest
-  first. For each: a short thesis paragraph distilling the collective take,
-  then the sharpest supporting lessons as bullets, each tagged with the
-  episode slug(s) it came from. Note real disagreements between guests — a
-  split take is more interesting than false consensus.
-- **Standout one-off lessons** — good lessons that don't fit a recurring theme,
-  grouped loosely, each tagged with its episode.
-- **Quotes** — a short quote wall of the best lines (speaker + episode).
-- Footer: episode count + date + "regenerate with /distill-lessons".
-
-Keep it a readable document, not a dump: dedupe aggressively, merge near-
-duplicate lessons into one line with multiple episode tags. Attribution style:
-`(guest-slug)` after each bullet; timestamps only in the per-episode files.
+**Audience and framing (this is the key requirement):** write for someone
+learning how to be a sloperator — how to build real things with AI agents.
+Not an analytical theme digest, not a dump: a teaching document. Distill the
+BIGGEST, most important lessons — roughly 12-18 numbered lessons, ordered as
+a learning path (start → workflow → craft → security → shipping → career).
+Each lesson: a punchy bold headline stating the lesson, then a few sentences
+of distilled guidance synthesized across episodes, tagged `(slug)` for the
+episodes it came from. Weight lessons by how many episodes echo them, but a
+single razor-sharp insight earns its place. Preserve real disagreements
+between guests as "both are right at different stages" guidance rather than
+false consensus. End with a short quote wall (best lines, speaker + slug) and
+a footer: episode count + date + pointer to ALL-LESSONS.md + "regenerate with
+the distill-lessons skill". Timestamps stay in the per-episode files only.
 
 ## 4. Compose ALL-LESSONS.md + pin to IPFS
 
