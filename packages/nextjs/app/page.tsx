@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { NextPage } from "next";
 import { EpisodeCard } from "~~/components/EpisodeCard";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { SLOP_CHAIN_ID, isZeroEpisode } from "~~/types/episode";
+import { type Episode, SLOP_CHAIN_ID, isZeroEpisode } from "~~/types/episode";
 
 // Tuned for the off-air → live transition. Host calls goLive from /admin
 // in one tab and expects the slop.computer tab to flip without a reload.
@@ -80,15 +80,65 @@ const Home: NextPage = () => {
       {/* Stack every fetched episode as a full card — newest first. The live
           episode (if any) keeps its natural slot in the list but renders an
           inline HLS preview + LIVE NOW badge + "Watch live now" CTA via the
-          isLive prop. */}
+          isLive prop. Cards past the first few mount lazily (each card kicks
+          off its own manifest + image fetches, so mounting all ~30 at once
+          front-loads the whole archive); the live card always mounts eagerly
+          wherever it sits so the stream preview never waits on a scroll. */}
       {allEpisodes.length > 0 ? (
         <section className="flex flex-col gap-10">
-          {allEpisodes.map(ep => (
-            <EpisodeCard key={ep.id} episode={ep} isLive={Boolean(liveId && ep.id === liveId)} />
-          ))}
+          {allEpisodes.map((ep, i) => {
+            const cardIsLive = Boolean(liveId && ep.id === liveId);
+            return i < EAGER_CARDS || cardIsLive ? (
+              <EpisodeCard key={ep.id} episode={ep} isLive={cardIsLive} />
+            ) : (
+              <LazyEpisodeCard key={ep.id} episode={ep} />
+            );
+          })}
         </section>
       ) : null}
     </div>
+  );
+};
+
+// How many cards mount immediately. ~1.5 cards fit a desktop viewport;
+// 3 covers a tall monitor with headroom.
+const EAGER_CARDS = 3;
+
+// Defers mounting an EpisodeCard until the viewport gets near it, so a
+// 30-deep archive doesn't fetch 30 manifests + thumbnails on page load.
+// The placeholder mirrors the card's frame at roughly its rendered height;
+// the generous rootMargin swaps in the real card well before it scrolls
+// into view, so the skeleton is only ever seen on a fast flick.
+const LazyEpisodeCard = ({ episode }: { episode: Episode }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (visible) return;
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    const io = new IntersectionObserver(entries => entries.some(e => e.isIntersecting) && setVisible(true), {
+      rootMargin: "1200px 0px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
+
+  if (visible) return <EpisodeCard episode={episode} />;
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      style={{
+        minHeight: 320,
+        borderRadius: 12,
+        border: "1px solid rgba(255, 62, 201, 0.2)",
+        background: "rgba(10, 15, 36, 0.45)",
+      }}
+    />
   );
 };
 
