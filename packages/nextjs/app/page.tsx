@@ -11,7 +11,6 @@ import { SLOP_CHAIN_ID, isZeroEpisode } from "~~/types/episode";
 // 10s polling is the worst case; refetchOnWindowFocus catches the common
 // case (switching tabs back) immediately.
 const READ_QUERY = { refetchInterval: 10000, refetchOnWindowFocus: true } as const;
-const PAGE_SIZE = 24n;
 
 /**
  * Canonical "ANSI Shadow" figlet rendering of `SLOP.COMPUTER` — straight
@@ -41,10 +40,23 @@ const Home: NextPage = () => {
     query: READ_QUERY,
   });
 
-  const { data: episodes, isLoading } = useScaffoldReadContract({
+  // count → full-range read, same pattern as app/[slug]/layout.tsx. A
+  // hardcoded page size silently dropped the oldest episodes once the
+  // archive outgrew it (the list walks newest-first, so it was the early
+  // episodes that vanished). The undefined count disables the second read
+  // until the first resolves (see `enabled` in useScaffoldReadContract).
+  const { data: episodeCount } = useScaffoldReadContract({
+    contractName: "SlopComputer",
+    functionName: "episodeCount",
+    chainId: SLOP_CHAIN_ID,
+    watch: false,
+    query: READ_QUERY,
+  });
+
+  const { data: episodes } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "getEpisodes",
-    args: [0n, PAGE_SIZE],
+    args: [0n, episodeCount],
     chainId: SLOP_CHAIN_ID,
     watch: false,
     query: READ_QUERY,
@@ -53,6 +65,9 @@ const Home: NextPage = () => {
   const isLive = !isZeroEpisode(liveEpisode);
   const liveId = isLive ? liveEpisode?.id : null;
   const allEpisodes = episodes ?? [];
+  // Chained reads mean wagmi's isLoading can't cover both: the episodes
+  // query sits disabled (not "loading") while the count is in flight.
+  const isLoading = episodeCount === undefined || (episodeCount > 0n && episodes === undefined);
 
   if (!isLive && allEpisodes.length === 0 && !isLoading) {
     return <BrandHomepage />;

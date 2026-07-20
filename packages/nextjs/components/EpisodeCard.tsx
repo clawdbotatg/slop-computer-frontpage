@@ -237,6 +237,7 @@ export const EpisodeCard = ({ episode, isLive = false }: EpisodeCardProps) => {
               src={cardUrl}
               alt={`${episode.name || "episode"} preview`}
               onError={onCardError}
+              loading="lazy"
               className="block w-full h-full object-cover"
             />
           </a>
