@@ -854,8 +854,8 @@ const FinalizePanel = ({
   };
 
   // Auto-detect the start point from the recording's intro countdown. Scans the
-  // latest on-disk recording (the one finalize will pin), so it's meant for a
-  // NEW episode before finalize. Prefills the field; the host reviews/adjusts.
+  // latest on-disk recording (the one finalize pins / pinned). Prefills the
+  // field; the host reviews/adjusts, then finalizes or hits "Set start point".
   const detectStart = async () => {
     setDetectMsg("");
     setError("");
@@ -882,7 +882,7 @@ const FinalizePanel = ({
         d.lockTimer != null && d.lockAt != null
           ? ` (read timer ${formatClock(d.lockTimer)} at ${formatClock(d.lockAt)})`
           : "";
-      setDetectMsg(`✓ detected ${formatClock(secs)}${detail} — review, then finalize`);
+      setDetectMsg(`✓ detected ${formatClock(secs)}${detail} — review, then ${isReFinalize ? "hit “Set start point”" : "finalize"}`);
     } catch (e) {
       setDetectMsg((e as Error).message || "detect failed");
     } finally {
@@ -1062,27 +1062,25 @@ const FinalizePanel = ({
             disabled={settingStart || pinning || regenerating}
             style={{ maxWidth: 160 }}
           />
+          <Button
+            onClick={() => void detectStart()}
+            disabled={detecting || settingStart || pinning || regenerating || checking}
+            title="Read the intro countdown timer off the recording with AI and fill in the start point. Review before applying."
+          >
+            {detecting ? "Detecting…" : "✨ Auto-detect"}
+          </Button>
           {isReFinalize ? (
             <Button
               onClick={() => void setStartPoint()}
-              disabled={settingStart || pinning || regenerating || checking}
+              disabled={settingStart || detecting || pinning || regenerating || checking}
               title="Patch meta.startSeconds into this episode's manifest and re-pin. Save on-chain to apply."
             >
               {settingStart ? "Setting…" : "Set start point"}
             </Button>
           ) : (
-            <>
-              <Button
-                onClick={() => void detectStart()}
-                disabled={detecting || pinning || regenerating || checking}
-                title="Read the intro countdown timer off the recording with AI and fill in the start point. Review before finalizing."
-              >
-                {detecting ? "Detecting…" : "✨ Auto-detect"}
-              </Button>
-              <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-                baked in on “Pin to IPFS”
-              </span>
-            </>
+            <span className="slop-mono text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+              baked in on “Pin to IPFS”
+            </span>
           )}
         </div>
         {detectMsg ? (
