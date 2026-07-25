@@ -96,6 +96,8 @@ const Home: NextPage = () => {
           })}
         </section>
       ) : null}
+
+      <AgentSkillLink />
     </div>
   );
 };
@@ -403,24 +405,31 @@ const Hero = () => {
       >
         join the psychosis to build our way out of the permanent underclass.
       </p>
-
-      {/* Agent on-ramp. skill.md is the public agent skill: hand the URL to
-          any AI agent and it can index episodes, search topics/tags, and read
-          transcripts (via /episodes.json + the onchain contract). Humans are
-          curious too, so it's a visible link, not just llms.txt/robots.txt. */}
-      <p
-        className="max-w-4xl text-sm sm:text-base slop-mono leading-relaxed"
-        style={{ color: "var(--slop-text-muted)", textTransform: "none" }}
-      >
-        🤖 bring your agent — hand it{" "}
-        <a href="/skill.md" className="slop-link" style={{ color: "var(--slop-cyan)" }}>
-          slop.computer/skill.md
-        </a>{" "}
-        and it knows the whole show
-      </p>
     </section>
   );
 };
+
+// Agent on-ramp. skill.md is the public agent skill: hand the URL to any AI
+// agent and it can index episodes, search topics/tags, and read transcripts
+// (via /episodes.json + the onchain contract). Sits at the very bottom of the
+// page, after the episode archive — discovery for the curious, not a banner.
+const AgentSkillLink = () => (
+  <section
+    className="flex justify-center"
+    style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}
+  >
+    <p
+      className="slop-mono text-sm sm:text-base text-center"
+      style={{ color: "var(--slop-text-muted)", textTransform: "none" }}
+    >
+      🤖 bring your agent — hand it{" "}
+      <a href="/skill.md" className="slop-link" style={{ color: "var(--slop-cyan)" }}>
+        slop.computer/skill.md
+      </a>{" "}
+      and it knows the whole show
+    </p>
+  </section>
+);
 
 // Replaces the old "coming soon…" empty state with a loader that reads as if
 // we're still fetching from chain. Reuses the SPARKLE_FRAMES sparkle (same as

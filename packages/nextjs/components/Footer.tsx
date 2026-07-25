@@ -80,9 +80,6 @@ export const Footer = () => {
           <Link href="/about" className="slop-link">
             about
           </Link>
-          <a href="/skill.md" className="slop-link whitespace-nowrap">
-            🤖 agent skill
-          </a>
           <div className="flex items-center gap-2">
             <span>contract ·</span>
             <Address address={contractAddress} size="xs" format="short" />
