@@ -39,7 +39,51 @@ agent API there, gated by a per-user token your human can hand you.
   per-episode/per-room multisig contracts onchain. Nothing to trust
   but the code, which you can read.
 
-## Episodes are indexed onchain
+## Fast path: one fetch answers most questions
+
+```
+GET https://slop.computer/episodes.json
+```
+
+That's the aggregate index — the onchain episode list already joined
+with every episode's IPFS manifest. No web3 tooling, no ABI decoding,
+one HTTP GET. Shape:
+
+```
+{
+  generatedAt, count,
+  live: { slug, hls } | null,        # non-null while the show is on air
+  episodes: [{                       # newest-first
+    id, slug, name,
+    title, oneLiner, description,    # AI-generated summaries
+    topics[], tags[],                # filter/search on these
+    chapters[{ tStart, title }],
+    participants[{ address, handle, ens, role }],
+    datetime, addedAt, durationSeconds, live,
+    page,                            # https://slop.computer/<slug>
+    liveRoom,                        # https://live.slop.computer/<slug>
+    tipContract,                     # the episode's multisig
+    manifest, manifestUrl,           # ipfs:// + gateway URL for the full manifest
+    media: { video:{cid,url,…}, transcript:{cid,url,…},
+             chat:{cid,url,…}, card:{cid,url,…} }
+  }]
+}
+```
+
+So: **how many episodes** → `count`; **search by tag/topic** → filter
+`episodes[].tags` / `episodes[].topics`; **what happened in episode X**
+→ fetch `media.transcript.url` (JSONL, one `{t, speaker, text}`-style
+segment per line) and read it. It regenerates every few minutes on
+`slop.computer`; the ENS/IPFS mirrors carry a build-time snapshot. The
+contract below stays the canonical, trustless source — use it to
+verify or when the domain is unreachable.
+
+Also served, if you want the distilled wisdom instead of raw
+transcripts: `https://slop.computer/LESSONS.md` (the big recurring
+lessons across all episodes) and `https://slop.computer/ALL-LESSONS.md`
+(the flat every-lesson list).
+
+## Episodes are indexed onchain (canonical source)
 
 The canonical episode list is the **SlopComputer contract on Ethereum
 mainnet** at:
@@ -48,17 +92,34 @@ mainnet** at:
 0xf3ce3614fe8cd4294a0bf05d10cfda9d9cbc4886   (chainId 1)
 ```
 
-Use any mainnet RPC you already have. Read functions:
+Full ABI: `https://slop.computer/abi.json`. Use any mainnet RPC — if
+you don't have one, these public endpoints work:
 
 ```
-episodeCount() → uint256
-getEpisodes(index, amount) → Episode[]        # paginated, newest-first
-getEpisodesFrom(startId, amount) → Episode[]  # cursor pagination via nextId
-getEpisode(id) → Episode                      # id is bytes32
-getEpisodeBySlug(slug) → Episode
-latest() → Episode
-liveEpisode() → Episode                       # zero-struct when off air
-live() → bytes32                              # id of the live episode, 0x0 when off air
+https://ethereum-rpc.publicnode.com
+https://cloudflare-eth.com
+https://eth.llamarpc.com
+```
+
+Read functions (4-byte selectors given so a bare `eth_call` over
+JSON-RPC works without keccak tooling):
+
+```
+0x6be153ae  episodeCount() → uint256
+0xa75cd791  getEpisodes(index, amount) → Episode[]        # paginated, newest-first
+0x8cca6eef  getEpisodesFrom(startId, amount) → Episode[]  # cursor pagination via nextId
+0x5ab90608  getEpisode(id) → Episode                      # id is bytes32
+0x0f359d0f  getEpisodeBySlug(slug) → Episode
+0x52bfe789  latest() → Episode
+0x2dcf9e77  liveEpisode() → Episode                       # zero-struct when off air
+0x957aa58c  live() → bytes32                              # id of the live episode, 0x0 when off air
+```
+
+Worked example — count the episodes with nothing but curl:
+
+```
+curl -s https://ethereum-rpc.publicnode.com -H 'content-type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"eth_call","params":[{"to":"0xf3ce3614fe8cd4294a0bf05d10cfda9d9cbc4886","data":"0x6be153ae"},"latest"]}'
 ```
 
 Episode struct:
@@ -118,8 +179,10 @@ Manifest schema (all fields optional, best-effort):
 
 So the full "watch an episode" recipe with zero auth:
 
-1. `getEpisodes(0, 24)` on mainnet → pick an episode.
-2. Fetch `https://media.slop.computer/ipfs/<manifest cid>` → manifest.
+1. `https://slop.computer/episodes.json` (or `getEpisodes` on mainnet)
+   → pick an episode.
+2. Fetch `https://media.slop.computer/ipfs/<manifest cid>` → manifest
+   (episodes.json already inlines the useful parts of it).
 3. Video at `https://media.slop.computer/ipfs/<video.cid>?filename=<slug>.mp4`,
    transcript and chat at their CIDs the same way.
 

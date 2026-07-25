@@ -36,3 +36,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 ipfs-upload.config.json
+
+# build-time copies from the repo root (scripts/copy-lessons.mjs)
+/public/LESSONS.md
+/public/ALL-LESSONS.md
