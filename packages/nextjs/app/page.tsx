@@ -409,25 +409,20 @@ const Hero = () => {
   );
 };
 
-// Agent on-ramp. skill.md is the public agent skill: hand the URL to any AI
-// agent and it can index episodes, search topics/tags, and read transcripts
-// (via /episodes.json + the onchain contract). Sits at the very bottom of the
-// page, after the episode archive — discovery for the curious, not a banner.
+// Bare link to the public agent skill, at the very bottom of the page after
+// the episode archive. Deliberately just "skill.md" — no pitch copy.
 const AgentSkillLink = () => (
   <section
     className="flex justify-center"
     style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}
   >
-    <p
-      className="slop-mono text-sm sm:text-base text-center"
+    <a
+      href="/skill.md"
+      className="slop-link slop-mono text-sm sm:text-base"
       style={{ color: "var(--slop-text-muted)", textTransform: "none" }}
     >
-      🤖 bring your agent — hand it{" "}
-      <a href="/skill.md" className="slop-link" style={{ color: "var(--slop-cyan)" }}>
-        slop.computer/skill.md
-      </a>{" "}
-      and it knows the whole show
-    </p>
+      skill.md
+    </a>
   </section>
 );
 
