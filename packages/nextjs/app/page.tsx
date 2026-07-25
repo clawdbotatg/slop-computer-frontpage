@@ -403,6 +403,21 @@ const Hero = () => {
       >
         join the psychosis to build our way out of the permanent underclass.
       </p>
+
+      {/* Agent on-ramp. skill.md is the public agent skill: hand the URL to
+          any AI agent and it can index episodes, search topics/tags, and read
+          transcripts (via /episodes.json + the onchain contract). Humans are
+          curious too, so it's a visible link, not just llms.txt/robots.txt. */}
+      <p
+        className="max-w-4xl text-sm sm:text-base slop-mono leading-relaxed"
+        style={{ color: "var(--slop-text-muted)", textTransform: "none" }}
+      >
+        🤖 bring your agent — hand it{" "}
+        <a href="/skill.md" className="slop-link" style={{ color: "var(--slop-cyan)" }}>
+          slop.computer/skill.md
+        </a>{" "}
+        and it knows the whole show
+      </p>
     </section>
   );
 };

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Agents welcome. Start here:
+#   https://slop.computer/skill.md       — the public agent skill
+#   https://slop.computer/episodes.json  — machine-readable episode index
+#   https://slop.computer/llms.txt       — link map for LLMs

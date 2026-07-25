@@ -12,11 +12,22 @@ const silkscreen = Silkscreen({
   subsets: ["latin"],
 });
 
-export const metadata = getMetadata({
-  title: "slop.computer — onchain podcast",
-  description:
-    "An onchain podcast about agents, builders, and shipping software. Episodes pinned to IPFS, indexed on Ethereum mainnet.",
-});
+export const metadata = {
+  ...getMetadata({
+    title: "slop.computer — onchain podcast",
+    description:
+      "An onchain podcast about agents, builders, and shipping software. Episodes pinned to IPFS, indexed on Ethereum mainnet.",
+  }),
+  // <link rel="alternate"> pointers so agents scraping the HTML head find the
+  // machine-readable surfaces without guessing paths (also in llms.txt +
+  // robots.txt + the visible hero/footer links).
+  alternates: {
+    types: {
+      "text/markdown": "/skill.md",
+      "application/json": "/episodes.json",
+    },
+  },
+};
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
