@@ -119,6 +119,11 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
     v.currentTime = seconds;
     void v.play().catch(() => {});
     v.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Reflect the jump in ?t= so the address bar is always a shareable
+    // link to the moment you just clicked (replaceState — no history spam).
+    const url = new URL(window.location.href);
+    url.searchParams.set("t", String(Math.floor(seconds)));
+    window.history.replaceState(null, "", url);
   };
 
   useEffect(() => {
@@ -235,15 +240,20 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                 muted
                 playsInline
                 onLoadedMetadata={e => {
-                  // Skip the countdown: jump to manifest.meta.startSeconds the
-                  // first time metadata is ready. Guard against a value past the
-                  // end (stale/bad data) so we never strand on a black frame.
-                  const start = manifest?.meta?.startSeconds;
+                  // Initial seek, once per mount. A shared ?t= deep link wins
+                  // (viewer intent is exact — no startSeconds clamp); otherwise
+                  // skip the countdown by jumping to manifest.meta.startSeconds.
+                  // Guard against a value past the end (stale/bad data) so we
+                  // never strand on a black frame.
                   const v = e.currentTarget;
-                  if (didSeekStart.current || !start || start <= 0) return;
-                  if (Number.isFinite(v.duration) && start >= v.duration) return;
+                  if (didSeekStart.current) return;
+                  const shared = parseTimeParam(new URLSearchParams(window.location.search).get("t"));
+                  const start = manifest?.meta?.startSeconds;
+                  const target = shared != null && shared > 0 ? shared : start && start > 0 ? start : null;
+                  if (target == null) return;
+                  if (Number.isFinite(v.duration) && target >= v.duration) return;
                   didSeekStart.current = true;
-                  v.currentTime = start;
+                  v.currentTime = target;
                 }}
                 onError={() => setVodFailed(true)}
                 className="block w-full h-full"
@@ -308,6 +318,8 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
             </>
           )}
         </div>
+
+        {!isLive && videoSrc ? <CopyTimeLink videoRef={videoRef} /> : null}
 
         <aside
           className="flex flex-col h-[520px]"
@@ -402,30 +414,30 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
                   const start = manifest.meta?.startSeconds ?? 0;
                   const tEff = start > 0 && ch.tStart < start ? start : ch.tStart;
                   return (
-                  <li key={`${ch.tStart}-${i}`}>
-                    <button
-                      type="button"
-                      onClick={() => seekTo(tEff)}
-                      disabled={!videoSrc || isLive}
-                      className="flex items-baseline gap-3 text-left w-full py-1"
-                      style={{
-                        background: "none",
-                        border: "none",
-                        padding: "4px 0",
-                        cursor: videoSrc && !isLive ? "pointer" : "default",
-                      }}
-                    >
-                      <span
-                        className={`slop-mono text-[11px]${videoSrc && !isLive ? " slop-link" : ""}`}
-                        style={videoSrc && !isLive ? undefined : { color: "var(--slop-text-muted)" }}
+                    <li key={`${ch.tStart}-${i}`}>
+                      <button
+                        type="button"
+                        onClick={() => seekTo(tEff)}
+                        disabled={!videoSrc || isLive}
+                        className="flex items-baseline gap-3 text-left w-full py-1"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          padding: "4px 0",
+                          cursor: videoSrc && !isLive ? "pointer" : "default",
+                        }}
                       >
-                        {formatTime(tEff)}
-                      </span>
-                      <span className="text-sm" style={{ color: "var(--slop-text)" }}>
-                        {ch.title}
-                      </span>
-                    </button>
-                  </li>
+                        <span
+                          className={`slop-mono text-[11px]${videoSrc && !isLive ? " slop-link" : ""}`}
+                          style={videoSrc && !isLive ? undefined : { color: "var(--slop-text-muted)" }}
+                        >
+                          {formatTime(tEff)}
+                        </span>
+                        <span className="text-sm" style={{ color: "var(--slop-text)" }}>
+                          {ch.title}
+                        </span>
+                      </button>
+                    </li>
                   );
                 })}
               </ul>
@@ -654,6 +666,71 @@ const StreamOffline = ({ cardUrl }: { cardUrl: string }) => (
     </div>
   </>
 );
+
+// Parse a ?t= value: plain seconds ("155") or YouTube-style "1h2m35s" / "2m35s" / "95s".
+const parseTimeParam = (raw: string | null): number | null => {
+  if (!raw) return null;
+  if (/^\d+$/.test(raw)) return parseInt(raw, 10);
+  const m = raw.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/);
+  if (!m || (!m[1] && !m[2] && !m[3])) return null;
+  return Number(m[1] ?? 0) * 3600 + Number(m[2] ?? 0) * 60 + Number(m[3] ?? 0);
+};
+
+// "⧉ copy link at current time" — builds <page URL>?t=<floor(currentTime)> and
+// copies it, so a viewer can share a deep link into the VOD (the ?t= is read
+// back in onLoadedMetadata). VOD-only: live HLS has no stable timeline.
+const CopyTimeLink = ({ videoRef }: { videoRef: { current: HTMLVideoElement | null } }) => {
+  const [copiedAt, setCopiedAt] = useState<number | null>(null);
+  useEffect(() => {
+    if (copiedAt == null) return;
+    const id = setTimeout(() => setCopiedAt(null), 2000);
+    return () => clearTimeout(id);
+  }, [copiedAt]);
+
+  const copy = () => {
+    const t = Math.floor(videoRef.current?.currentTime ?? 0);
+    const url = new URL(window.location.href);
+    url.searchParams.set("t", String(t));
+    const link = url.toString();
+    const done = () => setCopiedAt(t);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(link).then(done, () => fallbackCopy(link, done));
+    } else {
+      fallbackCopy(link, done);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      className="slop-mono text-[11px] self-start"
+      style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+    >
+      {copiedAt != null ? (
+        <span style={{ color: "var(--slop-lime)" }}>✓ link copied at {formatTime(copiedAt)}</span>
+      ) : (
+        <span className="slop-link">⧉ copy link at current time</span>
+      )}
+    </button>
+  );
+};
+
+// execCommand fallback for non-secure contexts (plain-http IPFS gateways).
+const fallbackCopy = (text: string, done: () => void) => {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+    done();
+  } finally {
+    document.body.removeChild(ta);
+  }
+};
 
 // Seconds → "m:ss" or "h:mm:ss". Used for chapter markers + video duration.
 const formatTime = (total: number): string => {
