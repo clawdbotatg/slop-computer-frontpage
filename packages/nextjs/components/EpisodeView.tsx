@@ -10,6 +10,7 @@ import { LiveTranscript } from "~~/components/LiveTranscript";
 import { ViewerBadge } from "~~/components/ui";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useStreamUp } from "~~/hooks/useStreamUp";
+import { useUnmutedAutoplay } from "~~/hooks/useUnmutedAutoplay";
 import {
   type Episode,
   type EpisodeManifest,
@@ -147,6 +148,9 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
 
   const videoCid = manifest?.video?.cid;
   const videoSrc = isLive ? HLS_URL : videoCid ? gatewayUrl(`ipfs://${videoCid}`, `${episode.slug}.mp4`) : null;
+  // VOD autoplays muted (the only autoplay browsers guarantee), then this
+  // lifts the mute as soon as policy allows — or on the first tap/click.
+  useUnmutedAutoplay(videoRef, !isLive && Boolean(videoSrc), videoSrc);
   // When there's no playable video yet (scheduled episode pre-finalize) OR the
   // VOD failed to load, fall back to the per-room card image the live relay
   // publishes — same PNG that's used for og:image. If the card 404s (host

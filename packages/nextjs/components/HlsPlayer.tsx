@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useUnmutedAutoplay } from "~~/hooks/useUnmutedAutoplay";
 
 interface HlsPlayerProps {
   src: string;
@@ -11,11 +12,14 @@ interface HlsPlayerProps {
 /**
  * Browser HLS player. Native on Safari/iOS, hls.js everywhere else.
  * `muted + playsInline + autoplay` is required for browsers to start
- * playback without a user gesture.
+ * playback without a user gesture — useUnmutedAutoplay then lifts the
+ * mute the moment the browser allows sound. A chrome-less embed
+ * (`controls=false`, e.g. the homepage live preview) stays muted.
  */
 export const HlsPlayer = ({ src, className, controls = true }: HlsPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [error, setError] = useState<string | null>(null);
+  useUnmutedAutoplay(videoRef, controls, src);
 
   useEffect(() => {
     const video = videoRef.current;
