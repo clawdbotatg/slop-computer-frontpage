@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { AddressInput } from "@scaffold-ui/components";
@@ -50,13 +50,34 @@ import {
 const CONTRACT_ADDRESS = externalContracts[1].SlopComputer.address;
 const READ_QUERY = { refetchInterval: 5000, refetchOnWindowFocus: false } as const;
 
+// Delegate admins: wallets allowed into this console WITHOUT owning the
+// registry contract. The contract is single-owner (OZ Ownable) — every
+// on-chain write still reverts for these wallets — so delegates get the
+// relay-backed tools (finalize/pin, clips, metadata, start point), which
+// auth via the relay's own ADMIN_ADDRESSES + SIWE cookie, while owner-only
+// panels are hidden and on-chain save buttons are disabled. Keep this list
+// in sync with ADMIN_ADDRESSES in the relay's .env (lowercase).
+const DELEGATE_ADMINS = [
+  "0x307c8c89ca48c846f1658223374c6c7464687ab0",
+  // austingriffith.eth — the original owner. Listed so that if ownership is
+  // ever transferred away (TransferOwnershipPanel), this wallet still reaches
+  // the relay tools here instead of bouncing off the gate.
+  "0x34aa3f359a9d614239015126635ce7732c18fdf3",
+];
+
+// Whether the connected wallet is the actual contract owner (vs a delegate).
+// Read by nested panels to hide/disable buttons that sign registry writes.
+const IsOwnerContext = createContext(true);
+const useIsOwner = () => useContext(IsOwnerContext);
+
 /**
- * Owner-only console for the slop.computer registry. Wraps the on-chain
+ * Admin console for the slop.computer registry. Wraps the on-chain
  * writes (goLive, addEpisode, setEpisodeUrl, setLive, goOffline,
  * deleteEpisode, setEpisodeContract) in actual forms so we don't have to
  * fight the SE-2 /debug ABI dump every time we want to start a show.
  *
- * Gates in order: connect wallet → mainnet → contract owner → console.
+ * Gates in order: connect wallet → mainnet → owner or delegate → console.
+ * Delegates (DELEGATE_ADMINS) see the relay-backed tools only.
  */
 const AdminPage: NextPage = () => {
   const { address, isConnected } = useAccount();
@@ -71,6 +92,7 @@ const AdminPage: NextPage = () => {
 
   const ownerLower = owner?.toLowerCase();
   const isOwner = !!ownerLower && !!address && address.toLowerCase() === ownerLower;
+  const isDelegate = !!address && DELEGATE_ADMINS.includes(address.toLowerCase());
 
   return (
     <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-8 sm:py-12 flex flex-col gap-8">
@@ -92,12 +114,14 @@ const AdminPage: NextPage = () => {
             Switch to mainnet
           </Button>
         </Gate>
-      ) : !isOwner ? (
+      ) : !isOwner && !isDelegate ? (
         <Gate title="not the owner" body={`connected as ${address}. the contract owner is ${owner ?? "loading…"}.`}>
           <ConnectButton />
         </Gate>
       ) : (
-        <OwnerConsole />
+        <IsOwnerContext.Provider value={isOwner}>
+          <OwnerConsole />
+        </IsOwnerContext.Provider>
       )}
     </div>
   );
@@ -162,6 +186,7 @@ const Gate = ({ title, body, children }: { title: string; body: string; children
 );
 
 const OwnerConsole = () => {
+  const isOwner = useIsOwner();
   const { data: liveEpisode, refetch: refetchLive } = useScaffoldReadContract({
     contractName: "SlopComputer",
     functionName: "liveEpisode",
@@ -221,24 +246,43 @@ const OwnerConsole = () => {
 
   return (
     <div className="flex flex-col gap-10">
+      {!isOwner ? (
+        <div
+          className="px-4 py-3 slop-mono text-[11px]"
+          style={{ border: "1px dashed rgba(255, 196, 0, 0.5)", color: "rgb(255, 196, 0)", borderRadius: 8 }}
+        >
+          delegate admin — the relay tools (check recording, pin to IPFS, clips, metadata, start point) work with this
+          wallet. the registry contract has a single owner, so on-chain writes (schedule, go live, save manifest) are
+          hidden or disabled here — hand the manifest CID to the owner to publish.
+        </div>
+      ) : null}
       <LiveStatusPanel liveEpisode={liveEpisode} onChange={refreshAll} />
       {episodes && episodes.length > 0 ? (
         <FinalizePanel episodes={episodes} liveEpisode={liveEpisode} onUrlUpdated={refreshAll} />
       ) : null}
-      <div ref={scheduleRef}>
-        <AddFutureEpisodeForm onDone={refreshAll} prefill={prefill} />
-      </div>
-      <GoLiveForm onDone={refreshAll} />
+      {isOwner ? (
+        <>
+          <div ref={scheduleRef}>
+            <AddFutureEpisodeForm onDone={refreshAll} prefill={prefill} />
+          </div>
+          <GoLiveForm onDone={refreshAll} />
+        </>
+      ) : null}
       <EpisodeTable
         episodes={episodes}
         liveId={liveId}
         totalCount={episodeCount !== undefined ? Number(episodeCount) : undefined}
         onChange={refreshAll}
       />
-      <AddEpisodeForm onDone={refreshAll} />
-      <SetNamePanel />
-      <SetContenthashPanel />
-      <RecoverAssetsPanel />
+      {isOwner ? (
+        <>
+          <AddEpisodeForm onDone={refreshAll} />
+          <SetNamePanel />
+          <SetContenthashPanel />
+          <RecoverAssetsPanel />
+          <TransferOwnershipPanel />
+        </>
+      ) : null}
     </div>
   );
 };
@@ -286,6 +330,7 @@ const Section = ({
 );
 
 const LiveStatusPanel = ({ liveEpisode, onChange }: { liveEpisode: Episode | undefined; onChange: () => void }) => {
+  const isOwner = useIsOwner();
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
   const isLive = !!liveEpisode && !isZeroEpisode(liveEpisode);
 
@@ -316,11 +361,13 @@ const LiveStatusPanel = ({ liveEpisode, onChange }: { liveEpisode: Episode | und
       <KV k="manifest" v={ep.manifest || "(empty — set after finalize)"} />
       <KV k="contract" v={ep.contractAddr} />
       <KV k="datetime" v={`${formatDate(ep.datetime)} (unix ${ep.datetime.toString()})`} />
-      <div className="flex flex-wrap gap-3 pt-2">
-        <Button onClick={() => void goOffline()} disabled={isMining}>
-          {isMining ? "..." : "End show (go offline)"}
-        </Button>
-      </div>
+      {isOwner ? (
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Button onClick={() => void goOffline()} disabled={isMining}>
+            {isMining ? "..." : "End show (go offline)"}
+          </Button>
+        </div>
+      ) : null}
     </Section>
   );
 };
@@ -487,6 +534,10 @@ const FinalizePanel = ({
   // In-flight clip stream — aborted when a newer start/attach supersedes it
   // (episode switch, unmount) so a stale stream can't clobber fresh state.
   const clipFetch = useRef<AbortController | null>(null);
+  const isOwner = useIsOwner();
+  // Delegates can run every relay flow but not sign registry writes — the
+  // save buttons stay visible (so the CID is easy to hand off) but disabled.
+  const ownerOnlyTitle = isOwner ? undefined : "owner wallet only — the registry contract is single-owner";
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
 
   // The episode being finalized. Defaults to the live one (the in-show
@@ -882,7 +933,9 @@ const FinalizePanel = ({
         d.lockTimer != null && d.lockAt != null
           ? ` (read timer ${formatClock(d.lockTimer)} at ${formatClock(d.lockAt)})`
           : "";
-      setDetectMsg(`✓ detected ${formatClock(secs)}${detail} — review, then ${isReFinalize ? "hit “Set start point”" : "finalize"}`);
+      setDetectMsg(
+        `✓ detected ${formatClock(secs)}${detail} — review, then ${isReFinalize ? "hit “Set start point”" : "finalize"}`,
+      );
     } catch (e) {
       setDetectMsg((e as Error).message || "detect failed");
     } finally {
@@ -1047,8 +1100,8 @@ const FinalizePanel = ({
           {"// start point — skip the countdown"}
         </span>
         <p className="m-0 text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-          Where playback auto-starts on first load. Set it ~5s before the countdown ends (e.g. 2:35) so viewers see a few
-          seconds of countdown, then the episode. Blank or 0 plays from the start. Remembered for next time.{" "}
+          Where playback auto-starts on first load. Set it ~5s before the countdown ends (e.g. 2:35) so viewers see a
+          few seconds of countdown, then the episode. Blank or 0 plays from the start. Remembered for next time.{" "}
           {isReFinalize
             ? "This episode is already finalized — use “Set start point” to change it (one re-pin, then save on-chain)."
             : "It’s baked into the manifest when you Pin to IPFS above — no extra step."}
@@ -1152,7 +1205,8 @@ const FinalizePanel = ({
             <Button
               variant="primary"
               onClick={() => void saveManifest()}
-              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+              disabled={!isOwner || isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+              title={ownerOnlyTitle}
             >
               {isMining ? "Signing…" : "Save manifest on-chain"}
             </Button>
@@ -1197,7 +1251,8 @@ const FinalizePanel = ({
             <Button
               variant="primary"
               onClick={() => void saveManifest()}
-              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+              disabled={!isOwner || isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+              title={ownerOnlyTitle}
             >
               {isMining ? "Signing…" : "Save manifest on-chain"}
             </Button>
@@ -1239,7 +1294,11 @@ const FinalizePanel = ({
             <Button
               onClick={() => void generateClips()}
               disabled={clipping || !isReFinalize}
-              title={isReFinalize ? undefined : "Finalize this episode (pin its recording above) before clipping — the clipper needs a manifest."}
+              title={
+                isReFinalize
+                  ? undefined
+                  : "Finalize this episode (pin its recording above) before clipping — the clipper needs a manifest."
+              }
             >
               {clipping ? "Generating clips…" : "Generate clips"}
             </Button>
@@ -1305,7 +1364,8 @@ const FinalizePanel = ({
             <Button
               variant="primary"
               onClick={() => void saveManifest()}
-              disabled={isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+              disabled={!isOwner || isMining || !manifestCid || `ipfs://${manifestCid}` === target.manifest}
+              title={ownerOnlyTitle}
             >
               {isMining ? "Signing…" : "Save manifest on-chain"}
             </Button>
@@ -1366,7 +1426,8 @@ const FinalizePanel = ({
         <div className="flex flex-wrap gap-3 pt-1">
           <Button
             onClick={() => void saveContract()}
-            disabled={isMining || newContract.toLowerCase() === target.contractAddr.toLowerCase()}
+            disabled={!isOwner || isMining || newContract.toLowerCase() === target.contractAddr.toLowerCase()}
+            title={ownerOnlyTitle}
           >
             {isMining ? "Signing…" : "Save contract on-chain"}
           </Button>
@@ -2232,6 +2293,98 @@ const RecoverAssetsPanel = () => {
   );
 };
 
+// Danger zone: hand the registry's single Ownable owner slot to another
+// wallet. OZ Ownable is one-step — transferOwnership takes effect the moment
+// it mines, there is no "accept" from the new owner — so a typo'd address
+// bricks the registry (episodes, execute(), the ENS reverse hook) forever.
+// Hence the type-to-arm field + confirm dialog. The outgoing wallet keeps
+// relay-tool access here iff it's in DELEGATE_ADMINS.
+const TransferOwnershipPanel = () => {
+  const { data: owner } = useScaffoldReadContract({
+    contractName: "SlopComputer",
+    functionName: "owner",
+    chainId: SLOP_CHAIN_ID,
+    query: READ_QUERY,
+  });
+  const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
+  const [newOwner, setNewOwner] = useState("");
+  const [armText, setArmText] = useState("");
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  const valid = isAddress(newOwner);
+  const isZero = valid && newOwner.toLowerCase() === ZERO_ADDRESS;
+  const sameAsOwner = valid && !!owner && newOwner.toLowerCase() === owner.toLowerCase();
+  const armed = armText.trim().toLowerCase() === "transfer";
+
+  const submit = async () => {
+    setError("");
+    setDone(false);
+    if (!valid) return setError("new owner address invalid");
+    if (isZero) return setError("zero address would burn ownership — refusing");
+    if (sameAsOwner) return setError("that address is already the owner");
+    const to = getAddress(newOwner);
+    if (
+      !window.confirm(
+        `Transfer ownership of the SlopComputer registry?\n\n` +
+          `from: ${owner}\n` +
+          `to:   ${to}\n\n` +
+          `This is immediate and one-way — only the new owner could ever transfer it back. ` +
+          `The current wallet loses every on-chain control on this page (episodes, go live, ` +
+          `manifests, recover/execute, ENS reverse).`,
+      )
+    )
+      return;
+    try {
+      await writeContractAsync({ functionName: "transferOwnership", args: [to] });
+      setDone(true);
+      setArmText("");
+    } catch (e) {
+      setError((e as Error).message || "tx failed");
+    }
+  };
+
+  return (
+    <Section label={"// danger · ownership"} title="Transfer contract ownership">
+      <p className="slop-mono text-sm" style={{ color: "var(--slop-text-muted)" }}>
+        the registry has a <strong>single</strong> owner slot — transferring is a swap, not an add, and it takes effect
+        as soon as the tx mines (no accept step on the other side). the new owner gets everything: episodes, go live,
+        manifests, the <code>execute()</code> escape hatch, ENS reverse. to share control between wallets, transfer to a
+        Safe multisig holding both keys instead of an EOA. triple-check the address — a typo is unrecoverable.
+      </p>
+      <KV k="current owner" v={owner ?? "…"} />
+      <AddressField label="new owner" value={newOwner} onChange={setNewOwner} placeholder={ZERO_ADDRESS} />
+      <FormField
+        label={'type "transfer" to arm the button'}
+        value={armText}
+        onChange={setArmText}
+        placeholder="transfer"
+        mono
+      />
+      {error ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-accent)" }}>
+          {error}
+        </div>
+      ) : null}
+      {done ? (
+        <div className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+          transfer signed ✓ — once it mines, the owner above updates and this wallet drops to delegate access
+        </div>
+      ) : null}
+      <div className="flex flex-wrap gap-3 pt-1">
+        <Button
+          variant="primary"
+          onClick={() => void submit()}
+          disabled={isMining || !armed || !valid || isZero || sameAsOwner}
+          title={armed ? undefined : 'type "transfer" in the field above to enable'}
+        >
+          {isMining ? "Signing…" : "⚠ Transfer ownership"}
+        </Button>
+      </div>
+    </Section>
+  );
+};
+
 const EpisodeTable = ({
   episodes,
   liveId,
@@ -2280,6 +2433,7 @@ const EpisodeRow = ({
   divider: boolean;
   onChange: () => void;
 }) => {
+  const isOwner = useIsOwner();
   const { writeContractAsync, isMining } = useScaffoldWriteContract({ contractName: "SlopComputer" });
   const [expanded, setExpanded] = useState(false);
   const [newManifest, setNewManifest] = useState(episode.manifest);
@@ -2359,7 +2513,7 @@ const EpisodeRow = ({
         <Button as="a" href={`/${episode.slug}`} target="_blank" rel="noreferrer">
           view ↗
         </Button>
-        {!isLive && !isFinalized ? (
+        {isOwner && !isLive && !isFinalized ? (
           <Button
             variant="primary"
             onClick={() => tx(() => writeContractAsync({ functionName: "setLive", args: [episode.id] }))}
@@ -2373,14 +2527,16 @@ const EpisodeRow = ({
             finalized
           </span>
         ) : null}
-        <button
-          type="button"
-          onClick={() => setExpanded(v => !v)}
-          className="slop-link slop-mono text-[11px]"
-          style={{ background: "none", border: "none", cursor: "pointer" }}
-        >
-          {expanded ? "collapse" : "edit"}
-        </button>
+        {isOwner ? (
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            className="slop-link slop-mono text-[11px]"
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+          >
+            {expanded ? "collapse" : "edit"}
+          </button>
+        ) : null}
       </div>
       {expanded ? (
         <div
