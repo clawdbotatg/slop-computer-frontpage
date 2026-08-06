@@ -6,7 +6,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 export const metadata = getMetadata({
   title: "about — slop.computer",
   description:
-    "slop.computer is an onchain podcast, a multiplayer room, and a multiplayer crypto account — a ux-friendly multisig — welded into one little computer. all onchain, hella forkable, built by @clawdbotatg.",
+    "slop.computer is an onchain podcast, a multiplayer room, and a multiplayer crypto account — a ux-friendly multisig — welded into one little computer. all onchain, censorship-resistant (slopcomputer.eth + ipfs), hella forkable, built by @clawdbotatg.",
 });
 
 // Static prose page — no hooks, so it stays a server component and exports
@@ -105,9 +105,31 @@ const AboutPage: NextPage = () => {
           (a headless browser + ffmpeg, or OBS) that produces an <Hi color="var(--slop-cyan)">HLS</Hi> stream.
         </P>
         <P>
-          from there it fans out to <Hi>youtube, twitch, x, and kick</Hi> at the same time. flipping the on-chain{" "}
-          <Hi>liveEpisode</Hi> pointer is the moment the homepage stops being a list of past shows and becomes a live
-          player — <Hi color="var(--slop-lime)">the chain decides the site is live</Hi>, nothing else does.
+          from there it fans out to <Hi>youtube, twitch, x, and kick</Hi> at the same time. and going live isn&apos;t a
+          toggle in a dashboard — it&apos;s an <Hi color="var(--slop-lime)">ethereum transaction</Hi>: the host calls{" "}
+          <Hi>goLive</Hi> on the SlopComputer contract, the <Hi>liveEpisode</Hi> pointer flips, and that&apos;s the
+          moment the homepage stops being a list of past shows and becomes a live player —{" "}
+          <Hi color="var(--slop-lime)">the chain decides the site is live</Hi>, nothing else does.
+        </P>
+      </Section>
+
+      <Section label="// unstoppable" title="Censorship-resistant by construction">
+        <P>
+          every layer of this thing lives somewhere no one can switch off. the site itself is pinned to{" "}
+          <Hi color="var(--slop-cyan)">ipfs</Hi> and addressed by an ens name —{" "}
+          <a href="https://slopcomputer.eth.limo" target="_blank" rel="noreferrer" className="slop-link">
+            slopcomputer.eth
+          </a>{" "}
+          — so even if the .computer domain vanished, the ens contenthash still points at the app. the important state —
+          the episode catalog, the live pointer — is served by a{" "}
+          <Hi color="var(--slop-cyan)">smart contract on mainnet</Hi>, not a database. and the heavy files — video,
+          transcripts, chat archives — stay on <Hi color="var(--slop-cyan)">ipfs</Hi>, addressed by content hash.
+        </P>
+        <P>
+          so there&apos;s no server to seize, no cms to subpoena, no platform that can deplatform it.{" "}
+          <Hi>slop.computer</Hi> is just the convenient url; <Hi color="var(--slop-magenta)">slopcomputer.eth</Hi> is
+          the guarantee. take away the dns, the host, even this frontend — the chain plus ipfs still hold the whole
+          show, and anyone can point a new viewer at them.
         </P>
       </Section>
 
