@@ -409,11 +409,11 @@ const Hero = () => {
   );
 };
 
-// Bare link to the public agent skill, at the very bottom of the page after
-// the episode archive. Deliberately just "skill.md" — no pitch copy.
+// Bare links to the public agent skills, at the very bottom of the page after
+// the episode archive. Deliberately just the filenames — no pitch copy.
 const AgentSkillLink = () => (
   <section
-    className="flex justify-center"
+    className="flex justify-center gap-8"
     style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}
   >
     <a
@@ -422,6 +422,13 @@ const AgentSkillLink = () => (
       style={{ color: "var(--slop-text-muted)", textTransform: "none" }}
     >
       skill.md
+    </a>
+    <a
+      href="/pinner-skill.md"
+      className="slop-link slop-mono text-sm sm:text-base"
+      style={{ color: "var(--slop-text-muted)", textTransform: "none" }}
+    >
+      pinner-skill.md
     </a>
   </section>
 );
