@@ -606,7 +606,7 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
           ) : null}
 
           {/* Admin-only: the 9:16 clips + tweet copy. Renders nothing for public viewers. */}
-          {!isLive ? <ClipsSection manifest={manifest} slug={episode.slug} /> : null}
+          {!isLive ? <ClipsSection manifest={manifest} slug={episode.slug} room={relaySlug(episode)} /> : null}
         </div>
       </div>
     </article>

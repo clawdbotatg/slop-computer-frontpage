@@ -975,7 +975,10 @@ const FinalizePanel = ({
     }
     try {
       const res = await fetch(
-        `${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}${attach ? "&attach=1" : ""}${force ? "&force=1" : ""}${regenTweets ? "&tweets=1" : ""}`,
+        // `slug` keys the clipper (onchain episode + out/<slug>/ cache);
+        // `room` names the studio room holding the research dossier — they
+        // differ when a liveSlug reuses a prior guest's room.
+        `${RELAY_HTTP_URL}/admin/generate-clips?slug=${encodeURIComponent(target.slug)}&room=${encodeURIComponent(relaySlug(target))}${attach ? "&attach=1" : ""}${force ? "&force=1" : ""}${regenTweets ? "&tweets=1" : ""}`,
         { method: "POST", credentials: "include", signal: ctrl.signal },
       );
       if (attach && res.status === 404) return; // nothing to resume — stay quiet

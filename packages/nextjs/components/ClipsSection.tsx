@@ -254,7 +254,7 @@ type DoneEvent = {
 // /admin/clip-at (which spawns the clipper with --clip-at), streams progress,
 // then previews + lets you download the rendered 9:16 mp4. Nothing is published
 // or written to the manifest — purely a render-and-download tool.
-function CustomClipForm({ slug }: { slug: string }) {
+function CustomClipForm({ slug, room }: { slug: string; room: string }) {
   const { signIn } = useSiweAuth();
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -382,7 +382,9 @@ function CustomClipForm({ slug }: { slug: string }) {
     setStartMs(Date.now());
     setNow(Date.now());
     try {
-      const url = `${RELAY_HTTP_URL}/admin/clip-at?slug=${encodeURIComponent(slug)}`;
+      // `slug` keys the clipper; `room` names the studio room whose research
+      // dossier seasons the captions — they differ when liveSlug reuses a room.
+      const url = `${RELAY_HTTP_URL}/admin/clip-at?slug=${encodeURIComponent(slug)}&room=${encodeURIComponent(room)}`;
       const body = JSON.stringify({ start: s, end: e, title: title.trim() || undefined });
       const opts: RequestInit = {
         method: "POST",
@@ -551,7 +553,7 @@ function CustomClipForm({ slug }: { slug: string }) {
   );
 }
 
-export function ClipsSection({ manifest, slug }: { manifest: EpisodeManifest | null; slug: string }) {
+export function ClipsSection({ manifest, slug, room }: { manifest: EpisodeManifest | null; slug: string; room: string }) {
   const { address } = useAccount();
   const me = address?.toLowerCase();
   // Only read owner() once a wallet is connected — public visitors never trigger it.
@@ -625,7 +627,7 @@ export function ClipsSection({ manifest, slug }: { manifest: EpisodeManifest | n
         </div>
       )}
 
-      <CustomClipForm slug={slug} />
+      <CustomClipForm slug={slug} room={room} />
     </section>
   );
 }
