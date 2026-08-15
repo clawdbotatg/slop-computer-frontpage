@@ -355,8 +355,8 @@ The pair get into AI-assisted development: Jalil's Claude Code and Codex workflo
 They get into Devin as a harness plus cloud platform, ACP-compatible Devin Desktop, and how auto-triage agents living in Slack channels are eating the old tag-the-bot pattern. Nader argues loops get over-engineered and that automations — scheduled jobs, Sentry-to-PR pipelines, stacked PR skills — are where the real ROI lives, while CTOs increasingly demand attribution dashboards so a $10M token bill maps to actual output.
 
 They close on local models, Nader's Lightning Orchestrator and CloudStackDiffs repos, a Devin vending-machine app for event credits, and why x402 agent-to-agent payments are still the most interesting place his crypto and AI worlds overlap.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmYuQRRUgPSHjTh7Rsy5D84kmX3taqr2RUSTvkcpoHCV1a?filename=dabit3.m4a" length="84857811" type="audio/mp4"/>
-      <itunes:duration>4151</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmeH8ZyXmWpA2vaTAGd8iovDUyNijBnBxuFMxy6Xx4dmaP?filename=dabit3.m4a" length="73678519" type="audio/mp4"/>
+      <itunes:duration>3605</itunes:duration>
       <itunes:episode>22</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmdW97i3XeruW4fgg649qhUyYfNG5GAusnWWzhFjsd886k"/>
@@ -387,8 +387,8 @@ The conversation drifts through slop computer builds (Kevin vibe-coded a Pokemon
 They get into the sloperator lifestyle: replacing SaaS with one-prompt vibecoded apps, idea-guy summer, and Annika's daily stack of Codex, Claude Code, an Obsidian-based second brain, and Hermes agents living in her Signal DMs to log conversations and run cron-job reminders.
 
 The back half turns to crypto. Annika shares her macro-driven path in, why stablecoins and micropayments still feel inevitable for agentic commerce, and why she shelved her January ERC-8004 prototypes. Austin worries Stripe just eats the agent-payments lane; Annika pushes back as the optimist.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmdSqRxbKN341hPSGvdE5DiKP8RQGkTd26GBUdaJikADud?filename=annikasays.m4a" length="64548641" type="audio/mp4"/>
-      <itunes:duration>3158</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmPu7ePaPqnJtyCa363qdhwXzobu3MUQSxDrfEqFx7TrXd?filename=annikasays.m4a" length="52429382" type="audio/mp4"/>
+      <itunes:duration>2565</itunes:duration>
       <itunes:episode>20</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmaUWb5K9v5nsXEoKpkRtU92xogFn61eCCxKFMqR5XuZ87"/>
@@ -691,8 +691,8 @@ The two then deploy a multisig, demo on-chain tipping, play a laggy game of tic-
 binji pitches his current obsession: a private, local LLM running on a cheap MacBook Air via Llama that learns your personality by watching how you use your computer, then surfaces highly contextual notifications instead of generic ones. He frames this as Clippy reborn — useful, private, user-owned — and as a Trojan horse for cypherpunk values via genuinely good consumer products.
 
 The conversation turns to ERC-8004, Ethereum as a trustless substrate for AI agents, Venice and end-to-end encrypted model access, and why &quot;idea guy summer&quot; means shipping with Claude Code instead of waiting on developers.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmdkURjLGTHvszm5Lk86oWvunohnwzBP2Hp6MRwuCoaBqi?filename=binji-x.m4a" length="74083221" type="audio/mp4"/>
-      <itunes:duration>3624</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmUY2aYTNUxa9fYu1WuqTD2Wrd788U6P5DMxgRWkgMZosR?filename=binji-x.m4a" length="70527156" type="audio/mp4"/>
+      <itunes:duration>3450</itunes:duration>
       <itunes:episode>1</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmduBqJo4TwhVB4qUooCY2phWbNxfNWzgVnFfAueAk3rM1"/>
