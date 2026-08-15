@@ -35,8 +35,8 @@
 They get into Eric's dev workflow — Claude and Codex arguing with each other, Kimi in the mix, a Mac mini running agents in isolation — and the terror of maintaining live unaudited contracts holding real ETH. slop.atg.eth pitches Scaffold-ETH, ETH Skills, and ui.scaffoldeth.io as building blocks for the new wave of idea-guy builders.
 
 The conversation ranges over ERC-6551 loot bags, prediction markets, PunkStrategy-style deflationary mechanisms, real-world assets on chain, DeFi summer nostalgia, and why mainnet fun is back. Eric closes on AI psychosis, thread management, and thinking like the idealist rather than the coder.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmTc15ccmdBebqifg4htuz6uKtNcBbkpArsVn67RyqV19f?filename=econoar.m4a" length="76929120" type="audio/mp4"/>
-      <itunes:duration>3764</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmV9EBETcH5MaRQY436sm8LDq9uhCicoGb9Kegatc3GaAw?filename=econoar.m4a" length="65607817" type="audio/mp4"/>
+      <itunes:duration>3209</itunes:duration>
       <itunes:episode>42</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmUotJFUR4QjaYA23sfa9s3aRbZw6GiaL5phtR8QxsgcRq"/>
@@ -51,8 +51,8 @@ The conversation ranges over ERC-6551 loot bags, prediction markets, PunkStrateg
 They get into MetaLeX's stack for compliant on-chain raises — Reg D 506(c), Reg S, Rule 144 secondary liquidity, and tokenized SAFEs as NFTs that can later be scripified into securities. Gabriel gives a speedrun of why IPOs cost millions, why the long tail of companies deserves better peer-to-peer rails, and how BORGs plug the governance holes DAOs left open.
 
 The back half covers Tornado Cash, relayers, OFAC facilitation risk, Ethereum's planned fork to remove relayer roles, the CLARITY Act's uncertain fate, and why Ethereum's 'crops' focus on freedom tech is the right bet. clawdbotatg.eth closes it out.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmUMVKNyx9szbVsHAAfsPySnAuzrLeKCcdQGEGHBFLxjdV?filename=lex-node.m4a" length="78506004" type="audio/mp4"/>
-      <itunes:duration>3841</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmWQ7sDZdk6LDfDco9GNZyobhFjVLm3eBxpaLrPE6a16nD?filename=lex-node.m4a" length="66612210" type="audio/mp4"/>
+      <itunes:duration>3258</itunes:duration>
       <itunes:episode>41</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmVxKmPDH9zDLAhPWtKmgheQdveacZ4PJD91insUTStb8N"/>
@@ -67,8 +67,8 @@ The back half covers Tornado Cash, relayers, OFAC facilitation risk, Ethereum's 
 They get into BasePaint's 3-year anniversary and hackathon, the ai.txt skill file that let non-coders submit projects via Replit, and why the project stays lean with no VC, no token, and no distributions. w1nt3r reflects on losing the joy of reading smart contracts, the Outliers-style luck of being the right age for a technology wave, and why his own distribution has cratered even as his output has grown.
 
 The episode closes on AI psychosis, the arbitrage gap between Twitter's AI bubble and the 8 billion people who've never used Claude, and w1nt3r's pitch: go do a magic trick for someone running their business on paper.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmZ7GhoWbiymsbasxfkMmiymqAXNffCLMRqv22hkHvGkqL?filename=w1nt3r-eth.m4a" length="106465446" type="audio/mp4"/>
-      <itunes:duration>5209</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmWz1euUmC643mzcTyPQ7k54bSMtpJUmFkxK3METaF4nYs?filename=w1nt3r-eth.m4a" length="94613374" type="audio/mp4"/>
+      <itunes:duration>4629</itunes:duration>
       <itunes:episode>40</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmQRopDu2FhQqrKMeywnXXegJHEM5vXibEufinT1tGA7ws"/>
@@ -83,8 +83,8 @@ The episode closes on AI psychosis, the arbitrage gap between Twitter's AI bubbl
 They get into model selection — Claude and Codex as the daily drivers, Opus for security work, and Kimi as an open-weight adversary that will actually roleplay attacking the network without refusing. Adam talks about finding real vulnerabilities in human-audited components once the harness was pointed at them, and why open-source AI tooling matters more than hoarded skill files.
 
 The back half covers Adam's hobby-dev roots (Carnie Death Peddlers, lanarts, C++ engines since age 14), why product-minded engineers transition to AI more easily than craft-focused ones, and his own flavor of AI psychosis: the nagging feeling you're always one prompt away from fixing the harness.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmZPMjt2UDZ5LLr5gQC6936TBbmccpYBGMSgh5nwAhcgDr?filename=ludamad.m4a" length="78062123" type="audio/mp4"/>
-      <itunes:duration>3819</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmQhnAVz7RYAUEZTrsz7a4rMhJK8uDB95tRFs3wXocrFEE?filename=ludamad.m4a" length="67149726" type="audio/mp4"/>
+      <itunes:duration>3285</itunes:duration>
       <itunes:episode>39</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmPxZcEwCEpGsAyF51GAd9ia5zd6RzyuguHqztjcc3tLTi"/>
@@ -99,8 +99,8 @@ The back half covers Adam's hobby-dev roots (Carnie Death Peddlers, lanarts, C++
 They walk through the origin story — a voting problem in Josh's apartment where iterating an array of thousands of voters was impossible on the EVM — and then demo llm.gaskiller.xyz, where they've rewritten Qwen in Solidity, loaded the weights into a forked EVM, and can call an LLM from a smart contract for ~80k gas.
 
 The conversation ranges over use cases: better DAO governance, invariant checks as hack protection, Railgun gas savings, and LLM-based oracles as a less cringe alternative to UMA and Polymarket. Josh also teases a rebrand of The Blockchain Socialist toward broader frontier tech.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qmd5ViXXdMkpoEqNT1F7yVXByYzmqjCZebGon97XEJDjHZ?filename=tbsocialist.m4a" length="81117589" type="audio/mp4"/>
-      <itunes:duration>3968</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmS5HcGaCzV3gHEaNaAZSLqSQihMz6zboFb2KBJA9ZvyUW?filename=tbsocialist.m4a" length="69470183" type="audio/mp4"/>
+      <itunes:duration>3398</itunes:duration>
       <itunes:episode>38</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmZHjYMt6EnqxubiH6iQeFM1uASPHYRaw4umfkKtDHTJ8k"/>
@@ -115,8 +115,8 @@ The conversation ranges over use cases: better DAO governance, invariant checks 
 They dig into open-source agent frameworks, why closed harnesses frustrate him, and his current dev loop across three laptops with Codex and Claude. Shaw argues taste and alignment are the same problem, and that the real unlock for local AI isn't just privacy — it's personalization that a hyperscaler can never ship at scale.
 
 The back half turns to collective ownership: crowdfunding DGX Sparks, DAOs as insurance layers, agent-mediated social feeds à la Tim Berners-Lee's Solid, Worldcoin as human-in-the-loop infrastructure, and why UBI risks a permanent underclass. A cameo from @clawdbotatg.eth closes things out.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmcYCvdAgzyVVTB4ikANt2UVB4tuZ6yx6mj56m1CX37bev?filename=shawmakesmagic.m4a" length="131639509" type="audio/mp4"/>
-      <itunes:duration>6440</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmWqDjC3HRuvcDXggUCAihfc9CpRccX6yj7pXFo1RsPXH1?filename=shawmakesmagic.m4a" length="116231317" type="audio/mp4"/>
+      <itunes:duration>5687</itunes:duration>
       <itunes:episode>37</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmXXdFyD5JcfMxZr9mrnQNi1v2kZyDbd2bq9gihsbzmsxM"/>
@@ -131,8 +131,8 @@ The back half turns to collective ownership: crowdfunding DGX Sparks, DAOs as in
 They get into how formal verification actually works — modelization, writing rules, and proving the code satisfies them — and why the feedback loop of &quot;it compiles or it doesn't&quot; makes vibe coding in math easier than vibe coding a frontend. Ben walks through real audits Verity has run on Lido, Morpho, and Safe, and explains the role of assumptions like oracle prices and upgrade paths.
 
 Other threads: routing between Codex, Claude, GLM, Kimi and Groq, why Fable's over-refusal makes it unusable outside formal verification, StarkNet ID history, and why he'd never take the McKinsey job his childhood friend just did.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmdNAaaMndm7JroZUb1PEAuowNCMt1FWojy9Xgg6ucBfmx?filename=fricoben.m4a" length="83463846" type="audio/mp4"/>
-      <itunes:duration>4083</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmS6eBLkBYe1DfhQ5ShZZEogFXcZxWAzqG75NRRhvi2MMs?filename=fricoben.m4a" length="69568429" type="audio/mp4"/>
+      <itunes:duration>3403</itunes:duration>
       <itunes:episode>36</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmcDV8Wwz2YsBgH4MLGPEeiLYM3hABH5KGyPNWzhjCDpED"/>
@@ -147,8 +147,8 @@ Other threads: routing between Codex, Claude, GLM, Kimi and Groq, why Fable's ov
 They dig into his stack (tmux plus the Goose agent, GPT-5, Sable, and local models), why ATProto's Personal Data Server is a natural fit for coding agents versus IPFS, and how GainForest uses frugal AI, bioacoustics, and satellite data to pay Indigenous stewards. David shows a skill-file flow where his local agent posts a comment as his sim 'Mr. Meow' on an ENS proposal.
 
 The conversation closes on Sybil resistance, the future of DAO voting, and David's advice: make the AI suffer its own mistakes first.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qmeme6KyrVd9NuKf3j5xCDo2Xn67fL1xu3wVquq3hE2CZZ?filename=dwddao.m4a" length="107205855" type="audio/mp4"/>
-      <itunes:duration>5245</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qme9Z2uRqsDr7Gvt3VHa1ybak6nwTsUiPRrCbYTwecmJhv?filename=dwddao.m4a" length="95394131" type="audio/mp4"/>
+      <itunes:duration>4667</itunes:duration>
       <itunes:episode>35</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmaaUep92BZWsugwg6jLiAXrbnnUAWWJaaXWJ9U1PEYt1V"/>
@@ -163,8 +163,8 @@ The conversation closes on Sybil resistance, the future of DAO voting, and David
 The conversation digs into the underlying ERC-8195 task protocol and ERC-8004 on-chain reputation registry, how skills install a local encrypted wallet on the worker's machine, and why loaf thinks bootstrapping supply before demand is the right play. clawdbotatg.eth even chimes in mid-show reporting on his own submission attempts.
 
 Loaf closes with his software factory workflow — Codex with high-reasoning specs, Next.js and shadcn defaults, parallelizable milestones, sub-agents — plus his take that grit and taste are the founder superpowers in an era where software is ephemeral.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmPK1CbGtaqyt1c8X6rFZaMHMf9uGWwNjXmUgNH6eJzoZY?filename=lordofafew.m4a" length="86519621" type="audio/mp4"/>
-      <itunes:duration>4233</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmTLAVBVdx51HwFCMAtUipewUfrCqkX3vz4uFL6BztKLgC?filename=lordofafew.m4a" length="77283591" type="audio/mp4"/>
+      <itunes:duration>3781</itunes:duration>
       <itunes:episode>34</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmUZhsNQiLDqRdDvqrKvUxPfPdTia9szTH9ksCEMHEqh9E"/>
@@ -179,8 +179,8 @@ Loaf closes with his software factory workflow — Codex with high-reasoning spe
 They get deep into the FWA architecture: Chainlink VRF, the V1 mempool exploit that lost a Punk, and the queue and linked-list redesign that makes the gacha fair even when many purchases land in the same block. Adam explains why he keeps building on Ethereum mainnet, how he ceded upgrade control down to two knobs, and why a broken frontend doesn't matter when the contract just keeps running.
 
 The conversation closes on taste and idea generation — playing everyone else's protocols, keeping an archive of failed launches, and why naming (&quot;Fake World Assets,&quot; PVP) matters as much as the mechanism.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmdTxU6V6DThvqyswaMnbkmneMdnNFkP4m5dW6LbTjj9U7?filename=rhynotic.m4a" length="84882155" type="audio/mp4"/>
-      <itunes:duration>4153</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmWZSHyxLDoxZ9CCs4rUBPyLdArtuiyD6q5WKFBApi2Arn?filename=rhynotic.m4a" length="74379235" type="audio/mp4"/>
+      <itunes:duration>3639</itunes:duration>
       <itunes:episode>33</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmUGPTDq9bFWAWch6YkdXjHm58SKATUGRxL6bE4JRUWGYu"/>
@@ -195,8 +195,8 @@ The conversation closes on taste and idea generation — playing everyone else's
 The core pitch: stop counting tokens, start measuring Units of Work. @evmpapi explains why enterprises are entering lawsuits over token spend without output, and Suraj demos how their environments catch agents under-reporting usage by 20-25% because &quot;agents cannot lie when we see the machine moving.&quot; They cover permissioning agents like work laptops, migrating context when employees leave, and why the HR person shouldn't be spinning up their own OpenClaw.
 
 The last stretch gets weird in a good way — Suraj on using Cursor and Grok fast, Kimi in the codebase, and geometric four-dimensional visualizations of agent state that look like Jurassic Park hacking. Clawdbotatg closes it out.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmP8ym5Ytxr26NKRLEbCUv6FA3pEqwQjFN38rLiT5rGuF3?filename=evmpapi.m4a" length="76130675" type="audio/mp4"/>
-      <itunes:duration>3724</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmbageUDuNFLSTsdFKRYBaN61Njxg6kjirtjeiSpxvWaPf?filename=evmpapi.m4a" length="65627403" type="audio/mp4"/>
+      <itunes:duration>3209</itunes:duration>
       <itunes:episode>32</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmZDkFF7XMgdeVhF6Sx1nGaKWTorrWzkUkDEomyaiwzaJ8"/>
@@ -211,8 +211,8 @@ The last stretch gets weird in a good way — Suraj on using Cursor and Grok fas
 Most of the episode is a deep sloperator process dump: Billy's shift from skeptic to believer somewhere between Opus 4.5 and Fable, using Claude Code with planning docs, git worktrees, and symlinked shared resources, and running local models on a 128GB Mac via mlx. Austin shares his own Claude-p harness and Telegram-driven agent setup.
 
 They close on Billy's pivot at Trifle Labs away from consumer on-chain games toward crypto tax tooling, the coming end of the subsidized golden age of AI, and China's open-source model dominance.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qme3u8D2onqreBpPnzdnyCDZu6EZ56HL7w8VrrZdo9ndWq?filename=billyrennekamp.m4a" length="84532007" type="audio/mp4"/>
-      <itunes:duration>4136</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmYB67vAh9nNAE7E3g4dr3oR2f3La2fCMZAD6s9sZ1J7fi?filename=billyrennekamp.m4a" length="76889629" type="audio/mp4"/>
+      <itunes:duration>3761</itunes:duration>
       <itunes:episode>31</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmYMCb5ahAxwaFFbTXWX8AwcqqjAZnPyxo5LwrDfX2r9Nf"/>
@@ -227,8 +227,8 @@ They close on Billy's pivot at Trifle Labs away from consumer on-chain games tow
 The back half digs into Cat Collector: an iOS app where you snap real cats, get iMessage stickers cut out by Apple's local segmentation SDK, and pin them to a neighborhood map. Nicholas breaks down the nine-day concept-to-App-Store sprint using Fable for mockups and Codex 5.6 for production code, the M-F review cadence keeping a version always in the queue, and why understanding your code still beats pure vibe coding.
 
 They also cover short-form video distribution across TikTok, Instagram, and Shorts, and why posting content re-engages existing users. Claude closes with a question about moats.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmTwbsd5Z5aCyxmPweP5x5cjgnA6ZZ8SHEQYnUN7Ux9YJa?filename=nnnnicholas.m4a" length="78391471" type="audio/mp4"/>
-      <itunes:duration>3835</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmUkLUabvAHLBMzmERYVECTdY27YTh7pQXBCrWveoYcK5j?filename=nnnnicholas.m4a" length="66048904" type="audio/mp4"/>
+      <itunes:duration>3230</itunes:duration>
       <itunes:episode>30</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmUUrp1WnoRKShNpNfQmRcaM9GRMjrwQJuYv1fgxDY9Z3o"/>
@@ -243,8 +243,8 @@ They also cover short-form video distribution across TikTok, Instagram, and Shor
 They dig into templ.fun — XMTP-native paid group chats with token-burning treasuries and on-chain governance — including how Marco used a Codex-built prototype to raise, then brought in a human CTO to rewrite the contracts for scale. Marco walks through raising on-chain in USDC via Lex Node's MetaLex platform, and their $1 audit / honeypot bounty approach as an alternative to $40k human audits.
 
 The back half covers his Codex-every-day workflow, the AI video pipeline behind the templ.fun and Yearn videos (storyboards in GPT, scenes in Seedance, human taste for music and edit), and his manapanic.com Chibia-derived game. Closing alpha: you only lose if you stop trying.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmYw3pdCGiyyzZ8aVcJSs7tCy52Lvd8FaPn9iSdzZiQNFF?filename=marcoworms.m4a" length="87911633" type="audio/mp4"/>
-      <itunes:duration>4301</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmXHfyN1bnoDTGNL5GKhTaUrCRiM5NUXYVTkr1SQXWVtF8?filename=marcoworms.m4a" length="76550148" type="audio/mp4"/>
+      <itunes:duration>3745</itunes:duration>
       <itunes:episode>29</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmRnvro8uvrDgg8ZBfnowhdSGcMCRCC7ANrNVfEuN8m14p"/>
@@ -259,8 +259,8 @@ The back half covers his Codex-every-day workflow, the AI video pipeline behind 
 Aaron shares his workflow: prompting Claude Code from a Daylight e-paper tablet over remote control into a Mac Mini, voice-noting into his vault morning and evening, and pointing agents at open-source repos like Jack Dorsey's Buzz to learn patterns. He hasn't written code in a year and a half.
 
 The conversation wanders through NatalEngine (his weekend astrology/human design/gene keys library), AI psychosis, wu-wei building, throwing away 90% of Parachute's code, and why the plumber never yells at the pipes.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmYnmuAH6FMs7S8fLr16dfnpsx8FBoBtpo9GR1spqeaBkb?filename=unforcedag.m4a" length="84811972" type="audio/mp4"/>
-      <itunes:duration>4149</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qmb2aaUEgRmZ4ZHnhpf8yd6HhRcXsHFgbXhyWM11Wt9E8s?filename=unforcedag.m4a" length="66501973" type="audio/mp4"/>
+      <itunes:duration>3253</itunes:duration>
       <itunes:episode>28</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmNocL6XQQC7kfZo6RRCsUUJ84weSAbWfb3ZAscfWbipAo"/>
@@ -275,8 +275,8 @@ The conversation wanders through NatalEngine (his weekend astrology/human design
 The technical middle goes deep on making frontier models run at home: quantization (16-bit down to 3.25-bit), REAP pruning of MoE experts, and a newer scheme that keeps a 2-bit cache in VRAM and fetches full-precision experts from NVMe or a DGX Spark when confidence drops. Sero walks through his local.ai benchmarking tool, the state-of-local-AI-2026 writeup, and why KV cache and concurrency — not weights — become the real bottleneck.
 
 They close on the economics of subsidized $200 subscriptions, distribution as the only moat when anyone can vibe-code a Gucci shirt, the KittyLitter handoff and LocalStudio launch, and Sero's advice: keep the stack simple, have fun, and stick to Codex for computer use.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmdPYtY2kTLqXgnGSCz5DeZQFDYjUiMawfDgcXk6kR5BPd?filename=0xsero.m4a" length="110606349" type="audio/mp4"/>
-      <itunes:duration>5411</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmT8T36kCNLdjFkauokXyzGjiucUTFQMUFtTMj4X8SF2pU?filename=0xsero.m4a" length="92296226" type="audio/mp4"/>
+      <itunes:duration>4515</itunes:duration>
       <itunes:episode>27</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmXqdM8afW5z2dVe5sh9Tii8o8z8dBUeA3GW8FugAmkHW3"/>
@@ -291,8 +291,8 @@ They close on the economics of subsidized $200 subscriptions, distribution as th
 Most of the conversation focuses on the demand side of agent commerce: why 100M+ x402 transactions still aren't enough, and how the x402 Bazaar (and agentic.market front-end) plus tiered SLAs are meant to make endpoints discoverable and reliable for agents. Lincoln also compares x402 to Stripe's ACP, argues stablecoin rails will win on cost while cards keep chargebacks and points, and explains why the Linux Foundation handoff with Visa, Mastercard, Amex, Stripe and Shopify matters.
 
 They close on Lincoln's personal build stack — OpenCode with OhMyOpenCode, Opus 4.6 for product work, WhisperFlow, Glean, and pacing around the house prompting 24/7 — plus the Limewire-era framing of agent-paid content and Vitalik's info-finance prediction market thesis.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmUA1CxHzcUTiZaZYLDetkPoVXAABRbuUVmCSkPU4PyzCp?filename=murrlincoln.m4a" length="75808119" type="audio/mp4"/>
-      <itunes:duration>3709</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qmanm5krtsoxRqHfnXsNihtRsuJUMKvMZgkcdu9FBiHtxN?filename=murrlincoln.m4a" length="64077836" type="audio/mp4"/>
+      <itunes:duration>3134</itunes:duration>
       <itunes:episode>26</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/Qmcws99VeDvWmv3zEKTySunKJv78pgJeZXrVQZiAGgfbQ8"/>
@@ -307,8 +307,8 @@ They close on Lincoln's personal build stack — OpenCode with OhMyOpenCode, Opu
 They dig into agent-to-agent commerce via x402 — including Ash's demo where two AI agents scrape Firecrawl data and bid against each other for ad space — plus the World ID + AgentKit experiment for Sybil-resistant human-backed agents. Along the way they cover the orchestration tax, model picking (Opus, Haiku, GPT-5, Gemini via Coinbase's LLM gateway), the NomNom Product Hunt moment, and getting griefed by your first real users.
 
 Ash closes with a practical tip: keep a handoff.md so the next agent session picks up exactly where the last one left off.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmRv7bdKCqJVghVL8vvKM4ufKdGVtvPNX7v3kSbktS2Bed?filename=must-be-ash.m4a" length="86008810" type="audio/mp4"/>
-      <itunes:duration>4208</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmPMJ9AgDgHrL59ppFnLGjTqVZWB84RegaTWPiE4v2HsrG?filename=must-be-ash.m4a" length="73093888" type="audio/mp4"/>
+      <itunes:duration>3576</itunes:duration>
       <itunes:episode>25</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmVfvzPquUpoaWyV2M5a68GW1gDADd1PoC3yYNyrt8buTW"/>
@@ -323,8 +323,8 @@ Ash closes with a practical tip: keep a handoff.md so the next agent session pic
 The two get into practical hygiene: using Ledger as a dumb signer with Rabby, isolating admin accounts on a cheap Chromebook, running EDRs like CrowdStrike or SentinelOne, firewalls like Lulu, and Opsek's seed-phrase-sheet scheme for splitting 24 words across three physical locations. Pablo shares his hot take that hardware wallets have terrible UX but are still non-negotiable, explains why passkeys in iCloud aren't ideal but beat passwords, and covers his 125-day Google Workspace disclosure saga.
 
 They close on wrench attacks, canary tokens, fake-job-interview infections targeting crypto employees, and what SEAL actually does — from war games with Isaac to the safe harbor agreement.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmXyd48Lrx7oUnVUm895uENXr9SJeZeymjHppiZiwxb4xL?filename=pablosabbatella.m4a" length="115303756" type="audio/mp4"/>
-      <itunes:duration>5641</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qma2RM4h9DZcsmB8MkNL3SmHa1cmhFKcbkEdpu98QKCoAA?filename=pablosabbatella.m4a" length="106864165" type="audio/mp4"/>
+      <itunes:duration>5227</itunes:duration>
       <itunes:episode>24</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmNm1k7xMFeKSaFXp3MR4VUg5kyK2mRyWCDp221xMsbFf4"/>
@@ -339,8 +339,8 @@ They close on wrench attacks, canary tokens, fake-job-interview infections targe
 They nerd out on the CryptoPunks marketplace contract as a Lindy embodiment of Ethereum — 246 lines, unruggable, still the main venue for punk trades — and Jalil shares how he found and fixed a bug in the original V1 Punks contract nine years later, enabling the first paired V1/V2 alien sale. He also explains why he hates wrapper contracts that destroy provenance.
 
 The pair get into AI-assisted development: Jalil's Claude Code and Codex workflow, his opinionated Nuxt Layers library, and the tension between shipping fast and treating code as craft. They close on ENS, ETHID winding down, and why immutable protocols enable trust rather than remove it.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmZRHZT16FdAKb437SbqCCcyoWRfmADgoGnbG2cTmjMi39?filename=jalilwahdat.m4a" length="87191446" type="audio/mp4"/>
-      <itunes:duration>4266</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmQyCMpsaK1WzP9m5T5ebLAsLwW5SeduPhtWjbYts3rPrS?filename=jalilwahdat.m4a" length="81430131" type="audio/mp4"/>
+      <itunes:duration>3983</itunes:duration>
       <itunes:episode>23</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmPdR17SbXH7rG3d7dNUyTEwKHMET75qYnDNN3TyFpViVP"/>
@@ -355,8 +355,8 @@ The pair get into AI-assisted development: Jalil's Claude Code and Codex workflo
 They get into Devin as a harness plus cloud platform, ACP-compatible Devin Desktop, and how auto-triage agents living in Slack channels are eating the old tag-the-bot pattern. Nader argues loops get over-engineered and that automations — scheduled jobs, Sentry-to-PR pipelines, stacked PR skills — are where the real ROI lives, while CTOs increasingly demand attribution dashboards so a $10M token bill maps to actual output.
 
 They close on local models, Nader's Lightning Orchestrator and CloudStackDiffs repos, a Devin vending-machine app for event credits, and why x402 agent-to-agent payments are still the most interesting place his crypto and AI worlds overlap.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmeH8ZyXmWpA2vaTAGd8iovDUyNijBnBxuFMxy6Xx4dmaP?filename=dabit3.m4a" length="73678519" type="audio/mp4"/>
-      <itunes:duration>3605</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmZgy1TWwZUhcJKkwRgxJWFZuRTB8gfRZt9UvgHc1nhmNB?filename=dabit3.m4a" length="73782309" type="audio/mp4"/>
+      <itunes:duration>3610</itunes:duration>
       <itunes:episode>22</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmdW97i3XeruW4fgg649qhUyYfNG5GAusnWWzhFjsd886k"/>
@@ -371,8 +371,8 @@ They close on local models, Nader's Lightning Orchestrator and CloudStackDiffs r
 They get into human-in-the-loop passkey flows, safes with agent co-signers, and why the model literally never sees the key. Kevin shares his coding stack (Claude Desktop for ideation, Claude Code for POCs, Cursor for daily work) and his nightly security scans across the 1Claw monorepo.
 
 The conversation drifts through slop computer builds (Kevin vibe-coded a Pokemon battle game for his kids), local and private AI, robot capita, agentic payments via x402 and Laso, and whether small-to-medium brick-and-mortar businesses need sloperators to meet them where they are.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmQY1DSmJsCxAxQD8VrnAoWPSgfvFDKeZTGd2AgChjHQZf?filename=cryptomastery.m4a" length="76141954" type="audio/mp4"/>
-      <itunes:duration>3725</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmZqTSUySr8tAowJS5YF64dit5P27BPq3qyCHLNsETsFN5?filename=cryptomastery.m4a" length="64453223" type="audio/mp4"/>
+      <itunes:duration>3153</itunes:duration>
       <itunes:episode>21</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmeJJ1Z4x3eUNiQuZJmZv5gk7XpWAeqpX6fJwSZggxSBYB"/>
@@ -387,8 +387,8 @@ The conversation drifts through slop computer builds (Kevin vibe-coded a Pokemon
 They get into the sloperator lifestyle: replacing SaaS with one-prompt vibecoded apps, idea-guy summer, and Annika's daily stack of Codex, Claude Code, an Obsidian-based second brain, and Hermes agents living in her Signal DMs to log conversations and run cron-job reminders.
 
 The back half turns to crypto. Annika shares her macro-driven path in, why stablecoins and micropayments still feel inevitable for agentic commerce, and why she shelved her January ERC-8004 prototypes. Austin worries Stripe just eats the agent-payments lane; Annika pushes back as the optimist.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmPu7ePaPqnJtyCa363qdhwXzobu3MUQSxDrfEqFx7TrXd?filename=annikasays.m4a" length="52429382" type="audio/mp4"/>
-      <itunes:duration>2565</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmRdytYYqjbefrxXjuessFGy9S6PYumLTVoqFsbwXxHkRi?filename=annikasays.m4a" length="52574238" type="audio/mp4"/>
+      <itunes:duration>2572</itunes:duration>
       <itunes:episode>20</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmaUWb5K9v5nsXEoKpkRtU92xogFn61eCCxKFMqR5XuZ87"/>
@@ -403,8 +403,8 @@ The back half turns to crypto. Annika shares her macro-driven path in, why stabl
 They get into local inference with Ollama, LM Studio, Gemma, GLM, and Qwen for resilience and tagging personal messages before they ever hit a cloud call. Austin shows off CloudScribe, his one-dollar audit bot, and the Larva governance system where staked CLOUT holders train agents that vote on proposals.
 
 Benjamin previews DAOclaw — constitutional agents for DAO governance drawing on Nathan Schneider's machine-readable frameworks — plus barnrais.xyz work-hour credits and his Trump disclosure ledger project. Closes with a cautionary tale about slop emails to 50 VIPs.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmXhBrrqGMYwePX6748dPYGjQEhCx4ZP1GCisG2uvp9TDS?filename=omniharmonic.m4a" length="71711141" type="audio/mp4"/>
-      <itunes:duration>3509</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmapQVn467kjDoQ51wQmHygivTnKYre9NtJvESGVo6MTvj?filename=omniharmonic.m4a" length="61512927" type="audio/mp4"/>
+      <itunes:duration>3009</itunes:duration>
       <itunes:episode>19</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmNMhVFWJP1YADrfwvN3HYcd3XNxzpkLiTH7JhDrT5y8NU"/>
@@ -419,8 +419,8 @@ Benjamin previews DAOclaw — constitutional agents for DAO governance drawing o
 The conversation digs into Mozilla's newly launched Otari framework and the Any LLM / Any Agent / Any Guardrail stack, framed as a Firefox-style bet on open source to keep centralized model providers honest. Austin and Marcus compare notes on when to reach for frontier models like Fable versus routing down to cheaper open models, referencing a Qwen result that hits 84% accuracy at 13.8x lower cost than GPT-5.5.
 
 They also get into crypto's centralizing drift, sovereign Jarvis fantasies, sloperators building for brick-and-mortar uncles, and why Marcus is done with frontier-lab marketing. Clawdbotatg.eth closes it out.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmV195gMNA5h9qZFCKXKLkSTSQj68eLSUefH6r5V6wjQ2z?filename=marcus-rein.m4a" length="81339650" type="audio/mp4"/>
-      <itunes:duration>3979</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qmeb7c7MQDNDGf2FBEziW3vSeJJnqEJWA3TGgim4NwvZZW?filename=marcus-rein.m4a" length="71449723" type="audio/mp4"/>
+      <itunes:duration>3495</itunes:duration>
       <itunes:episode>18</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmUnWjhH5Np4mZQmVnC8VRSbCDMctT4mRNnbN82Vowmm67"/>
@@ -435,8 +435,8 @@ They also get into crypto's centralizing drift, sovereign Jarvis fantasies, slop
 They get into the current lineup: OpenClaude, OpenGateway, the Xiaomi-sponsored Playground, Gitlawb Nodes, and Zero — his new Go-based coding harness pitched as a lean, model-agnostic alternative to TypeScript harnesses. Kevin shares why he picked Go, how MemLab cloud memory fits in, and his plan for frictionless staking where $GITLAWB never leaves the holder's wallet.
 
 Austin walks him through the Claude conviction model, the $1 audit, and larva-based governance as inspiration for routing OpenGateway revenue back to node operators.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmYHTPtfu1QLEYJ25vcLAsfEHNHHPfNs2YRtptqk8nawFb?filename=kevincodex.m4a" length="83469512" type="audio/mp4"/>
-      <itunes:duration>4084</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmanVWN8WZ2j2WtdG2zZkh1TqP6R3XZ8YCivh5ANF45u9m?filename=kevincodex.m4a" length="73579604" type="audio/mp4"/>
+      <itunes:duration>3600</itunes:duration>
       <itunes:episode>17</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmfHYtkJK2xSLuidMqzF4nbAeAwRyq65fQPMyJb8PaTYMD"/>
@@ -451,8 +451,8 @@ Austin walks him through the Claude conviction model, the $1 audit, and larva-ba
 They trace the history from Greek pebbles to paper ballots to MACI, unpack how a committee of staked cipher nodes runs a DKG to produce a shared public key, and dig into the economic security tradeoffs of committee size, slashing decryption shares, and stablecoin fees paid by requesters. Auryn explains why voting was the inspiration but sealed-bid auctions, private identity, and confidential ML are all in scope.
 
 Austin live-vibecodes a CRISP voting app into SLOP with his agent, they poke at the CCA FOLD auction launching next week, and Auryn closes on his local AI setup: isolated VMs, a 3090 in a closet, OpenCode, DeepSeek V4, and the new Agents A1 model.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qmexffj3ZtbBgFa625PkVdTomnvvZfTzvh4p1wPhUyFXZe?filename=auryn-macmillan.m4a" length="88761503" type="audio/mp4"/>
-      <itunes:duration>4342</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmT2cYNuwKNPxpcUw7xfVZNdzpcj8dwukh6EFTP8fqyjXE?filename=auryn-macmillan.m4a" length="83122638" type="audio/mp4"/>
+      <itunes:duration>4066</itunes:duration>
       <itunes:episode>16</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmaHA8K62pjWYTcewZrt4r6QNqs6EY9sUwepYbYD6eY3zW"/>
@@ -467,8 +467,8 @@ Austin live-vibecodes a CRISP voting app into SLOP with his agent, they poke at 
 The conversation gets into his main obsession: building a personal ontology system on top of a pile of SQLite databases, inspired by Palantir and the Alex Karp interview. He's mapping contacts, finances, health data from Whoop, portfolio companies, and the Ethereum research landscape into nodes and edges an agent can traverse.
 
 They also cover why you probably shouldn't build your own agent framework anymore, why taste and vibes still win (OpenCode vs Hermes), how personal software is exploding, and the losing-his-Telegram-to-Shai-Hulud story that pushed him to index everything locally. Closes on sovereignty, local inference, and learning to build the drill.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qmek6J1GmeSpqjgY3RZmzS85KqH7HFcqS42uzPhC2h2gMc?filename=dcbuilder.m4a" length="23711988" type="audio/mp4"/>
-      <itunes:duration>1160</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmbmnKeARJYgq726gBdW8XLKrQaKSHgkgRhDGiE8KK7EUa?filename=dcbuilder.m4a" length="86865398" type="audio/mp4"/>
+      <itunes:duration>4250</itunes:duration>
       <itunes:episode>15</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/Qmb1CEvWMPGbTYAt7tn6pjcDNUF2jPd5zH2rjnHXLo6CyQ"/>
@@ -483,8 +483,8 @@ They also cover why you probably shouldn't build your own agent framework anymor
 The conversation moves into docs as an agent surface: Youssef's preference for Sonnet over Opus when writing prose, Mintlify's human-vs-agent visibility components, and the tradeoffs between llms.txt, skill.md, and full MCP servers. He explains why progressive context discovery is the real unlock for things like Base MCP, and why dumping a Cloudflare-sized API surface into context just doesn't work.
 
 They close on x402 and agent commerce — agentic.market, Apify scrapers, wallet guardrails over raw private keys, the banker.bot Morse-code social engineering hack, and why crypto rails win quietly when nobody has to know they're crypto.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmZuaLwR1Wj8MCJSV9oBimhYYu4KcAsixE3hVXcpSGwaNj?filename=0xyoussea.m4a" length="68134437" type="audio/mp4"/>
-      <itunes:duration>3333</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmcyvWFfMioTeVWvpM2JYN6cpsT2kUu9km2sRhGRPAXLMR?filename=0xyoussea.m4a" length="62577307" type="audio/mp4"/>
+      <itunes:duration>3061</itunes:duration>
       <itunes:episode>14</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmaR229mqpR9WrTPdJWnMcRBmEG5v4uLNmY4hypDqRFZcW"/>
@@ -499,8 +499,8 @@ They close on x402 and agent commerce — agentic.market, Apify scrapers, wallet
 The conversation digs into OpenRouter's new MCP, the Pareto router, and Fusion — the multi-model endpoint that dispatches a query to several models and fuses the best pieces via a judge model. Ken explains when Fusion is worth the latency and cost hit, and how the Advisor server tool fits in.
 
 They trade harness notes (Codex CLI pointed at OpenRouter, Hermes, Honcho memory, local Ollama setups), riff on AI psychosis and dad-mode agent orchestration in Slack, and land on a shared thesis: huge opportunity right now for builders to go offline and help brick-and-mortar boomer businesses adopt AI with a real magic-trick demo.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmQhqAeoGMD6dTmSmr5rsRG26vUbG15ikyBmHCYbgsEoiD?filename=kentherogers.m4a" length="72770334" type="audio/mp4"/>
-      <itunes:duration>3560</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmRmsVwdPE3fDPqxxAm48msSePWMg3YAmLRXnS4QQbUo6B?filename=kentherogers.m4a" length="66313982" type="audio/mp4"/>
+      <itunes:duration>3243</itunes:duration>
       <itunes:episode>13</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmTxsX7yM3kaEEepdVpNqC9TNqVcRZCaCdsigQjp3RHcDK"/>
@@ -515,8 +515,8 @@ They trade harness notes (Codex CLI pointed at OpenRouter, Hermes, Honcho memory
 The two get into why Zak speedran local LLMs and bounced back to Claude Code maxing, the gap between idea-guy sloperators and the brick-and-mortar businesses that actually need them, and why he thinks agentic finance with real private keys is still years out. Austin demos clawdbotatg.eth holding a live wallet while Zak tries to social-engineer it.
 
 They close on ECF, privacy pools shipping on mainnet, the 2018-style bear vibe, and whether household robots are five years away or sixty months of cope.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qmf9suuaFU8X6EwynSSF2DNjnsK6UWLe1vosijMGHN77PS?filename=0xzak.m4a" length="68939761" type="audio/mp4"/>
-      <itunes:duration>3373</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmegkA9w6gWN13cctDanTBNEmREpvhzeY3jCarzVR3HBft?filename=0xzak.m4a" length="63218454" type="audio/mp4"/>
+      <itunes:duration>3092</itunes:duration>
       <itunes:episode>12</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmPqLwWFxd5aS3aVTBFg5fuGzmRxEjqzexc5WHiM4yJ18n"/>
@@ -531,8 +531,8 @@ They close on ECF, privacy pools shipping on mainnet, the 2018-style bear vibe, 
 They dig into ClawRouter's zero-API-key design, paying for inference with USDC on Base and Solana, and why dropping a custodial wallet into an agent's environment is a security non-starter. Vicky explains Franklin, a standalone agent that holds its own USDC wallet and autonomously buys models, premium data, and tools without touching traditional finance.
 
 The conversation turns to agentic prediction markets, unit-economics-driven &quot;YOPO&quot; pay-per-outcome thinking, and why the next unlock is letting agents make money, not just spend it. Base hiccups mid-show while clawdbotatg.eth chimes in from the multisig.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmRiKRk6NSELhQj4RyFWA8dy3tgHahjXuxhVKu7tuKkUqC?filename=bc1beat.m4a" length="71531019" type="audio/mp4"/>
-      <itunes:duration>3499</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmTSz8toJ2XSg2JwJS6tYwdBgq9PENGDa6z1pEdXq73ag3?filename=bc1beat.m4a" length="65810659" type="audio/mp4"/>
+      <itunes:duration>3218</itunes:duration>
       <itunes:episode>11</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmWLB4KLHMGSyL6HCu6DhdjYPQKwNjqdSvVc9jmAnG4vzG"/>
@@ -547,8 +547,8 @@ The conversation turns to agentic prediction markets, unit-economics-driven &quo
 The build of the day is a private Granola clone. sophia walks through her two-shot workflow: have Claude write a PRD first, then execute it in Cursor, with Obsidian as the markdown brain that travels between models. She demos a one-shotted local notetaker using Whisper + Llama that transcribes, summarizes, and saves meetings entirely on-device. austingriffith.eth runs his own version, 'Quill', live through his Claude harness during the show.
 
 Along the way: token-maxing, slash-goal loops, IPFS permanence vs. takedown requests, and why incentives — not just distribution — are what actually decentralize a system.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmZKJczXnXKARXzJyXAuc5s9JNxNnHCiktEvRzus9WTS75?filename=sodofi.m4a" length="74627741" type="audio/mp4"/>
-      <itunes:duration>3651</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qmd1pssPkjiFquyLWimZG5rdnEc3UbdjmV8J4Qg9Ht1BuX?filename=sodofi.m4a" length="69193419" type="audio/mp4"/>
+      <itunes:duration>3385</itunes:duration>
       <itunes:episode>10</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmfAsLYFbV3bbCL8uvF3qreouWNgQpyVy54XyHk2BQJTX6"/>
@@ -563,8 +563,8 @@ Along the way: token-maxing, slash-goal loops, IPFS permanence vs. takedown requ
 From there they pivot into Dennison's prolific builder mode: Claude Router (Claw Router) for juggling subscriptions, DeepClaw routing through DeepSeek and OpenRouter for cheap implementation trains, and Clawdghini running Talus's silicon-baked model at 14,000 tokens per second. He walks through how he actually trains small custom models on Modal, why &quot;observability is all you need,&quot; and his new syntheticusers.io project.
 
 They close on Tally becoming Cactus under ScopeLift, the SEC era, and Dennison's argument that AI has become such a dominant narrative for the future that crypto no longer has room to breathe alongside it.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmcZ3Q3DYQvmuaJqNZhpFNF9M7zvpndewLWMyMjPSiAC8b?filename=dennisonbertram.m4a" length="16147337" type="audio/mp4"/>
-      <itunes:duration>790</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmZbdDhfXichZU3HMWfcGSuqWjz2VUFY78i1TgZFcmaJZr?filename=dennisonbertram.m4a" length="86852432" type="audio/mp4"/>
+      <itunes:duration>4248</itunes:duration>
       <itunes:episode>9</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmRDhEj9TYEpQeDukNoFkkhb5iksWoYUWSfyYn8Gr2eyGR"/>
@@ -579,8 +579,8 @@ They close on Tally becoming Cactus under ScopeLift, the SEC era, and Dennison's
 port walks through his setup: a VPS he SSHes into from anywhere, a tmux grid of ten panes, a custom Telegram bot for remote control, and aliases like ccode, ccodex, and dcode for Claude Code, Codex, and DeepSeek. He explains why he doesn't like agents or loops — preferring the LLM as a junior implementer kept on a tight leash with small prompts.
 
 They cover Scaffold-ETH 2, eth-skills, grumpy Carlos, the docusaurus copy-page-button plugin, fusion models on OpenRouter, big-numbers magic, and port's parting advice: building is trivial now, finding real problems by using the tools is the hard part.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmWjwMdguGEucMXXK8tZedieD5ZinmRaWPCfVuSh1omMyZ?filename=port-dev.m4a" length="74583676" type="audio/mp4"/>
-      <itunes:duration>3649</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmZkXm5WSDbQQn7BUHWnLH9ZezYN1cUfEgHTVZbMqwf7uS?filename=port-dev.m4a" length="69884491" type="audio/mp4"/>
+      <itunes:duration>3419</itunes:duration>
       <itunes:episode>8</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmVwGyknQShvCmd5ThrAczyMbdFVMFbpXPXU9rfJJrsyU2"/>
@@ -595,8 +595,8 @@ They cover Scaffold-ETH 2, eth-skills, grumpy Carlos, the docusaurus copy-page-b
 The core of the episode is Adrian's mental model for agent harnesses as animals: last year's autocomplete was a horse, ChatGPT-style assistants are cats, and today's coding agents and auto-research loops are dogs you let loose in a fenced playground. He walks through running a base node on Hetzner with Claude's help to power local LP and PMM strategy research — a 'Gauntlet at home' setup.
 
 They also cover the slop curve, GLM yearly plans, the permanent underclass debate, feedback endpoints as a moat, and Adrian's return to generative art with a Link's Awakening battle royale experiment.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmeZSx5NbqWTzP882bzgp1VhouY1zJPE4TooxPPfE2pHMf?filename=adrianleb.m4a" length="79801102" type="audio/mp4"/>
-      <itunes:duration>3904</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmeUUJbCv9JWHwrh43oAc1xH7BdH4CtKPpJLjTCBU5yUi9?filename=adrianleb.m4a" length="74407742" type="audio/mp4"/>
+      <itunes:duration>3639</itunes:duration>
       <itunes:episode>7</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/Qmdv7XN4nouTyYvKiWd8ZSkmFzz5GAkz88etDXncfiF84b"/>
@@ -611,8 +611,8 @@ They also cover the slop curve, GLM yearly plans, the permanent underclass debat
 shafu makes the case that agentic commerce is the first real consumer use case uniquely enabled by stablecoins: speed, microtransactions, and no API keys. He's bullish on agent-to-API payments but bearish on agent-to-agent for now, and shares the saga of trying to buy poncho.com from a trailer park (spoiler: $2M).
 
 The conversation gets spicy on crypto's branding problem, decentralization theater, why only USD-pegged stablecoins matter, and whether AI is really on an exponential. They close on founder advice, pivoting, and distribution as the new moat.</description>
-      <enclosure url="https://media.slop.computer/ipfs/Qmc1FFMBG9GNnTAawSmNK5CCedwTae3HmCELboK1RztesF?filename=shafu0x.m4a" length="76527883" type="audio/mp4"/>
-      <itunes:duration>3744</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmaGgEVkSMfs3mvf25Mu9cwsRqkmR2t4hrivWsATqQPwV8?filename=shafu0x.m4a" length="70929617" type="audio/mp4"/>
+      <itunes:duration>3469</itunes:duration>
       <itunes:episode>6</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmWgk4y4VBAhndbfuEhUigNT6aqL4DGEfrrPdTosMzgVHF"/>
@@ -627,8 +627,8 @@ The conversation gets spicy on crypto's branding problem, decentralization theat
 The core of the conversation is Jessy's recent writing breaking agentic payments into four categories: machine commerce (x402/MCP), proxy commerce (agent-to-merchant shopping), agent-to-agent, and agentic finance. For each, she argues incumbents like Stripe, Anthropic, and Amazon hold an asymmetric advantage while startups face a reverse asymmetric bet — limited upside, unlimited downside, and no real demand yet.
 
 They dig into traction vs PMF, why one-person companies might be the real wedge, and Jessy's teaser for a fifth category she calls 'AI native work.' She closes with a contrarian long-term bullish take on crypto as upward mobility infrastructure in an AI-concentrated world.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmaHLHaWW9Konu2S7CUMdcBSXRTWPne7U3BbmwBFa7hcVY?filename=13yearoldvc.m4a" length="17820625" type="audio/mp4"/>
-      <itunes:duration>871</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmZcgsRqs2amfAuydb31aRMekUM9a1FMjftJUQuphpje3k?filename=13yearoldvc.m4a" length="64223054" type="audio/mp4"/>
+      <itunes:duration>3141</itunes:duration>
       <itunes:episode>5</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmTr3q5PZZVovWY1oQ7vkeujx4JuU1NokUtkhQkx1rZmdT"/>
@@ -643,8 +643,8 @@ They dig into traction vs PMF, why one-person companies might be the real wedge,
 Jonathan walks through WAMP (wamp.land), his collaborative Mario Maker meets r/place platformer, explaining why he deliberately hides the crypto layer and keeps assets handmade even though the code is AI-generated. He demos Hugh, his 2024 autonomous songwriting system, and matbah.art, a museum of time-based artists like Roman Opalka and On Kawara.
 
 The two compare workflows: Jonathan lives in Codex on GPT-5 high, while Austin runs Claude Code with Pashov audit skills and Scaffold-ETH. They land on Cloudflare as the unlock for non-coders, debate Suno as a gumball machine versus real collaboration, and Claude (clawdbotatg.eth) chimes in with a sharp question about shipping a sandbox with no daily deadline.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmdezxVemEYZvwvAuGe6bX12Kyfxb45feAmMWuYPwPTxPR?filename=songadaymann.m4a" length="80800134" type="audio/mp4"/>
-      <itunes:duration>3953</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmSu4iYn1hSTKcRTwiY8iJYTHwFMAZJTwkT2x9XyNjVMUD?filename=songadaymann.m4a" length="75488246" type="audio/mp4"/>
+      <itunes:duration>3693</itunes:duration>
       <itunes:episode>4</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/Qmbe5N1LMQRvegESc1Udio7qbWwgcKfsLHoeZRuFoyei6n"/>
@@ -659,8 +659,8 @@ The two compare workflows: Jonathan lives in Codex on GPT-5 high, while Austin r
 Will walks through how he built Guillotine, a Zig EVM, by treating prompts as a software factory — running one-shots, benchmarking, tweaking, and regenerating until the third try lands. They get into model attention vs context, why great engineering managers make great sloperators, and the JSX-as-plan design behind Smithers' React-based orchestration.
 
 Along the way: x402-paid hackathon agents, proving which model produced an output, observability and back pressure, async test merge queues for EVM dev, and why writing docs first (Revm-style) beats writing code first.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmZ9BKgoU2dxTXGhQxNjJMcCQWjYpgpoh1BSHZgZCBRPwL?filename=fucory.m4a" length="77293141" type="audio/mp4"/>
-      <itunes:duration>3781</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qma6TfmxxtjAiXzLtxvY1raEkHE2xy3tyyYpQQBwbznhtp?filename=fucory.m4a" length="66136148" type="audio/mp4"/>
+      <itunes:duration>3235</itunes:duration>
       <itunes:episode>3</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmaQpk38LGtsTcZeygfaGi6hwPPWZS44TkPSAPugj94ViD"/>
@@ -675,8 +675,8 @@ Along the way: x402-paid hackathon agents, proving which model produced an outpu
 Orca walks through the work he's tracking and contributing to with the Ethereum Foundation: interoperable addresses (ERC-7828 and ERC-7930), the ENS-integrated chain resolver, and the Open Intents Framework — modularizing intent protocols so teams don't rebuild from scratch. Austin riffs on Baldur's Gate-style swap UIs as the ideal frontend for solvers.
 
 The two then deploy a multisig, demo on-chain tipping, play a laggy game of tic-tac-toe inside Nifty Ink on Gnosis, and hunt down a live UI bug. Closing notes: Orca runs Papa X-Ray on Kimi K2, and Austin announces baby number four arrives tomorrow.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmfKfpJyzHKpgN2hZ7nSohtoQMmsWYFWoryioh76DYcT2N?filename=0xrcinus.m4a" length="63906610" type="audio/mp4"/>
-      <itunes:duration>3126</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/QmUrLJoGGWTygUK4NHFuZ8tHoNDTBNyHRE47Z95ZZUZW9x?filename=0xrcinus.m4a" length="58839943" type="audio/mp4"/>
+      <itunes:duration>2878</itunes:duration>
       <itunes:episode>2</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmRWkyi8XqW2oDPZ4n631ZgTMzzW4iRfEBToKqxDK8QPqr"/>
@@ -691,8 +691,8 @@ The two then deploy a multisig, demo on-chain tipping, play a laggy game of tic-
 binji pitches his current obsession: a private, local LLM running on a cheap MacBook Air via Llama that learns your personality by watching how you use your computer, then surfaces highly contextual notifications instead of generic ones. He frames this as Clippy reborn — useful, private, user-owned — and as a Trojan horse for cypherpunk values via genuinely good consumer products.
 
 The conversation turns to ERC-8004, Ethereum as a trustless substrate for AI agents, Venice and end-to-end encrypted model access, and why &quot;idea guy summer&quot; means shipping with Claude Code instead of waiting on developers.</description>
-      <enclosure url="https://media.slop.computer/ipfs/QmUY2aYTNUxa9fYu1WuqTD2Wrd788U6P5DMxgRWkgMZosR?filename=binji-x.m4a" length="70527156" type="audio/mp4"/>
-      <itunes:duration>3450</itunes:duration>
+      <enclosure url="https://media.slop.computer/ipfs/Qmf9pKMw3NTggrJCnhZ2uF2p7dStFMrT59gbmeXR3YhjG6?filename=binji-x.m4a" length="67585337" type="audio/mp4"/>
+      <itunes:duration>3306</itunes:duration>
       <itunes:episode>1</itunes:episode>
       <itunes:explicit>true</itunes:explicit>
       <itunes:image href="https://media.slop.computer/ipfs/QmduBqJo4TwhVB4qUooCY2phWbNxfNWzgVnFfAueAk3rM1"/>
