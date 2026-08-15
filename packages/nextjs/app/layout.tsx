@@ -25,6 +25,7 @@ export const metadata = {
     types: {
       "text/markdown": "/skill.md",
       "application/json": "/episodes.json",
+      "application/rss+xml": "/feed.xml",
     },
   },
 };

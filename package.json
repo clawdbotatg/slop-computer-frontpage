@@ -8,6 +8,7 @@
     ]
   },
   "scripts": {
+    "feed": "node scripts/fetch-transcripts.mjs && node scripts/build-feed.mjs",
     "format": "yarn next:format",
     "ipfs": "yarn workspace @se-2/nextjs ipfs",
     "lint": "yarn next:lint",
