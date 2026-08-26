@@ -31,7 +31,20 @@ on-chain episode manifests.
 
 ## Per-episode pipeline (new episodes)
 
-After an episode's manifest is pinned and `addEpisode` lands on chain:
+**Automated: `node scripts/update-feed.mjs`** does the whole loop — refreshes
+the chain index, finds manifest-bearing episodes missing from
+`scripts/audio-map.json`, runs `extract-audio.sh` for each over ssh
+(`slopcomputer`), merges the `results.jsonl` lines into the map, rebuilds
+`feed.xml`, and commits + pushes the two files (push = deploy; Vercel is
+git-connected). Safe to run any time: no new episodes → exits untouched; a
+dirty worktree or non-main branch → it stands down rather than commit someone's
+WIP; a failed extraction (video still pinning) is retried next run.
+
+It's meant to run from cron on clawd's Mac (same crontab as the pinner):
+
+    25 */2 * * * node /Users/clawd/clawd-harness/projects/slop-computer-frontpage/scripts/update-feed.mjs >> /Users/clawd/Library/Logs/slop-feed-update.log 2>&1
+
+The manual steps, for reference / when debugging:
 
 1. On the server: `./extract-audio.sh <slug> <manifestCid>` (in `~ubuntu/`).
 2. Copy the new `results.jsonl` line into `scripts/audio-map.json` here
