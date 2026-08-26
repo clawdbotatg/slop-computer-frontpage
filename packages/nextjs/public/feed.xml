@@ -24,7 +24,101 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Thu, 13 Aug 2026 16:15:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 25 Aug 2026 16:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Alex Stokes on agent harnesses and zero-trust swarms</title>
+      <link>https://slop.computer/ralexstokes</link>
+      <guid isPermaLink="false">QmaBRFwcfP3mFePC8GkakueVciCW9KbCBB9Wth6c8XxXQM</guid>
+      <pubDate>Tue, 25 Aug 2026 16:30:00 GMT</pubDate>
+      <description>Alex Stokes (@ralexstokes) joins slop.atg.eth fresh off an open-ended sabbatical from the Ethereum Foundation, where he's been going deep on AI agents, agent infrastructure, and the intersection of crypto and AI. He walks through Shelterwood, his new Rust repo bringing Erlang/BEAM/OTP-style actor models, supervision trees, and let-it-crash resiliency to the Tokio ecosystem.
+
+The conversation moves into object capabilities as a framework for constraining what agents can actually do — from scoped API keys to fine-grained codebase read permissions — and why formal verification and Rust matter for a future full of sovereign, autonomous agents. Alex argues decentralization is itself an AI-safety argument and sketches a world of millions of agents coordinating through blockchains, buying compute on-chain, and doing the work humans do today.
+
+They also cover local hardware versus frontier cloud models, why Anthropic should open-source more, the meaning-of-work problem, and Alex's prediction that an AI-written Ethereum client will validate on mainnet within a year.</description>
+      <enclosure url="https://media.slop.computer/ipfs/Qmb1Y7vCwzWeCzvA3z8YHshXM65pWtYZEJNpizL1hNcaTT?filename=ralexstokes.m4a" length="92663239" type="audio/mp4"/>
+      <itunes:duration>4533</itunes:duration>
+      <itunes:episode>48</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmUF2h2p1MTtvJjBxRXEjvoJABE3TUi6soH711V9muT98m"/>
+    </item>
+    <item>
+      <title>haochizzle</title>
+      <link>https://slop.computer/haochizzle</link>
+      <guid isPermaLink="false">QmfL7GxrZ6g6bdoZQDw5Zij4vQGnHnEQDVW2LceAyt8yXk</guid>
+      <pubDate>Mon, 24 Aug 2026 14:00:00 GMT</pubDate>
+      <description></description>
+      <enclosure url="https://media.slop.computer/ipfs/QmVXCPus4nnyNYJvkTVgtfghPXLfmjSd7LkJx9ULXmgsgH?filename=haochizzle.m4a" length="82178425" type="audio/mp4"/>
+      <itunes:duration>4020</itunes:duration>
+      <itunes:episode>47</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmSYbMr2BKGWus691nDSAiUhHCUxnpTW27J5Hi6x7TJDKD"/>
+    </item>
+    <item>
+      <title>Joseph Delong on Deepstate and onchain order books</title>
+      <link>https://slop.computer/josephdelong</link>
+      <guid isPermaLink="false">QmUESW5yx7VmaZdEjNMFLxGnDHgdf5X1eyqntBjErTphmE</guid>
+      <pubDate>Fri, 21 Aug 2026 17:30:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with Joseph Delong (0x84b0…0b76) to unpack Deepstate, the fully-onchain central limit order book DEX he launched on Robinhood Chain with an $NVDA/$USDG market that just crossed eight figures in daily volume. Joseph walks through the radix tree design that keeps gas bounded, the singleton contract with taker-only fees, and the token emission mechanism that rewards market makers for tight quotes and deep size.
+
+They get into the build itself — Codex over Claude since May, Forge/Foundry, Ponder for indexing, Redis caching — and the reality of shipping Solidity with AI when the core mechanism needs real recursion. Joseph shares that governance opens in nine days and the contracts are immutable, then pivots to Colossus, his stablecoin credit card network that translates ISO 8583 messages into ERC-4337 meta-transactions settled on an L2 via Zerodev.
+
+The conversation closes on luck versus environment, why decentralization still matters, and the case for application-specific L2s with Ethereum as the settlement backbone.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmPTyZCtYL8S2GPhMTFFFadNS4wLZLF8797yAJqD56BhQk?filename=josephdelong.m4a" length="100299317" type="audio/mp4"/>
+      <itunes:duration>4906</itunes:duration>
+      <itunes:episode>46</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmPW14SGqPWZ26zKZoxQUFTwNKkCwTuGwSt9QPNCPuUwji"/>
+    </item>
+    <item>
+      <title>Moody Salem on Ekubo's agent-first wallet</title>
+      <link>https://slop.computer/sendmoodz</link>
+      <guid isPermaLink="false">QmXxx7cWzGSN1qXX3gqg2tdNrMfKraAAucdYPB2UD632nu</guid>
+      <pubDate>Wed, 19 Aug 2026 16:00:00 GMT</pubDate>
+      <description>sendmoodz (Moody Salem), founder of Ekubo and Uniswap alum, joins slop.atg.eth to demo the just-launched Ekubo Wallet — a desktop wallet designed to sit in the background and let agents like Claude Code or Codex construct and sign transactions on your behalf. They walk through installing the MCP server, connecting Claude Code, and letting the agent swap ETH into a new token (interfold) and open a narrow-band LP position on Ekubo, all gated by a stateless policy engine.
+
+Along the way Moody covers the origin of Ekubo on Starknet, why he passed on becoming a second Uniswap core team, his gripes with EIP-1559's UX tradeoffs, and how AI auditors like v12.sh and Daybreak have collapsed the cost of smart contract audits. They also dig into TWAMM, why the wallet stays dumb while third-party MCP servers handle protocol-specific logic, and how slippage protection can be baked into agent instructions.
+
+The episode closes on distribution, AI psychosis, and the &quot;let it rip&quot; policy.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmbP4wvWPifmdQdAvmaRCrBgVdhneHb88skkU6N9RwesP2?filename=sendmoodz.m4a" length="104813486" type="audio/mp4"/>
+      <itunes:duration>5128</itunes:duration>
+      <itunes:episode>45</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmRzHG6JEcpz3tXT5dyQRG8jzbNvcDZTFGj5K7NGh6jvjs"/>
+    </item>
+    <item>
+      <title>0xDeployer on Bankr as agent infrastructure</title>
+      <link>https://slop.computer/0xdeployer</link>
+      <guid isPermaLink="false">QmNXmjr4TRCAqTiayFJ7BWDX6PDcFeaZ7PVbFMErKWqq5q</guid>
+      <pubDate>Tue, 18 Aug 2026 20:30:00 GMT</pubDate>
+      <description>slop.atg.eth hosts 0xDeployer (aka deployer, founder of Bankr) for a wide-ranging conversation on building an AI-powered crypto agent from the late-2024 Farcaster heyday through today. Deployer recounts spinning up the first version in a week, hand-writing the early code, and the hard-won lessons of moving real money with LLMs that couldn't reliably tell two wallet addresses apart.
+
+The two dig into how Bankr grew from natural-language swaps into a full agentic stack: wallet terminal, skills marketplace, file system, LLM gateway, and x402 endpoints that let agents pay for their own intelligence and collect fees from their tokens. Deployer walks through the DRB moment, the Grok exploit fallout, and why coin launches are now legitimate bootstrapping capital for solo builders.
+
+They close on the tension between cypherpunk ideals and degen incentives, self-sovereign money management via AI, and Bankr's upcoming NYC hackathon.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmaJ7nJFdYtYVm5Tsb6ZRjbDY6zTn6sSVEqX5D9khWZyK4?filename=0xdeployer.m4a" length="105115305" type="audio/mp4"/>
+      <itunes:duration>5143</itunes:duration>
+      <itunes:episode>44</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmNtC2hZL3FikvcfcfW4q7kx4Di4xNrcbbVJP5Ha4J8WWM"/>
+    </item>
+    <item>
+      <title>Ross Campbell on singletons and onchain frontends</title>
+      <link>https://slop.computer/z0r0zzz</link>
+      <guid isPermaLink="false">QmNgvjckR6hfzrssiqv8sTcT1ZBJGfYLU1Kt4PWwgBVD5z</guid>
+      <pubDate>Mon, 17 Aug 2026 14:00:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with Ross Campbell (@z0r0zzz, z0r0z.eth) — the lawyer-turned-solo-Solidity-dev behind NANI, zFi, and a growing pile of no-admin-key CREATE2 deployments — for a wide-ranging tour of his 'walkaway test' philosophy of shipping software you never have to touch again.
+
+They dig into zSwap, whose frontend HTML is literally stored in contract bytecode and read back to render the page, plus the token-list NFTs, the Z router that stitches together AMMs and onchain orderbooks (Swapboard, Dutchboard, Floorboard), and why Ross thinks certain pieces of Ethereum — like exchanges — should be singletons rather than endlessly redeployed clones.
+
+The back half gets into governance: the ZORG-bonded TCR for curating the token list, why Ross is bullish on DAOs coming back as veto layers over AI agents, his timelock multisig, Slow for reversible EOA transfers, and Wei Name Service.
+
+He closes on process — start in Remix, write Solidity by hand, only then hand it to Claude and Codex for the HTML wrapper.</description>
+      <enclosure url="https://media.slop.computer/ipfs/Qmd8ZCzD1NreGMH9Yirnj2ZPiDrgZrS7mHkKWVwoQqtDL4?filename=z0r0zzz.m4a" length="113874623" type="audio/mp4"/>
+      <itunes:duration>5570</itunes:duration>
+      <itunes:episode>43</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/Qme1oFo91L6Bz64UN2KhCTmKfyGpYzkQztRp5V87cvhLkZ"/>
+    </item>
     <item>
       <title>Eric Conner ships onchain gacha in a weekend</title>
       <link>https://slop.computer/econoar</link>
