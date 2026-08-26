@@ -40,9 +40,13 @@ git-connected). Safe to run any time: no new episodes → exits untouched; a
 dirty worktree or non-main branch → it stands down rather than commit someone's
 WIP; a failed extraction (video still pinning) is retried next run.
 
-It's meant to run from cron on clawd's Mac (same crontab as the pinner):
-
-    25 */2 * * * node /Users/clawd/clawd-harness/projects/slop-computer-frontpage/scripts/update-feed.mjs >> /Users/clawd/Library/Logs/slop-feed-update.log 2>&1
+It runs every 2h on clawd's Mac as a LaunchAgent (installed 2026-08-26 —
+launchd, not cron: `crontab` writes hang on a macOS consent prompt when
+invoked from the harness daemon, and this box's other jobs are LaunchAgents
+anyway): `~/Library/LaunchAgents/com.clawd.slop-feed-update.plist`, logs to
+`~/Library/Logs/slop-feed-update.log`. Check it with
+`launchctl list | grep slop-feed`; run it now with
+`launchctl kickstart gui/501/com.clawd.slop-feed-update`.
 
 The manual steps, for reference / when debugging:
 
