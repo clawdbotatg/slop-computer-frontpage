@@ -24,7 +24,23 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 25 Aug 2026 16:30:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 31 Aug 2026 18:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Kassandra on Kohaku CLI and practical cypherpunk wallets</title>
+      <link>https://slop.computer/kassandraeth</link>
+      <guid isPermaLink="false">QmXVbypVBftE87njJz2pBzTtUVNbeBuq4Vih1KDEaUpTYk</guid>
+      <pubDate>Mon, 31 Aug 2026 18:00:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with κασσάνδρα.eth (Kassandra, @kassandraETH) to walk through the Kohaku Initiative and her rapid-release kohaku-cli, an EF-backed effort to make transaction privacy on Ethereum a default rather than a scavenger hunt. Kassandra tells the origin story of how sketchy Bitcoin poker sites got her hand-crafting ECDSA signatures in Python, and how that DIY cypherpunk ethos shapes what she's building today.
+
+The bulk of the episode is a live demo on Sepolia: creating a wallet from a single seed that also derives Railgun and Tornado Cash funds, claiming a slop.gwei name, publishing an ERC-5564 stealth meta-address, and receiving to a fresh stealth address. Then the tour de force — one synchronous ERC-4337 user op that unshields from Tornado, deposits ETH into Aave, borrows DAI, and shields the DAI back, all atomically.
+
+They also get into local nodes vs private information retrieval RPCs, the wallet-of-last-resort concept, aggregating a bag of ephemeral EOAs behind clean UX, and letting an agent drive the CLI end-to-end.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmQUgyBPKMSWMvAThhPC4FKr81Z9NQC7yyWYZ9nB5xtchg?filename=kassandraeth.m4a" length="83169931" type="audio/mp4"/>
+      <itunes:duration>4069</itunes:duration>
+      <itunes:episode>49</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmWbv8nbTvPW9xYimUAvLq4NEMfT8MACRMvQfKQveER9AG"/>
+    </item>
     <item>
       <title>Alex Stokes on agent harnesses and zero-trust swarms</title>
       <link>https://slop.computer/ralexstokes</link>
