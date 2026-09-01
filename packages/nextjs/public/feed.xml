@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Mon, 31 Aug 2026 18:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 01 Sep 2026 14:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Blaine Malone on Cloaked, stealth addresses, and bootstrapping</title>
+      <link>https://slop.computer/blainemalone</link>
+      <guid isPermaLink="false">QmatU1oV2ygi2jFiZ1tCRLrN1GmCK6om98jqSbbLXs1tbn</guid>
+      <pubDate>Tue, 01 Sep 2026 14:00:00 GMT</pubDate>
+      <description>Blaine Malone (Anon0880), CEO and co-founder of Cloaked, joins slop.atg.eth to talk about building a self-custodial Ethereum privacy wallet with his co-founder and fiancée Livia — no VC, two engineers, over $1M in cumulative volume. He walks through his path from ConsenSys and Trustology in London to Gemini and Optimism in New York, and why late 2024 was the right moment to quit and take the plunge.
+
+The conversation goes deep on AI-assisted engineering: why he and Livia avoid harness-maxing, why Codex has quietly overtaken Claude for them, and a great riff on 'AI psychosis' as a Skinner-box dopamine loop where a nonzero error rate is what keeps you coming back.
+
+Then a live demo of Cloaked — passkey onboarding, ENS-powered fresh addresses per receive, privacy pools, and a forthcoming browser extension that lets you connect to any dapp from a clean stealth address. Plus the privacy-vs-secrecy distinction, ejecting via open-source recovery, and the coffee-shop detour after FTX.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmZieLds9dn2f8v2f7aN2hdairDv61f3DVJ7GZg6AF2Gth?filename=blainemalone.m4a" length="92039072" type="audio/mp4"/>
+      <itunes:duration>4503</itunes:duration>
+      <itunes:episode>50</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmWKP2kS3qzk96uqz2zVZ5DUMxw3yY9yHjtpqwS6rPgXEj"/>
+    </item>
     <item>
       <title>Kassandra on Kohaku CLI and practical cypherpunk wallets</title>
       <link>https://slop.computer/kassandraeth</link>
-      <guid isPermaLink="false">QmXVbypVBftE87njJz2pBzTtUVNbeBuq4Vih1KDEaUpTYk</guid>
+      <guid isPermaLink="false">Qmd6N787YMEdwjDVEmT5HFRFTagbms4PhLjekkNWTEcry1</guid>
       <pubDate>Mon, 31 Aug 2026 18:00:00 GMT</pubDate>
       <description>slop.atg.eth sits down with κασσάνδρα.eth (Kassandra, @kassandraETH) to walk through the Kohaku Initiative and her rapid-release kohaku-cli, an EF-backed effort to make transaction privacy on Ethereum a default rather than a scavenger hunt. Kassandra tells the origin story of how sketchy Bitcoin poker sites got her hand-crafting ECDSA signatures in Python, and how that DIY cypherpunk ethos shapes what she's building today.
 
