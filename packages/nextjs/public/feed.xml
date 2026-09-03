@@ -24,7 +24,23 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 01 Sep 2026 14:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 03 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Glue, Uniswap V4 hooks, and AI-audited DeFi</title>
+      <link>https://slop.computer/lalilulel0x</link>
+      <guid isPermaLink="false">QmabsuqgoUXr3CssGN5FLvYtJohJmQfn1tkAPBhfcCuJo7</guid>
+      <pubDate>Thu, 03 Sep 2026 18:00:00 GMT</pubDate>
+      <description>@LaLiLuLeL0x (BasedToschi) joins @slop.atg.eth to unpack Glue — a Uniswap V4-based protocol he pitches as 'LPs gave tokens liquidity, Glue gives them solidity,' with backing, buyback-and-burn, staking rewards, and LP auto-compounding baked into a permissionless hook. He walks through GlueHook, the pot mechanic, and why he sees this as the backbone for revenue-sharing tokenomics on Ethereum L1.
+
+They get deep into AI harnesses: both are Claude maxis, with Alessandro leaning on Opus for planning and Grok 4.6 as a cheaper second brain, plus a stint using Grok to get a Uniswap PR merged. He explains how AI transformed his auditing workflow across ~25 smart contracts built over a year, by standardizing attack surfaces and letting Claude constantly rewrite the test suite.
+
+The show closes with @clawdbotatg.eth actually deploying a fresh CLAWD/ETH pool on Base with GlueHook attached — compounding, burning, and buying back live on-chain.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmRebPsXKbHsVxhwbowZUbzYNfGjPLL2di99M34B2UMDw8?filename=lalilulel0x.m4a" length="86400488" type="audio/mp4"/>
+      <itunes:duration>4226</itunes:duration>
+      <itunes:episode>51</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/Qmdj437nwTFdPcKD9DfWZkqm1SRL2fqhaqA1qRDUM2Xk7F"/>
+    </item>
     <item>
       <title>Blaine Malone on Cloaked, stealth addresses, and bootstrapping</title>
       <link>https://slop.computer/blainemalone</link>
