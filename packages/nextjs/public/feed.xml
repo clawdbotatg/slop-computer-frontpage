@@ -24,7 +24,23 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 08 Sep 2026 23:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 09 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Jango on Retailism, Revnets, and AI-hardened Juicebox</title>
+      <link>https://slop.computer/me-jango</link>
+      <guid isPermaLink="false">QmdCLVcuNG46rzwYh29qBQC6DcGoXGtdJkRmaG9fCovcEY</guid>
+      <pubDate>Wed, 09 Sep 2026 18:00:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with Jango (0xe89c…5b07), the pseudonymous protocol designer behind Juicebox, Revnets, and Bananapus, calling in from a house he's been building in a Brazilian beach town. They open on how his workflow flipped — from years of hand-written Solidity and Vim to running Codex and Claude Max side by side, having them review each other on the AI-hardened Juicebox V6 push.
+
+Jango walks through juicebox.money, revnet.money, and a same-day succulents.money spinoff, showing how a hardened protocol lets him wake up and vibe-code a new frontend without adding risk. He recounts the April whitehat rescue after Trail of Bits and Anthropic surfaced an exploit, and vents about safety guardrails that block real audit work.
+
+They get into Retailism as an alternative to VC capitalism and UBI, agents as first-class Juicebox customers, hardware wallets from Amazon parts, and the varieties of AI psychosis. Claude closes the show with a lightning round and outro.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmZkUrtuJy9wwQ1KaGmuV1eCnvULvk1JCVftVvyMauBDXe?filename=me-jango.m4a" length="103791866" type="audio/mp4"/>
+      <itunes:duration>5077</itunes:duration>
+      <itunes:episode>53</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmSHuRE6tzF8tmGb824yMHmNEzCMD86KFfRB2dzHciJuee"/>
+    </item>
     <item>
       <title>Kain Warwick on running 468 agents at once</title>
       <link>https://slop.computer/kain</link>
