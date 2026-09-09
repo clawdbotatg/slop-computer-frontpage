@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Thu, 03 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 08 Sep 2026 23:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Kain Warwick on running 468 agents at once</title>
+      <link>https://slop.computer/kain</link>
+      <guid isPermaLink="false">QmRPaNzkSpkhvpsESLossrxwK869vctswGAJs9W4Z7RLUc</guid>
+      <pubDate>Tue, 08 Sep 2026 23:00:00 GMT</pubDate>
+      <description>kain (Kain Warwick, founder of Synthetix and Infinex) joins slop.atg.eth for a deep tour of Zobrist, the personal harness he's been building to orchestrate hundreds of agents in parallel. He walks through a red team exercise that spun up hundreds of agents against Infinex and old Synthetix contracts, deduped 4,000 deployed contracts down to unique bytecode, and surfaced a 2021 $4M oracle exploit he had completely memory-holed.
+
+Along the way kain gets into which models he uses for what: DeepSeek and Grok as biased-to-action orchestrators, GLM 5.3 (and the uncensored GLM Cyber) as auditors, Kimi K3 as a cracked mobile UX agent, Fable as an optimistic coder paired with a pessimistic Sol 5.6 reviewer. He explains why context compaction, message buses between agents, and cache-warm inter-agent chatter matter more than raw model IQ.
+
+The throughline is process: humans are the slowest, dumbest part of the loop, and the goal is tightening recursive self-improvement until you can say &quot;I want to go skiing&quot; and wake up to a shipped mobile refactor.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmUnfT4pQ2eJ1CQHoyeAawd7S5VmYSXHxrULdeoDBwhzzs?filename=kain.m4a" length="136865644" type="audio/mp4"/>
+      <itunes:duration>6695</itunes:duration>
+      <itunes:episode>52</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmRYo5yegKKnhzmJujfyoSmuDzxCxg5xM4FrGZmWPfscfK"/>
+    </item>
     <item>
       <title>Glue, Uniswap V4 hooks, and AI-audited DeFi</title>
       <link>https://slop.computer/lalilulel0x</link>
-      <guid isPermaLink="false">QmabsuqgoUXr3CssGN5FLvYtJohJmQfn1tkAPBhfcCuJo7</guid>
+      <guid isPermaLink="false">QmXXLhPG6r3AZkcsHeDB9HFojEAQ8v6FU5tAV3qt9Xv154</guid>
       <pubDate>Thu, 03 Sep 2026 18:00:00 GMT</pubDate>
       <description>@LaLiLuLeL0x (BasedToschi) joins @slop.atg.eth to unpack Glue — a Uniswap V4-based protocol he pitches as 'LPs gave tokens liquidity, Glue gives them solidity,' with backing, buyback-and-burn, staking rewards, and LP auto-compounding baked into a permissionless hook. He walks through GlueHook, the pot mechanic, and why he sees this as the backbone for revenue-sharing tokenomics on Ethereum L1.
 
