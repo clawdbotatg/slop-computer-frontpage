@@ -41,6 +41,7 @@ import {
   type Episode,
   SLOP_CHAIN_ID,
   ZERO_ADDRESS,
+  fetchManifest,
   formatDate,
   isZeroEpisode,
   relaySlug,
@@ -491,6 +492,10 @@ const FinalizePanel = ({
   const [tldrSaved, setTldrSaved] = useState<{ text: string; url: string; updatedTs: number } | null>(null);
   const [tldrSaving, setTldrSaving] = useState(false);
   const [tldrMsg, setTldrMsg] = useState("");
+  // What the on-chain manifest carries right now (null = none). Compared to
+  // the relay copy to decide whether "Save TLDR to manifest" needs to show.
+  const [manifestTldr, setManifestTldr] = useState<{ text: string; url: string } | null | undefined>(undefined);
+  const [tldrPinning, setTldrPinning] = useState(false);
   const [settingStart, setSettingStart] = useState(false);
   // Auto-detect (POST /admin/detect-start): reads the intro countdown timer off
   // the recording with vision and prefills the field. detectMsg shows the result
@@ -560,12 +565,22 @@ const FinalizePanel = ({
   // contract box, but only if nothing's set on-chain and the host hasn't
   // already typed something — never clobber a deliberate value.
   const tldrReqId = useRef(0);
-  const loadTldr = async (episodeSlug: string) => {
+  const loadTldr = async (episodeSlug: string, manifestUrl: string) => {
     const reqId = ++tldrReqId.current;
     setTldrSaved(null);
     setTldrText("");
     setTldrUrl("");
     setTldrMsg("");
+    setManifestTldr(undefined);
+    if (manifestUrl) {
+      void fetchManifest(manifestUrl).then(m => {
+        if (reqId !== tldrReqId.current) return;
+        const t = m?.meta?.tldr;
+        setManifestTldr(t?.text ? { text: t.text, url: t.url ?? "" } : null);
+      });
+    } else {
+      setManifestTldr(null);
+    }
     try {
       const res = await fetch(`${RELAY_HTTP_URL}/v1/episodes/${encodeURIComponent(episodeSlug)}/tldr`);
       if (reqId !== tldrReqId.current || !res.ok) return;
@@ -614,6 +629,47 @@ const FinalizePanel = ({
     }
   };
 
+  // Fold the relay TLDR into the manifest (one field, re-pin, no AI). Drops the
+  // new CID into `manifestCid` so the existing "Save manifest on-chain" button
+  // signs it. Only offered when the manifest copy is missing or stale.
+  const saveTldrToManifest = async () => {
+    setError("");
+    setTldrMsg("");
+    setCid("");
+    setManifestCid("");
+    setMetaRegenerated(false);
+    setTldrPinning(true);
+    try {
+      const params = new URLSearchParams({ manifest: target.manifest, episodeSlug: target.slug });
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/tldr-to-manifest?${params.toString()}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        if (res.status === 401) setTldrMsg(handle401());
+        else {
+          const j = (await res.json().catch(() => ({}))) as { error?: string };
+          setTldrMsg(j.error ?? `relay returned ${res.status}`);
+        }
+        return;
+      }
+      const data = (await res.json()) as { manifestCid?: string };
+      const newCid = String(data.manifestCid ?? "").replace(/^ipfs:\/\//, "");
+      if (!newCid) {
+        setTldrMsg("relay returned no manifest CID");
+        return;
+      }
+      setManifestCid(newCid);
+      setMetaRegenerated(true);
+      setPhaseLabel("✓ tldr folded into the manifest — save it on-chain below");
+      setTldrMsg("✓ new manifest pinned — hit “Save manifest on-chain” below");
+    } catch (e) {
+      setTldrMsg((e as Error).message || "failed");
+    } finally {
+      setTldrPinning(false);
+    }
+  };
+
   const loadRoomWallet = async (forSlug: string, allowPrefill: boolean) => {
     const reqId = ++walletReqId.current;
     try {
@@ -645,7 +701,7 @@ const FinalizePanel = ({
     setNewContract(target.contractAddr);
     setDetectedWallet(null);
     void loadRoomWallet(relaySlug(target), target.contractAddr.toLowerCase() === ZERO_ADDRESS);
-    void loadTldr(target.slug);
+    void loadTldr(target.slug, target.manifest);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target?.id]);
 
@@ -1204,6 +1260,26 @@ const FinalizePanel = ({
             </Button>
           ) : null}
         </div>
+        {tldrSaved && target.manifest && manifestTldr !== undefined ? (
+          manifestTldr && manifestTldr.text === tldrSaved.text && manifestTldr.url === tldrSaved.url ? (
+            <span className="slop-mono text-[11px]" style={{ color: "var(--slop-lime)" }}>
+              ✓ on-chain manifest has this tldr
+            </span>
+          ) : (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="slop-mono text-[11px]" style={{ color: "rgb(255, 196, 0)" }}>
+                {manifestTldr ? "on-chain manifest has an older tldr" : "not in the on-chain manifest yet"}
+              </span>
+              <Button
+                onClick={() => void saveTldrToManifest()}
+                disabled={tldrPinning || tldrSaving || pinning || regenerating || settingStart}
+                title="Re-pin the manifest with meta.tldr set (no AI, nothing else changes), then save it on-chain — one tx."
+              >
+                {tldrPinning ? "Pinning…" : "Save TLDR to manifest"}
+              </Button>
+            </div>
+          )
+        ) : null}
         <textarea
           className="slop-textfield"
           placeholder="text — filled in from the link on save; edit here only if the fetch got it wrong"
