@@ -587,7 +587,12 @@ const FinalizePanel = ({
         method: "POST",
         credentials: "include",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug: target.slug, text: clear ? "" : tldrText, url: clear ? "" : tldrUrl }),
+        // A new link means fetch fresh text; same link keeps any hand edits.
+        body: JSON.stringify({
+          slug: target.slug,
+          text: clear || tldrUrl.trim() !== (tldrSaved?.url ?? "") ? "" : tldrText,
+          url: clear ? "" : tldrUrl,
+        }),
       });
       if (!res.ok) {
         if (res.status === 401) setTldrMsg(handle401());
@@ -599,10 +604,8 @@ const FinalizePanel = ({
       }
       const j = (await res.json()) as { tldr: { text: string; url: string; updatedTs: number } | null };
       setTldrSaved(j.tldr);
-      if (!j.tldr) {
-        setTldrText("");
-        setTldrUrl("");
-      }
+      setTldrText(j.tldr?.text ?? "");
+      setTldrUrl(j.tldr?.url ?? "");
       setTldrMsg(j.tldr ? "✓ saved — live on the episode page" : "✓ cleared");
     } catch (e) {
       setTldrMsg((e as Error).message || "save failed");
@@ -1176,20 +1179,9 @@ const FinalizePanel = ({
           )}
         </span>
         <p className="m-0 text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
-          Paste the tweet text and its link. Shows on the episode page and in episodes.json immediately — no tx. It
-          rides into the manifest the next time you regenerate metadata or set a start point.
+          Paste the tweet link and save. The relay pulls the text. Shows on the episode page and in episodes.json right
+          away — no tx. Rides into the manifest on the next regenerate / set-start.
         </p>
-        <textarea
-          className="slop-textfield"
-          placeholder={
-            "TLDR recap of @guest on slop computer:\n\n  • lesson\n  • lesson\n\nhttps://slop.computer/" + target.slug
-          }
-          value={tldrText}
-          onChange={e => setTldrText(e.target.value)}
-          disabled={tldrSaving}
-          rows={7}
-          style={{ fontFamily: "inherit", resize: "vertical" }}
-        />
         <div className="flex flex-wrap gap-2 items-center">
           <input
             className="slop-textfield"
@@ -1199,7 +1191,11 @@ const FinalizePanel = ({
             disabled={tldrSaving}
             style={{ minWidth: 260, flex: 1 }}
           />
-          <Button variant="primary" onClick={() => void saveTldr()} disabled={tldrSaving || !tldrText.trim()}>
+          <Button
+            variant="primary"
+            onClick={() => void saveTldr()}
+            disabled={tldrSaving || (!tldrUrl.trim() && !tldrText.trim())}
+          >
             {tldrSaving ? "Saving…" : "Save TLDR"}
           </Button>
           {tldrSaved ? (
@@ -1208,6 +1204,15 @@ const FinalizePanel = ({
             </Button>
           ) : null}
         </div>
+        <textarea
+          className="slop-textfield"
+          placeholder="text — filled in from the link on save; edit here only if the fetch got it wrong"
+          value={tldrText}
+          onChange={e => setTldrText(e.target.value)}
+          disabled={tldrSaving}
+          rows={tldrText ? 7 : 2}
+          style={{ fontFamily: "inherit", resize: "vertical" }}
+        />
         {tldrMsg ? (
           <span
             className="slop-mono text-[11px]"
