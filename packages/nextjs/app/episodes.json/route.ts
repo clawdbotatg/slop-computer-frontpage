@@ -31,9 +31,27 @@ const { address: CONTRACT, abi } = externalContracts[1].SlopComputer;
 const assetUrl = (asset: { cid: string } | undefined, filename?: string) =>
   asset?.cid ? gatewayUrl(`ipfs://${asset.cid}`, filename) : undefined;
 
-const toEntry = (ep: Episode, manifest: EpisodeManifest | null, liveId: string) => {
+const RELAY = process.env.NEXT_PUBLIC_RELAY_HTTP_URL ?? "https://live.slop.computer";
+type TldrRow = { text: string; url: string; updatedTs: number };
+
+/** Host TLDR tweets from the relay (live source, no tx). Empty on failure —
+ *  entries then fall back to whatever the manifest carries. */
+const fetchTldrs = async (): Promise<Record<string, TldrRow>> => {
+  try {
+    const res = await fetch(`${RELAY}/v1/episodes/tldr`, { next: { revalidate: 300 } });
+    if (!res.ok) return {};
+    const j = (await res.json()) as { items?: Record<string, TldrRow> };
+    return j.items ?? {};
+  } catch {
+    return {};
+  }
+};
+
+const toEntry = (ep: Episode, manifest: EpisodeManifest | null, liveId: string, tldrs: Record<string, TldrRow>) => {
   const m = manifest ?? {};
   const slug = ep.slug;
+  const t = tldrs[slug.toLowerCase()] ?? m.meta?.tldr;
+  const tldr = t?.text ? { text: t.text, url: t.url || undefined, updatedTs: t.updatedTs } : undefined;
   return {
     id: ep.id,
     slug,
@@ -53,6 +71,7 @@ const toEntry = (ep: Episode, manifest: EpisodeManifest | null, liveId: string) 
     tipContract: ep.contractAddr,
     manifest: ep.manifest || undefined,
     manifestUrl: ep.manifest ? gatewayUrl(ep.manifest) : undefined,
+    tldr,
     durationSeconds: m.video?.durationSeconds,
     media: {
       video: m.video ? { ...m.video, url: assetUrl(m.video, `${slug}.mp4`) } : undefined,
@@ -82,8 +101,11 @@ export async function GET() {
     client.readContract({ address: CONTRACT, abi, functionName: "live" }) as Promise<string>,
   ]);
 
-  const manifests = await Promise.all(episodes.map(ep => fetchManifest(ep.manifest)));
-  const entries = episodes.map((ep, i) => toEntry(ep, manifests[i], liveId));
+  const [manifests, tldrs] = await Promise.all([
+    Promise.all(episodes.map(ep => fetchManifest(ep.manifest))),
+    fetchTldrs(),
+  ]);
+  const entries = episodes.map((ep, i) => toEntry(ep, manifests[i], liveId, tldrs));
   const liveEntry = liveId !== ZERO_BYTES32 ? entries.find(e => e.id === liveId) : undefined;
 
   return Response.json(
@@ -97,7 +119,9 @@ export async function GET() {
         docs: "https://slop.computer/skill.md",
       },
       count: Number(count),
-      live: liveEntry ? { id: liveEntry.id, slug: liveEntry.slug, hls: "https://media.slop.computer/hls/live/index.m3u8" } : null,
+      live: liveEntry
+        ? { id: liveEntry.id, slug: liveEntry.slug, hls: "https://media.slop.computer/hls/live/index.m3u8" }
+        : null,
       episodes: entries,
     },
     { headers: { "access-control-allow-origin": "*" } },

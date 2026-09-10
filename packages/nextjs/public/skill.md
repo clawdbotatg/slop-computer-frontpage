@@ -56,6 +56,7 @@ one HTTP GET. Shape:
   episodes: [{                       # newest-first
     id, slug, name,
     title, oneLiner, description,    # AI-generated summaries
+    tldr: { text, url, updatedTs },  # host's post-episode lesson tweet (absent until posted)
     topics[], tags[],                # filter/search on these
     chapters[{ tStart, title }],
     participants[{ address, handle, ens, role }],
@@ -169,7 +170,8 @@ Manifest schema (all fields optional, best-effort):
   card:       { cid, format, sizeBytes },                     # unfurl/title card PNG
   clips:      { cid, count, format },                         # AI-cut vertical clips bundle
   meta: { title, oneLiner, description, topics[],
-          chapters[{ tStart, title }], generatedBy, generatedAt },  # AI-generated
+          chapters[{ tStart, title }], generatedBy, generatedAt,
+          tldr? },                                              # AI-generated (+ host TLDR once re-pinned)
   participants: [{ address, anonId, role, handle, ens }],
   files: [{ name, cid, sizeBytes }],
   links: [{ label, url }],

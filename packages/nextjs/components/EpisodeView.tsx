@@ -9,11 +9,13 @@ import { ClipsSection } from "~~/components/ClipsSection";
 import { LiveTranscript } from "~~/components/LiveTranscript";
 import { ViewerBadge } from "~~/components/ui";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { RELAY_HTTP_URL } from "~~/hooks/useChat";
 import { useStreamUp } from "~~/hooks/useStreamUp";
 import { useUnmutedAutoplay } from "~~/hooks/useUnmutedAutoplay";
 import {
   type Episode,
   type EpisodeManifest,
+  type EpisodeTldr,
   SLOP_CHAIN_ID,
   ZERO_ADDRESS,
   ZERO_BYTES32,
@@ -100,6 +102,10 @@ export const EpisodeView = ({ slug, notFound }: { slug: string; notFound: ReactN
 const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean }) => {
   const [manifest, setManifest] = useState<EpisodeManifest | null>(null);
   const [manifestLoading, setManifestLoading] = useState(false);
+  // Host's TLDR tweet. Relay copy wins (it's the live source, saved from the
+  // admin page without a tx); the manifest copy is the fallback for old
+  // re-pins or a relay outage.
+  const [relayTldr, setRelayTldr] = useState<EpisodeTldr | null>(null);
   const [vodFailed, setVodFailed] = useState(false);
   // Realtime viewer count, lifted out of the live <Chat> (which holds the SSE
   // the count rides on). Null until the relay reports it.
@@ -145,6 +151,22 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
       cancelled = true;
     };
   }, [episode.manifest, isLive]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setRelayTldr(null);
+    if (isLive) return;
+    fetch(`${RELAY_HTTP_URL}/v1/episodes/${encodeURIComponent(episode.slug)}/tldr`)
+      .then(r => (r.ok ? (r.json() as Promise<EpisodeTldr>) : null))
+      .then(t => {
+        if (!cancelled && t?.text) setRelayTldr(t);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [episode.slug, isLive]);
+  const tldr = relayTldr ?? manifest?.meta?.tldr ?? null;
 
   const videoCid = manifest?.video?.cid;
   const videoSrc = isLive ? HLS_URL : videoCid ? gatewayUrl(`ipfs://${videoCid}`, `${episode.slug}.mp4`) : null;
@@ -386,6 +408,8 @@ const EpisodeBody = ({ episode, isLive }: { episode: Episode; isLive: boolean })
         ) : null}
 
         <div className="flex flex-col gap-3 min-w-0">
+          {tldr?.text ? <TldrCard tldr={tldr} /> : null}
+
           {manifest?.meta?.description || manifest?.description ? (
             <section className="flex flex-col gap-2">
               <h2 className="text-base sm:text-lg uppercase tracking-wide m-0" style={{ color: "var(--slop-text)" }}>
@@ -775,3 +799,40 @@ const LazyHlsPlayer = ({ src }: { src: string }) => {
   if (!Player) return <PlayerPlaceholder label="Loading player…" />;
   return <Player src={src} className="aspect-video" />;
 };
+
+/** The host's post-episode TLDR tweet, rendered as a slop window. Text is the
+ *  tweet verbatim (bullets and all); the link goes to the post on X. We render
+ *  it ourselves instead of X's embed script: no third-party JS, readable by
+ *  agents, survives the tweet being deleted. */
+const TldrCard = ({ tldr }: { tldr: EpisodeTldr }) => (
+  <section
+    style={{
+      border: "1px solid rgba(188, 255, 91, 0.45)",
+      background: "rgba(10, 15, 36, 0.85)",
+      borderRadius: 8,
+      overflow: "hidden",
+    }}
+  >
+    <div
+      className="px-3 py-2 text-[11px] uppercase tracking-wide flex items-center justify-between gap-2"
+      style={{
+        background: "linear-gradient(180deg, var(--slop-purple) 0%, var(--slop-purple-dim, #4b2aa8) 100%)",
+        color: "#fff",
+        fontFamily: "var(--slop-font-display)",
+      }}
+    >
+      <span>▣ TLDR</span>
+      {tldr.url ? (
+        <a className="slop-link slop-mono text-[10px] normal-case" href={tldr.url} target="_blank" rel="noreferrer">
+          on X ↗
+        </a>
+      ) : null}
+    </div>
+    <pre
+      className="m-0 px-3 py-3 text-sm whitespace-pre-wrap"
+      style={{ color: "var(--slop-text)", fontFamily: "inherit", background: "transparent" }}
+    >
+      {tldr.text}
+    </pre>
+  </section>
+);

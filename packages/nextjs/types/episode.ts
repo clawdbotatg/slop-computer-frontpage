@@ -63,9 +63,14 @@ export type EpisodeMeta = {
    * AI pass). Omitted/0 → play from the start.
    */
   startSeconds?: number;
+  /** The host's post-episode TLDR tweet (bullet lessons). The relay is the live
+   *  source (`/v1/episodes/<slug>/tldr`); this copy lands on the next re-pin. */
+  tldr?: EpisodeTldr;
   generatedBy?: string;
   generatedAt?: number;
 };
+
+export type EpisodeTldr = { text: string; url: string; updatedTs: number };
 
 /** Best-effort schema for the manifest JSON the contract's `manifest` points at. */
 export type EpisodeManifest = {

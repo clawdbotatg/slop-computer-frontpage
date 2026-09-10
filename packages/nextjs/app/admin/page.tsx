@@ -483,6 +483,14 @@ const FinalizePanel = ({
   // in localStorage so each new episode prefills with the last value used — the
   // countdown is ~constant, so usually it's already correct and needs no typing.
   const [startInput, setStartInput] = useState("");
+  // Post-episode TLDR tweet (POST /admin/episode-tldr). Saved in the relay —
+  // live on the episode page at once, no tx. Folded into the manifest on the
+  // next regenerate / set-start re-pin.
+  const [tldrText, setTldrText] = useState("");
+  const [tldrUrl, setTldrUrl] = useState("");
+  const [tldrSaved, setTldrSaved] = useState<{ text: string; url: string; updatedTs: number } | null>(null);
+  const [tldrSaving, setTldrSaving] = useState(false);
+  const [tldrMsg, setTldrMsg] = useState("");
   const [settingStart, setSettingStart] = useState(false);
   // Auto-detect (POST /admin/detect-start): reads the intro countdown timer off
   // the recording with vision and prefills the field. detectMsg shows the result
@@ -551,6 +559,58 @@ const FinalizePanel = ({
   // finalizing old shows). When `allowPrefill`, drop the address into the
   // contract box, but only if nothing's set on-chain and the host hasn't
   // already typed something — never clobber a deliberate value.
+  const tldrReqId = useRef(0);
+  const loadTldr = async (episodeSlug: string) => {
+    const reqId = ++tldrReqId.current;
+    setTldrSaved(null);
+    setTldrText("");
+    setTldrUrl("");
+    setTldrMsg("");
+    try {
+      const res = await fetch(`${RELAY_HTTP_URL}/v1/episodes/${encodeURIComponent(episodeSlug)}/tldr`);
+      if (reqId !== tldrReqId.current || !res.ok) return;
+      const t = (await res.json()) as { text?: string; url?: string; updatedTs?: number };
+      if (reqId !== tldrReqId.current || !t.text) return;
+      setTldrSaved({ text: t.text, url: t.url ?? "", updatedTs: t.updatedTs ?? 0 });
+      setTldrText(t.text);
+      setTldrUrl(t.url ?? "");
+    } catch {
+      /* relay down — box stays empty */
+    }
+  };
+
+  const saveTldr = async (clear = false) => {
+    setTldrMsg("");
+    setTldrSaving(true);
+    try {
+      const res = await fetch(`${RELAY_HTTP_URL}/admin/episode-tldr`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ slug: target.slug, text: clear ? "" : tldrText, url: clear ? "" : tldrUrl }),
+      });
+      if (!res.ok) {
+        if (res.status === 401) setTldrMsg(handle401());
+        else {
+          const j = (await res.json().catch(() => ({}))) as { error?: string };
+          setTldrMsg(j.error ?? `relay returned ${res.status}`);
+        }
+        return;
+      }
+      const j = (await res.json()) as { tldr: { text: string; url: string; updatedTs: number } | null };
+      setTldrSaved(j.tldr);
+      if (!j.tldr) {
+        setTldrText("");
+        setTldrUrl("");
+      }
+      setTldrMsg(j.tldr ? "✓ saved — live on the episode page" : "✓ cleared");
+    } catch (e) {
+      setTldrMsg((e as Error).message || "save failed");
+    } finally {
+      setTldrSaving(false);
+    }
+  };
+
   const loadRoomWallet = async (forSlug: string, allowPrefill: boolean) => {
     const reqId = ++walletReqId.current;
     try {
@@ -582,6 +642,7 @@ const FinalizePanel = ({
     setNewContract(target.contractAddr);
     setDetectedWallet(null);
     void loadRoomWallet(relaySlug(target), target.contractAddr.toLowerCase() === ZERO_ADDRESS);
+    void loadTldr(target.slug);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target?.id]);
 
@@ -790,7 +851,11 @@ const FinalizePanel = ({
     setPhaseLabel("starting…");
     setRegenerating(true);
     try {
-      const params = new URLSearchParams({ slug: relaySlug(target), manifest: target.manifest });
+      const params = new URLSearchParams({
+        slug: relaySlug(target),
+        manifest: target.manifest,
+        episodeSlug: target.slug,
+      });
       const res = await fetch(`${RELAY_HTTP_URL}/admin/regenerate-meta?${params.toString()}`, {
         method: "POST",
         credentials: "include",
@@ -874,6 +939,7 @@ const FinalizePanel = ({
         slug: relaySlug(target),
         manifest: target.manifest,
         start: String(secs),
+        episodeSlug: target.slug,
       });
       const res = await fetch(`${RELAY_HTTP_URL}/admin/set-start?${params.toString()}`, {
         method: "POST",
@@ -1092,6 +1158,63 @@ const FinalizePanel = ({
           >
             {regenerating ? "Regenerating…" : "Regenerate metadata only"}
           </Button>
+        ) : null}
+      </div>
+
+      {/* TLDR — the post-episode lesson tweet. Saved in the relay (live on the
+          episode page + episodes.json right away, no tx); folded into the
+          manifest on the next regenerate / set-start re-pin. */}
+      <div className="px-3 py-3 flex flex-col gap-2" style={{ border: "1px dashed rgba(188, 255, 91, 0.35)" }}>
+        <span className="slop-mono text-[10px] uppercase tracking-widest" style={{ color: "var(--slop-text-muted)" }}>
+          {"// tldr tweet"}
+          {tldrSaved ? (
+            <span style={{ color: "var(--slop-lime)" }}>
+              {` — done ${tldrSaved.updatedTs ? new Date(tldrSaved.updatedTs).toISOString().slice(0, 10) : ""}`}
+            </span>
+          ) : (
+            <span style={{ color: "rgb(255, 196, 0)" }}> — not done yet</span>
+          )}
+        </span>
+        <p className="m-0 text-[11px]" style={{ color: "var(--slop-text-muted)" }}>
+          Paste the tweet text and its link. Shows on the episode page and in episodes.json immediately — no tx. It
+          rides into the manifest the next time you regenerate metadata or set a start point.
+        </p>
+        <textarea
+          className="slop-textfield"
+          placeholder={
+            "TLDR recap of @guest on slop computer:\n\n  • lesson\n  • lesson\n\nhttps://slop.computer/" + target.slug
+          }
+          value={tldrText}
+          onChange={e => setTldrText(e.target.value)}
+          disabled={tldrSaving}
+          rows={7}
+          style={{ fontFamily: "inherit", resize: "vertical" }}
+        />
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            className="slop-textfield"
+            placeholder="https://x.com/…/status/…"
+            value={tldrUrl}
+            onChange={e => setTldrUrl(e.target.value)}
+            disabled={tldrSaving}
+            style={{ minWidth: 260, flex: 1 }}
+          />
+          <Button variant="primary" onClick={() => void saveTldr()} disabled={tldrSaving || !tldrText.trim()}>
+            {tldrSaving ? "Saving…" : "Save TLDR"}
+          </Button>
+          {tldrSaved ? (
+            <Button onClick={() => void saveTldr(true)} disabled={tldrSaving} title="Remove the TLDR from the relay">
+              Clear
+            </Button>
+          ) : null}
+        </div>
+        {tldrMsg ? (
+          <span
+            className="slop-mono text-[11px]"
+            style={{ color: tldrMsg.startsWith("✓") ? "var(--slop-lime)" : "rgb(255, 196, 0)" }}
+          >
+            {tldrMsg}
+          </span>
         ) : null}
       </div>
 
