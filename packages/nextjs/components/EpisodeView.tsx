@@ -804,35 +804,40 @@ const LazyHlsPlayer = ({ src }: { src: string }) => {
  *  tweet verbatim (bullets and all); the link goes to the post on X. We render
  *  it ourselves instead of X's embed script: no third-party JS, readable by
  *  agents, survives the tweet being deleted. */
-const TldrCard = ({ tldr }: { tldr: EpisodeTldr }) => (
-  <section
-    style={{
-      border: "1px solid rgba(188, 255, 91, 0.45)",
-      background: "rgba(10, 15, 36, 0.85)",
-      borderRadius: 8,
-      overflow: "hidden",
-    }}
-  >
-    <div
-      className="px-3 py-2 text-[11px] uppercase tracking-wide flex items-center justify-between gap-2"
+const TldrCard = ({ tldr }: { tldr: EpisodeTldr }) => {
+  // The tweet ends with a link back to this very page — pointless here. Drop
+  // it and put the link to the tweet itself in its place.
+  const body = tldr.text.replace(/\s*https?:\/\/slop\.computer\/[\w-]+\/?\s*$/i, "").trimEnd();
+  return (
+    <section
       style={{
-        background: "linear-gradient(180deg, var(--slop-purple) 0%, var(--slop-purple-dim, #4b2aa8) 100%)",
-        color: "#fff",
-        fontFamily: "var(--slop-font-display)",
+        border: "1px solid rgba(188, 255, 91, 0.45)",
+        background: "rgba(10, 15, 36, 0.85)",
+        borderRadius: 8,
+        overflow: "hidden",
       }}
     >
-      <span>▣ TLDR</span>
+      <div
+        className="px-3 py-2 text-[11px] uppercase tracking-wide flex items-center gap-2"
+        style={{
+          background: "linear-gradient(180deg, var(--slop-purple) 0%, var(--slop-purple-dim, #4b2aa8) 100%)",
+          color: "#fff",
+          fontFamily: "var(--slop-font-display)",
+        }}
+      >
+        <span>▣ TLDR</span>
+      </div>
+      <pre
+        className="m-0 px-3 pt-3 pb-1 text-sm whitespace-pre-wrap"
+        style={{ color: "var(--slop-text)", fontFamily: "inherit", background: "transparent" }}
+      >
+        {body}
+      </pre>
       {tldr.url ? (
-        <a className="slop-link slop-mono text-[10px] normal-case" href={tldr.url} target="_blank" rel="noreferrer">
-          on X ↗
+        <a className="slop-link slop-mono text-[12px] block px-3 pb-3" href={tldr.url} target="_blank" rel="noreferrer">
+          {tldr.url.replace(/^https?:\/\//, "")} ↗
         </a>
       ) : null}
-    </div>
-    <pre
-      className="m-0 px-3 py-3 text-sm whitespace-pre-wrap"
-      style={{ color: "var(--slop-text)", fontFamily: "inherit", background: "transparent" }}
-    >
-      {tldr.text}
-    </pre>
-  </section>
-);
+    </section>
+  );
+};
