@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Wed, 09 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 11 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Will Cory: Harnesses Melt, Models Eat Cleverness</title>
+      <link>https://slop.computer/fucory-2</link>
+      <guid isPermaLink="false">QmRmwtGEzQkqq99Yrx36sf8aABckEgebmUt2U5yCUK63wH</guid>
+      <pubDate>Fri, 11 Sep 2026 18:00:00 GMT</pubDate>
+      <description>Second-time guest Will Cory (@fucory, of Smithers, Tevm, and Guillotine) returns to slop.computer to talk with the host about what's changed in the two months and fifty episodes since his last appearance. They dig into how new models like Astra and Fable are finding real, race-condition-tier vulnerabilities in Ethereum code, why crypto's open-source ethos aligns with letting agents rip on security, and the ergonomics of orchestrating Claude Code and Codex against each other.
+
+Will walks through his pattern library at patterns.smithers.sh, why he's ripping JSX out of Smithers now that models are natively fine-tuned for orchestration, and the Prime Agent-style harness he built where the agent writes Smithers workflows in a JS sandbox instead of calling tools turn-by-turn. The through-line: harnesses are melting into the model, and clever abstractions decay like alpha in months.
+
+They close on agent-native L2s, Stylus, state channels, verified inference (shoutout to Ron and Aomi's Cecilia), and what Anthropic going public means for the next speculative cycle.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmVkqp6UsSD354T55FC5Nj6jEbegGu5GR48QDSExPLko8V?filename=fucory-2.m4a" length="136639818" type="audio/mp4"/>
+      <itunes:duration>6684</itunes:duration>
+      <itunes:episode>54</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmUK2hB7ivug91phUcfJ2p7NdbWsBvhVWLmC2TZ1WosuHu"/>
+    </item>
     <item>
       <title>Jango on Retailism, Revnets, and AI-hardened Juicebox</title>
       <link>https://slop.computer/me-jango</link>
-      <guid isPermaLink="false">QmdCLVcuNG46rzwYh29qBQC6DcGoXGtdJkRmaG9fCovcEY</guid>
+      <guid isPermaLink="false">QmcmpnnNMRdDeZrmoxyEbZFuDBDofbQCrH5xnCwQRz1eJM</guid>
       <pubDate>Wed, 09 Sep 2026 18:00:00 GMT</pubDate>
       <description>slop.atg.eth sits down with Jango (0xe89c…5b07), the pseudonymous protocol designer behind Juicebox, Revnets, and Bananapus, calling in from a house he's been building in a Brazilian beach town. They open on how his workflow flipped — from years of hand-written Solidity and Vim to running Codex and Claude Max side by side, having them review each other on the AI-hardened Juicebox V6 push.
 
@@ -44,7 +60,7 @@ They get into Retailism as an alternative to VC capitalism and UBI, agents as fi
     <item>
       <title>Kain Warwick on running 468 agents at once</title>
       <link>https://slop.computer/kain</link>
-      <guid isPermaLink="false">QmRPaNzkSpkhvpsESLossrxwK869vctswGAJs9W4Z7RLUc</guid>
+      <guid isPermaLink="false">QmXaa8o7jZXixS2JnCQ9zUeempQKTWCTvpJ7TTdmyzNGWv</guid>
       <pubDate>Tue, 08 Sep 2026 23:00:00 GMT</pubDate>
       <description>kain (Kain Warwick, founder of Synthetix and Infinex) joins slop.atg.eth for a deep tour of Zobrist, the personal harness he's been building to orchestrate hundreds of agents in parallel. He walks through a red team exercise that spun up hundreds of agents against Infinex and old Synthetix contracts, deduped 4,000 deployed contracts down to unique bytecode, and surfaced a 2021 $4M oracle exploit he had completely memory-holed.
 
@@ -76,7 +92,7 @@ The show closes with @clawdbotatg.eth actually deploying a fresh CLAWD/ETH pool 
     <item>
       <title>Blaine Malone on Cloaked, stealth addresses, and bootstrapping</title>
       <link>https://slop.computer/blainemalone</link>
-      <guid isPermaLink="false">QmatU1oV2ygi2jFiZ1tCRLrN1GmCK6om98jqSbbLXs1tbn</guid>
+      <guid isPermaLink="false">QmeP1G495QZ1JrxbWro5siYtNcHVRGPH3J5B2zLr74yrKG</guid>
       <pubDate>Tue, 01 Sep 2026 14:00:00 GMT</pubDate>
       <description>Blaine Malone (Anon0880), CEO and co-founder of Cloaked, joins slop.atg.eth to talk about building a self-custodial Ethereum privacy wallet with his co-founder and fiancée Livia — no VC, two engineers, over $1M in cumulative volume. He walks through his path from ConsenSys and Trustology in London to Gemini and Optimism in New York, and why late 2024 was the right moment to quit and take the plunge.
 
