@@ -88,16 +88,23 @@ const Home: NextPage = () => {
         <section className="flex flex-col gap-10">
           {allEpisodes.map((ep, i) => {
             const cardIsLive = Boolean(liveId && ep.id === liveId);
-            return i < EAGER_CARDS || cardIsLive ? (
-              <EpisodeCard key={ep.id} episode={ep} isLive={cardIsLive} />
-            ) : (
-              <LazyEpisodeCard key={ep.id} episode={ep} />
+            const card =
+              i < EAGER_CARDS || cardIsLive ? (
+                <EpisodeCard episode={ep} isLive={cardIsLive} />
+              ) : (
+                <LazyEpisodeCard episode={ep} />
+              );
+            // "Listen on" pills sit right under the newest episode, before the archive.
+            return (
+              <div key={ep.id} className="flex flex-col gap-10">
+                {card}
+                {i === 0 ? <ListenOn /> : null}
+              </div>
             );
           })}
         </section>
       ) : null}
 
-      <ListenOn />
       <AgentSkillLink />
     </div>
   );
@@ -459,10 +466,7 @@ const LISTEN_ON: { label: string; href: string; color: string; icon: ReactNode }
 ];
 
 const ListenOn = () => (
-  <section
-    className="flex flex-col items-center gap-4"
-    style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 32 }}
-  >
+  <section className="flex flex-col items-center gap-4">
     <div className="slop-mono text-sm sm:text-base" style={{ color: "var(--slop-text-muted)", textTransform: "none" }}>
       listen on
     </div>
