@@ -30,9 +30,7 @@ const MANIFEST_CACHE = join(ROOT, "transcripts/manifests");
 const CHANNEL = {
   title: "slop.computer",
   description:
-    "An onchain podcast about agents, builders, and shipping software. " +
-    "Live conversations with the people building crypto and AI — every episode " +
-    "pinned to IPFS and indexed on Ethereum mainnet. Tune in. Log on. Stay sloppy.",
+    "an onchain podcast for technical humans building with ai: the cypherpunks, the sloperators, the forward deployed context goblins. join the psychosis to build our way out of the permanent underclass.",
   author: "austingriffith.eth",
   ownerName: "Austin Griffith",
   ownerEmail: "austin.griffith@ethereum.org",

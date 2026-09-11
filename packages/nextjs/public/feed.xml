@@ -6,7 +6,7 @@
   <channel>
     <title>slop.computer</title>
     <link>https://slop.computer</link>
-    <description>An onchain podcast about agents, builders, and shipping software. Live conversations with the people building crypto and AI — every episode pinned to IPFS and indexed on Ethereum mainnet. Tune in. Log on. Stay sloppy.</description>
+    <description>an onchain podcast for technical humans building with ai: the cypherpunks, the sloperators, the forward deployed context goblins. join the psychosis to build our way out of the permanent underclass.</description>
     <language>en-us</language>
     <atom:link href="https://slop.computer/feed.xml" rel="self" type="application/rss+xml"/>
     <podcast:guid>78aaeeea-a01b-5f5f-a6cc-eed97862db2c</podcast:guid>
