@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Fri, 11 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 14 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Austin Griffith on ETHSkills, agents, and cypherpunk hardware</title>
+      <link>https://slop.computer/austingriffith</link>
+      <guid isPermaLink="false">QmdNZxcEas5KBrkVcU96xr8boofVURdsyt1LMhcsu6Ra5b</guid>
+      <pubDate>Mon, 14 Sep 2026 18:00:00 GMT</pubDate>
+      <description>slop.atg.eth (Austin Griffith) hands the mic to joseph.eth for a role-reversal episode where Austin becomes the interviewee on his own show. They walk from Austin's pre-Ethereum days building Facebook horse racing and cloud video encoding at Lyrical Labs through his first EF work with eth.build, Scaffold-ETH, Speedrun Ethereum, and the origins of BuidlGuidl with Mr. D and Jesse's Hacker House.
+
+The conversation gets deep into hardware: a build-it-yourself instant wallet using the ATECC608 signing chip with meta transactions and relayers, plus a blood wallet concept that checks coagulation before signing. Austin walks through his Claude Code plus Codex double-check harness, TLDR buttons, voice agents, and ETHSkills as the knowledge layer for AI agents building on Ethereum.
+
+They deploy a live mainnet multisig with clawdbotatg.eth as a co-signer, spin up on-chain poker and chess between LLM agents, and riff on MACI, Interfold private voting, Railgun shielding, decentralized stablecoins post-GENIUS Act, and why there's never been a worse time to be a junior developer.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmXVR8BvcBSV3P57dknTivxTnb8z1qusBvs3YKgMR1xGKC?filename=austingriffith.m4a" length="133788550" type="audio/mp4"/>
+      <itunes:duration>6545</itunes:duration>
+      <itunes:episode>55</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmVyeMzRy9qorCUL7qGt1CmRactDRDfU6Goq31E1ERAWMm"/>
+    </item>
     <item>
       <title>Will Cory: Harnesses Melt, Models Eat Cleverness</title>
       <link>https://slop.computer/fucory-2</link>
-      <guid isPermaLink="false">QmRmwtGEzQkqq99Yrx36sf8aABckEgebmUt2U5yCUK63wH</guid>
+      <guid isPermaLink="false">QmbrJ6cKTKsKLeBiB6pRFXgSaq7dfXJb3NvzdVX3KXJLbh</guid>
       <pubDate>Fri, 11 Sep 2026 18:00:00 GMT</pubDate>
       <description>Second-time guest Will Cory (@fucory, of Smithers, Tevm, and Guillotine) returns to slop.computer to talk with the host about what's changed in the two months and fifty episodes since his last appearance. They dig into how new models like Astra and Fable are finding real, race-condition-tier vulnerabilities in Ethereum code, why crypto's open-source ethos aligns with letting agents rip on security, and the ergonomics of orchestrating Claude Code and Codex against each other.
 
