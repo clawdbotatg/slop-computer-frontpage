@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Mon, 14 Sep 2026 18:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 17 Sep 2026 23:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Alex Svanevik: Nansen's pivot to agentic trading</title>
+      <link>https://slop.computer/asvanevik</link>
+      <guid isPermaLink="false">QmYKL1buYz7pawdRdhBzohDnXQRYm9ngVAZZZU9oQFLkBK</guid>
+      <pubDate>Thu, 17 Sep 2026 23:00:00 GMT</pubDate>
+      <description>Alex Svanevik (@ASvanevik), co-founder and CEO of Nansen, joins slop.atg.eth to talk about pivoting a crypto analytics platform into an AI-native, agentic trading product. Alex walks through why 98% of Nansen users were already trading elsewhere, how agents can do technical analysis and on-chain graph tracing humans can't, and the 'trust ladder' analogy borrowed from self-driving cars.
+
+He shares a live look at Nansen's internal eval leaderboard across quality, latency, tool use and cost, plus an alpha peek at autonomous trading agents running inference on self-hosted Qwen3 GPUs the team physically deployed in a Bhutanese data center. Along the way: the 'token god' vs 'slop cannon' 2x2, tripling revenue per headcount, and LiteLLM as a gateway.
+
+They close on x402 agent payments, the Nansen CLI, agents as the primary users of blockchains, giving agents skin in the game, and Alex's home tinkerer rig.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmNNvYJFSfJ1tsQQjtKf8b4vEhVSscSLyHgMe2SkZ72NP5?filename=asvanevik.m4a" length="102899872" type="audio/mp4"/>
+      <itunes:duration>5033</itunes:duration>
+      <itunes:episode>56</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmTYb7ABcrUr88HLbDqHgy7JvSGCJHrkEAxCNPWnCcgKTt"/>
+    </item>
     <item>
       <title>Austin Griffith on ETHSkills, agents, and cypherpunk hardware</title>
       <link>https://slop.computer/austingriffith</link>
-      <guid isPermaLink="false">QmdNZxcEas5KBrkVcU96xr8boofVURdsyt1LMhcsu6Ra5b</guid>
+      <guid isPermaLink="false">QmXpXv79fEXXK4P8jjGuZPqV45HAQHZTsDr2ktP3gH23Hc</guid>
       <pubDate>Mon, 14 Sep 2026 18:00:00 GMT</pubDate>
       <description>slop.atg.eth (Austin Griffith) hands the mic to joseph.eth for a role-reversal episode where Austin becomes the interviewee on his own show. They walk from Austin's pre-Ethereum days building Facebook horse racing and cloud video encoding at Lyrical Labs through his first EF work with eth.build, Scaffold-ETH, Speedrun Ethereum, and the origins of BuidlGuidl with Mr. D and Jesse's Hacker House.
 
@@ -124,7 +140,7 @@ Then a live demo of Cloaked — passkey onboarding, ENS-powered fresh addresses 
     <item>
       <title>Kassandra on Kohaku CLI and practical cypherpunk wallets</title>
       <link>https://slop.computer/kassandraeth</link>
-      <guid isPermaLink="false">Qmd6N787YMEdwjDVEmT5HFRFTagbms4PhLjekkNWTEcry1</guid>
+      <guid isPermaLink="false">QmXXGYsN3ATUTYSr2pGMigDHWBTKUvyQJCZdNPBhB91VUG</guid>
       <pubDate>Mon, 31 Aug 2026 18:00:00 GMT</pubDate>
       <description>slop.atg.eth sits down with κασσάνδρα.eth (Kassandra, @kassandraETH) to walk through the Kohaku Initiative and her rapid-release kohaku-cli, an EF-backed effort to make transaction privacy on Ethereum a default rather than a scavenger hunt. Kassandra tells the origin story of how sketchy Bitcoin poker sites got her hand-crafting ECDSA signatures in Python, and how that DIY cypherpunk ethos shapes what she's building today.
 
@@ -140,7 +156,7 @@ They also get into local nodes vs private information retrieval RPCs, the wallet
     <item>
       <title>Alex Stokes on agent harnesses and zero-trust swarms</title>
       <link>https://slop.computer/ralexstokes</link>
-      <guid isPermaLink="false">QmaBRFwcfP3mFePC8GkakueVciCW9KbCBB9Wth6c8XxXQM</guid>
+      <guid isPermaLink="false">QmdrLnBMbAxqnAdCLmBLmXZqW3Z89RyEDQvfo9AS4tWSHF</guid>
       <pubDate>Tue, 25 Aug 2026 16:30:00 GMT</pubDate>
       <description>Alex Stokes (@ralexstokes) joins slop.atg.eth fresh off an open-ended sabbatical from the Ethereum Foundation, where he's been going deep on AI agents, agent infrastructure, and the intersection of crypto and AI. He walks through Shelterwood, his new Rust repo bringing Erlang/BEAM/OTP-style actor models, supervision trees, and let-it-crash resiliency to the Tokio ecosystem.
 
