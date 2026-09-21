@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Thu, 17 Sep 2026 23:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 21 Sep 2026 17:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Dawson Botsford: Air-Gapped AI and the $35K Home Rig</title>
+      <link>https://slop.computer/dawsonbotsford</link>
+      <guid isPermaLink="false">QmbQDu2gh1rvbYz7KoiiZw5bExLHfgQH8VbwsCXyqy4PRb</guid>
+      <pubDate>Mon, 21 Sep 2026 17:30:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with daws.eth (Dawson Botsford) to trace his arc from University of Colorado hackathons through Earnifi and Bankless to his current obsession: on-device AI. Dawson walks through the $35,000 rig he just assembled — Threadripper, Blackwell 6000, 96GB of RAM — the first beta unit for his new company OnPremises.ai, aimed at HIPAA, SOC2, and top-secret customers who can't ship data to frontier models.
+
+They get into running Qwen 3.8 locally (five times faster than OpenAI in his benchmarks), why Mac unified memory falls down on parallel subagents, and where classifiers like Jev fit next to chatty LLMs. Dawson also pitches obliterated models for legitimate security work, since even Chinese open-weight models refuse to write a keylogger.
+
+Along the way: Austin's Claude-bot cohost chimes in live, they compare agent harnesses and file-naming conventions for grep-friendly codebases, and Dawson demos stopmailing.us. Closing advice for junior devs: pay for the $20 tier before anything else.</description>
+      <enclosure url="https://media.slop.computer/ipfs/Qmf2cCC8rL4EshxDJL3tsfEa87Fp636zNMhgVAF6UEtaVD?filename=dawsonbotsford.m4a" length="90628975" type="audio/mp4"/>
+      <itunes:duration>4433</itunes:duration>
+      <itunes:episode>57</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmZ7CH4yrvn9j2PUBEfz4Z7GYZ5oPTQBFys7hBiyFHvWqe"/>
+    </item>
     <item>
       <title>Alex Svanevik: Nansen's pivot to agentic trading</title>
       <link>https://slop.computer/asvanevik</link>
-      <guid isPermaLink="false">QmYKL1buYz7pawdRdhBzohDnXQRYm9ngVAZZZU9oQFLkBK</guid>
+      <guid isPermaLink="false">QmbB3FtzX7Y9qrx2QgPLTXTWAEBdSxQc1eEeV1bEJib2wP</guid>
       <pubDate>Thu, 17 Sep 2026 23:00:00 GMT</pubDate>
       <description>Alex Svanevik (@ASvanevik), co-founder and CEO of Nansen, joins slop.atg.eth to talk about pivoting a crypto analytics platform into an AI-native, agentic trading product. Alex walks through why 98% of Nansen users were already trading elsewhere, how agents can do technical analysis and on-chain graph tracing humans can't, and the 'trust ladder' analogy borrowed from self-driving cars.
 
@@ -76,7 +92,7 @@ They close on agent-native L2s, Stylus, state channels, verified inference (shou
     <item>
       <title>Jango on Retailism, Revnets, and AI-hardened Juicebox</title>
       <link>https://slop.computer/me-jango</link>
-      <guid isPermaLink="false">QmcmpnnNMRdDeZrmoxyEbZFuDBDofbQCrH5xnCwQRz1eJM</guid>
+      <guid isPermaLink="false">QmecTuQgbEWc2MYeePM5Txm8NgARHKNi5T2SGkKMaX6svy</guid>
       <pubDate>Wed, 09 Sep 2026 18:00:00 GMT</pubDate>
       <description>slop.atg.eth sits down with Jango (0xe89c…5b07), the pseudonymous protocol designer behind Juicebox, Revnets, and Bananapus, calling in from a house he's been building in a Brazilian beach town. They open on how his workflow flipped — from years of hand-written Solidity and Vim to running Codex and Claude Max side by side, having them review each other on the AI-hardened Juicebox V6 push.
 
@@ -108,7 +124,7 @@ The throughline is process: humans are the slowest, dumbest part of the loop, an
     <item>
       <title>Glue, Uniswap V4 hooks, and AI-audited DeFi</title>
       <link>https://slop.computer/lalilulel0x</link>
-      <guid isPermaLink="false">QmXXLhPG6r3AZkcsHeDB9HFojEAQ8v6FU5tAV3qt9Xv154</guid>
+      <guid isPermaLink="false">QmNz9J4MvVJ57wQnaDHikyiPHrHw5mTiPQZ5Hq1uHbortB</guid>
       <pubDate>Thu, 03 Sep 2026 18:00:00 GMT</pubDate>
       <description>@LaLiLuLeL0x (BasedToschi) joins @slop.atg.eth to unpack Glue — a Uniswap V4-based protocol he pitches as 'LPs gave tokens liquidity, Glue gives them solidity,' with backing, buyback-and-burn, staking rewards, and LP auto-compounding baked into a permissionless hook. He walks through GlueHook, the pot mechanic, and why he sees this as the backbone for revenue-sharing tokenomics on Ethereum L1.
 
@@ -124,7 +140,7 @@ The show closes with @clawdbotatg.eth actually deploying a fresh CLAWD/ETH pool 
     <item>
       <title>Blaine Malone on Cloaked, stealth addresses, and bootstrapping</title>
       <link>https://slop.computer/blainemalone</link>
-      <guid isPermaLink="false">QmeP1G495QZ1JrxbWro5siYtNcHVRGPH3J5B2zLr74yrKG</guid>
+      <guid isPermaLink="false">Qmbj25tdk8639UmYVakamTFAhdxuL2hUfS7kxkzcg8FHc4</guid>
       <pubDate>Tue, 01 Sep 2026 14:00:00 GMT</pubDate>
       <description>Blaine Malone (Anon0880), CEO and co-founder of Cloaked, joins slop.atg.eth to talk about building a self-custodial Ethereum privacy wallet with his co-founder and fiancée Livia — no VC, two engineers, over $1M in cumulative volume. He walks through his path from ConsenSys and Trustology in London to Gemini and Optimism in New York, and why late 2024 was the right moment to quit and take the plunge.
 
@@ -172,7 +188,7 @@ They also cover local hardware versus frontier cloud models, why Anthropic shoul
     <item>
       <title>haochizzle</title>
       <link>https://slop.computer/haochizzle</link>
-      <guid isPermaLink="false">QmfL7GxrZ6g6bdoZQDw5Zij4vQGnHnEQDVW2LceAyt8yXk</guid>
+      <guid isPermaLink="false">QmWZYN8YFVJvtwErcJHFNF3SgDNSibdnDSFToH7AnmEtv7</guid>
       <pubDate>Mon, 24 Aug 2026 14:00:00 GMT</pubDate>
       <description></description>
       <enclosure url="https://media.slop.computer/ipfs/QmVXCPus4nnyNYJvkTVgtfghPXLfmjSd7LkJx9ULXmgsgH?filename=haochizzle.m4a" length="82178425" type="audio/mp4"/>
