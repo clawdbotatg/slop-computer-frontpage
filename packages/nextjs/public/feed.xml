@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Mon, 21 Sep 2026 17:30:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 22 Sep 2026 18:30:00 GMT</lastBuildDate>
+    <item>
+      <title>gregskril on ENS v2, Codex, and agent wallets</title>
+      <link>https://slop.computer/gregskril</link>
+      <guid isPermaLink="false">Qmep16BfzcrpjQPWT59tV1jrJxSdJFh2bmVmCheZrBBdCi</guid>
+      <pubDate>Tue, 22 Sep 2026 18:30:00 GMT</pubDate>
+      <description>slop.atg.eth is joined by gregskril.eth — Developer Relations at ENS Labs — for a ranging conversation about coding agents, wallet UX, and what's actually shipping in ENS v2. They compare harnesses (Codex vs Claude Code vs PAI vs OpenCode), argue that vibe coding has gone from negative to neutral while slop takes over the pejorative slot, and riff on wanting an American Gladiators-style live eval show for LLMs.
+
+Mid-show they deploy a 2-of-3 multisig live on air with clawdbotatg.eth as the third signer, register gregskril.slopcomputer.eth, and swap ETH to USDC and back using send calls through an impersonated wallet. Greg walks through ENS v2 — nested registries, aliasing across names, standardized permissions replacing name-wrapper hacks — and the ongoing cat-and-mouse of per-chain address resolution.
+
+They close on hackathon judging in the age of polished AI demos, advice for 19-year-old builders, and when Greg will actually let an agent hold real money.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmTdeJgm6RS634rGm9eYFdUW5nocAhRoXRr76tsxeb6ZMf?filename=gregskril.m4a" length="102488741" type="audio/mp4"/>
+      <itunes:duration>5014</itunes:duration>
+      <itunes:episode>58</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmeXtASwFNqiitmq6KVdCCLpWbG9uBzHRgzZpYgQMoyYHt"/>
+    </item>
     <item>
       <title>Dawson Botsford: Air-Gapped AI and the $35K Home Rig</title>
       <link>https://slop.computer/dawsonbotsford</link>
-      <guid isPermaLink="false">QmbQDu2gh1rvbYz7KoiiZw5bExLHfgQH8VbwsCXyqy4PRb</guid>
+      <guid isPermaLink="false">QmTy86x7AsCJrq5ct68qD9ji7ryXecLWT4NKU1Hz99enA3</guid>
       <pubDate>Mon, 21 Sep 2026 17:30:00 GMT</pubDate>
       <description>slop.atg.eth sits down with daws.eth (Dawson Botsford) to trace his arc from University of Colorado hackathons through Earnifi and Bankless to his current obsession: on-device AI. Dawson walks through the $35,000 rig he just assembled — Threadripper, Blackwell 6000, 96GB of RAM — the first beta unit for his new company OnPremises.ai, aimed at HIPAA, SOC2, and top-secret customers who can't ship data to frontier models.
 
@@ -216,7 +232,7 @@ The conversation closes on luck versus environment, why decentralization still m
     <item>
       <title>Moody Salem on Ekubo's agent-first wallet</title>
       <link>https://slop.computer/sendmoodz</link>
-      <guid isPermaLink="false">QmXxx7cWzGSN1qXX3gqg2tdNrMfKraAAucdYPB2UD632nu</guid>
+      <guid isPermaLink="false">QmXbPiuxrm2EoDmwM9jPxZHdtxdUUd3nGWE6uPaK8EKJyn</guid>
       <pubDate>Wed, 19 Aug 2026 16:00:00 GMT</pubDate>
       <description>sendmoodz (Moody Salem), founder of Ekubo and Uniswap alum, joins slop.atg.eth to demo the just-launched Ekubo Wallet — a desktop wallet designed to sit in the background and let agents like Claude Code or Codex construct and sign transactions on your behalf. They walk through installing the MCP server, connecting Claude Code, and letting the agent swap ETH into a new token (interfold) and open a narrow-band LP position on Ekubo, all gated by a stateless policy engine.
 
@@ -232,7 +248,7 @@ The episode closes on distribution, AI psychosis, and the &quot;let it rip&quot;
     <item>
       <title>0xDeployer on Bankr as agent infrastructure</title>
       <link>https://slop.computer/0xdeployer</link>
-      <guid isPermaLink="false">QmNXmjr4TRCAqTiayFJ7BWDX6PDcFeaZ7PVbFMErKWqq5q</guid>
+      <guid isPermaLink="false">QmfH9evv8Sq2EH5LTNQWQtfV1SimrteNi1ej823Ns3Wkfx</guid>
       <pubDate>Tue, 18 Aug 2026 20:30:00 GMT</pubDate>
       <description>slop.atg.eth hosts 0xDeployer (aka deployer, founder of Bankr) for a wide-ranging conversation on building an AI-powered crypto agent from the late-2024 Farcaster heyday through today. Deployer recounts spinning up the first version in a week, hand-writing the early code, and the hard-won lessons of moving real money with LLMs that couldn't reliably tell two wallet addresses apart.
 
