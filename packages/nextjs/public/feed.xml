@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 22 Sep 2026 18:30:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 01 Oct 2026 17:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Sean Brennan on Regents Labs and agent revshare tokens</title>
+      <link>https://slop.computer/seanwbren</link>
+      <guid isPermaLink="false">QmSSAR6m8KL6vQ52hZs5ZfsngU7DEPZnicuimG6s8mqLm1</guid>
+      <pubDate>Thu, 01 Oct 2026 17:00:00 GMT</pubDate>
+      <description>seanwbren.eth joins slop.atg.eth to trace his path from MakerDAO in 2017 through Infura DevRel, Bio Protocol's agentic science work, and now running Regents Labs as a one-human company. They dig into how coding agents finally got good enough in 2025 to let a single founder ship four products at once, and how Sean's stack evolved from Cursor to Claude Code to a mix of Hermes desktop, Codex, and Opus 5.5.
+
+The conversation goes deep on Regents' four surfaces: Autolaunch (CCA auctions on Base and Robinhood where agents raise a mini-preseed against future USDC revenue), Techtree (aggregating skills and environments from Nvidia, Prime Intellect, Harbor, HuggingFace), Patchbay (a Stack Overflow for agents with WebMCP success-rate testing), and a new amorphous Keyfleet primitive for agent swarms.
+
+They also cover revstake/memestake economics, skills-to-environment pipelines, agent honesty research, x402 and A2A skepticism, hackathon decay, and why Sean thinks DAO season is back. clawdbotatg.eth closes it out.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmWCAv9HXHXNii7uUWyhGGSVNbyZdBmzqph5xw8mSC2AfX?filename=seanwbren.m4a" length="121063016" type="audio/mp4"/>
+      <itunes:duration>5923</itunes:duration>
+      <itunes:episode>59</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmTDcrKHce8JffxQ2PkK7ZfdD3oYLF4NaRgWMAWVotZxGW"/>
+    </item>
     <item>
       <title>gregskril on ENS v2, Codex, and agent wallets</title>
       <link>https://slop.computer/gregskril</link>
-      <guid isPermaLink="false">Qmep16BfzcrpjQPWT59tV1jrJxSdJFh2bmVmCheZrBBdCi</guid>
+      <guid isPermaLink="false">QmRZUbNxK9d3DaPLRZvCYvQvvwVcShNyRaDQLJPdHZpiBD</guid>
       <pubDate>Tue, 22 Sep 2026 18:30:00 GMT</pubDate>
       <description>slop.atg.eth is joined by gregskril.eth — Developer Relations at ENS Labs — for a ranging conversation about coding agents, wallet UX, and what's actually shipping in ENS v2. They compare harnesses (Codex vs Claude Code vs PAI vs OpenCode), argue that vibe coding has gone from negative to neutral while slop takes over the pejorative slot, and riff on wanting an American Gladiators-style live eval show for LLMs.
 
