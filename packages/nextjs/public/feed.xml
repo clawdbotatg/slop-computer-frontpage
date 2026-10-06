@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Thu, 01 Oct 2026 17:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 06 Oct 2026 17:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Prem Makeig on Agent NFTs and 721T</title>
+      <link>https://slop.computer/nxt3d</link>
+      <guid isPermaLink="false">QmThUv1Phf2gtcHD1aEy3CAbVZZ9LVpdVBYoXmjT77KCS9</guid>
+      <pubDate>Tue, 06 Oct 2026 17:30:00 GMT</pubDate>
+      <description>premm.eth (Prem Makeig, @nxt3d) joins slop.atg.eth on SLOP.COMPUTER to trace a path from desktop 3D printing and a dream of a '3D Wikipedia' to building ENS infrastructure at Unruggable and now authoring a stack of ERCs for AI agent identity. He explains why unlimited-supply agent registries don't work for collectors and how ERC-8041, ERC-8217 (721T), and the 8004A adapter bind fixed-supply NFTs to on-chain agent identities with cross-chain UBIDs.
+
+They walk through adapterscan.com, shout out IdentityMD (imd.fun), Normies, Loopers, Hivemind OS, and tut's agnt.social, and dig into the passport-vs-identity metaphor for reputation. Prem also pitches RESTAP as the missing agent-to-UI chat protocol alongside MCP.
+
+The closing thesis: capability isn't the bottleneck — alignment is. Once agents reliably know whose requests count and what data to share, autonomous agent-to-agent commerce opens up. clawdbotatg.eth drops in with questions on on-chain enforcement and why ENS names aren't already the identity layer.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmcE7EfAVoCiznSWfTNR3tymY3qBBacB8B6pyEpsu3Wrcw?filename=nxt3d.m4a" length="87605755" type="audio/mp4"/>
+      <itunes:duration>4286</itunes:duration>
+      <itunes:episode>60</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmeEgvJfgBZjRyk4fZDTv8zkjdcxTXuQgf1gUxBw8uwEGJ"/>
+    </item>
     <item>
       <title>Sean Brennan on Regents Labs and agent revshare tokens</title>
       <link>https://slop.computer/seanwbren</link>
-      <guid isPermaLink="false">QmSSAR6m8KL6vQ52hZs5ZfsngU7DEPZnicuimG6s8mqLm1</guid>
+      <guid isPermaLink="false">QmTdgPtsLMgjWNDYxzmBcMW9VqLyS8p8Y3sVELferyWhnv</guid>
       <pubDate>Thu, 01 Oct 2026 17:00:00 GMT</pubDate>
       <description>seanwbren.eth joins slop.atg.eth to trace his path from MakerDAO in 2017 through Infura DevRel, Bio Protocol's agentic science work, and now running Regents Labs as a one-human company. They dig into how coding agents finally got good enough in 2025 to let a single founder ship four products at once, and how Sean's stack evolved from Cursor to Claude Code to a mix of Hermes desktop, Codex, and Opus 5.5.
 
@@ -140,7 +156,7 @@ They get into Retailism as an alternative to VC capitalism and UBI, agents as fi
     <item>
       <title>Kain Warwick on running 468 agents at once</title>
       <link>https://slop.computer/kain</link>
-      <guid isPermaLink="false">QmXaa8o7jZXixS2JnCQ9zUeempQKTWCTvpJ7TTdmyzNGWv</guid>
+      <guid isPermaLink="false">Qmes6TPuyXYKgfkRbinBMLvCDX6ytMj2ArhefnYTRrquoD</guid>
       <pubDate>Tue, 08 Sep 2026 23:00:00 GMT</pubDate>
       <description>kain (Kain Warwick, founder of Synthetix and Infinex) joins slop.atg.eth for a deep tour of Zobrist, the personal harness he's been building to orchestrate hundreds of agents in parallel. He walks through a red team exercise that spun up hundreds of agents against Infinex and old Synthetix contracts, deduped 4,000 deployed contracts down to unique bytecode, and surfaced a 2021 $4M oracle exploit he had completely memory-holed.
 
@@ -232,7 +248,7 @@ They also cover local hardware versus frontier cloud models, why Anthropic shoul
     <item>
       <title>Joseph Delong on Deepstate and onchain order books</title>
       <link>https://slop.computer/josephdelong</link>
-      <guid isPermaLink="false">QmUESW5yx7VmaZdEjNMFLxGnDHgdf5X1eyqntBjErTphmE</guid>
+      <guid isPermaLink="false">QmTwoJTdft2FQQm878G7cZcqtBH9nxsDVYYrGrmEVwEupZ</guid>
       <pubDate>Fri, 21 Aug 2026 17:30:00 GMT</pubDate>
       <description>slop.atg.eth sits down with Joseph Delong (0x84b0…0b76) to unpack Deepstate, the fully-onchain central limit order book DEX he launched on Robinhood Chain with an $NVDA/$USDG market that just crossed eight figures in daily volume. Joseph walks through the radix tree design that keeps gas bounded, the singleton contract with taker-only fees, and the token emission mechanism that rewards market makers for tight quotes and deep size.
 
@@ -280,7 +296,7 @@ They close on the tension between cypherpunk ideals and degen incentives, self-s
     <item>
       <title>Ross Campbell on singletons and onchain frontends</title>
       <link>https://slop.computer/z0r0zzz</link>
-      <guid isPermaLink="false">QmNgvjckR6hfzrssiqv8sTcT1ZBJGfYLU1Kt4PWwgBVD5z</guid>
+      <guid isPermaLink="false">QmfLcmUZtkx72538CgwhD9QjpTK2AjBR4xhRZ68Jrm7Gd2</guid>
       <pubDate>Mon, 17 Aug 2026 14:00:00 GMT</pubDate>
       <description>slop.atg.eth sits down with Ross Campbell (@z0r0zzz, z0r0z.eth) — the lawyer-turned-solo-Solidity-dev behind NANI, zFi, and a growing pile of no-admin-key CREATE2 deployments — for a wide-ranging tour of his 'walkaway test' philosophy of shipping software you never have to touch again.
 
@@ -298,7 +314,7 @@ He closes on process — start in Remix, write Solidity by hand, only then hand 
     <item>
       <title>Eric Conner ships onchain gacha in a weekend</title>
       <link>https://slop.computer/econoar</link>
-      <guid isPermaLink="false">QmYXRyhkxBbuaJPXARSiP7H2WdRCgyugMEFUQNVQKrvBfp</guid>
+      <guid isPermaLink="false">QmYMQt2WDKE5c2r8x85QtJ1ybAUZ3y9cuWrDt9mKZND5rW</guid>
       <pubDate>Thu, 13 Aug 2026 16:15:00 GMT</pubDate>
       <description>eric.eth (Eric Conner, EIP-1559 co-author, now at Freysa/Eternis) joins slop.atg.eth to talk about his sudden pivot into shipping self-funded NFT primitives on Ethereum L1. The centerpiece is @gachabattle, a four-player winner-take-all card-pull game built on TokenWorks' Fake World Assets that he launched roughly twelve hours before the show, live-tested on air with clawdbotatg.eth buying a seat mid-episode.
 

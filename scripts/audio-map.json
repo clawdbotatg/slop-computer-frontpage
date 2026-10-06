@@ -352,5 +352,11 @@
   "sizeBytes": 121063016,
   "durationSec": 5923,
   "format": "audio/mp4"
+ },
+ "nxt3d": {
+  "cid": "QmcE7EfAVoCiznSWfTNR3tymY3qBBacB8B6pyEpsu3Wrcw",
+  "sizeBytes": 87605755,
+  "durationSec": 4286,
+  "format": "audio/mp4"
  }
 }
