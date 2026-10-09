@@ -26,6 +26,22 @@
     </image>
     <lastBuildDate>Fri, 09 Oct 2026 14:00:00 GMT</lastBuildDate>
     <item>
+      <title>Cecilia Zhang on execution harnesses for onchain agents</title>
+      <link>https://slop.computer/ceciliaz030</link>
+      <guid isPermaLink="false">QmdxaHHWGfbNt5cdDVsc2Nw9G5KdNfd4zDpHWPY7krxF7g</guid>
+      <pubDate>Fri, 09 Oct 2026 14:00:00 GMT</pubDate>
+      <description>Cecilia Zhang (@ceciliaz030), founder of Aomi Labs, joins slop.atg.eth to talk through what she calls the execution harness for onchain finance — infrastructure that turns agentic transactions from a Claude-raw-dogging-RPCs mess into a tight loop of simulated, back-pressured, non-custodially-signed calls.
+
+They start on the founder meta: Cecilia on being a technical solo founder who had to force herself to stop writing code, her mental model of hiring (intelligence = pretraining, agency = posttraining, harness = career), and why engineers overthink distribution instead of hiring a results-driven operator. Then into model vibes — old Opus empathy, Fable and Astra on subagents, Codex and Sol on persistence.
+
+The back half gets deep on Aomi's internals: a pool of forked Anvil instances round-robining Alchemy RPCs, a Linux-style kernel for wallet permissions, builder-level provisioning as a last-resort gate, and why a well-designed harness lets even a dumb model hit ~89% on their DeFi benchmark by turning open questions into multiple choice.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmYk3vCbXqpoBXEM1mWMBDB8aTqtwqerjHANWkrNuThNh2?filename=ceciliaz030.m4a" length="126332608" type="audio/mp4"/>
+      <itunes:duration>6181</itunes:duration>
+      <itunes:episode>61</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmV96s2BeHUQd8ftXtuQPtrajhBABYvLpRPEFZAcn38EWA"/>
+    </item>
+    <item>
       <title>Prem Makeig on Agent NFTs and 721T</title>
       <link>https://slop.computer/nxt3d</link>
       <guid isPermaLink="false">QmThUv1Phf2gtcHD1aEy3CAbVZZ9LVpdVBYoXmjT77KCS9</guid>
