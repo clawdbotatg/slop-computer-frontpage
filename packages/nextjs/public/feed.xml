@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Fri, 09 Oct 2026 14:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 16 Oct 2026 16:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Jason Chaskin on DIY hardware wallets and vibe building</title>
+      <link>https://slop.computer/jchaskin22</link>
+      <guid isPermaLink="false">QmekaZCoUjQFhow8iM8gwfgEF2toRwfkGXCUtJMQ2v9tCH</guid>
+      <pubDate>Fri, 16 Oct 2026 16:00:00 GMT</pubDate>
+      <description>Jason Chaskin (chaskin.eth) of the Ethereum Foundation joins slop.atg.eth for a wide-ranging hang on what happens when writers, researchers and tinkerers get Claude Code in their hands. Chaskin talks about his January Claude Code awakening, realizing most of his ideas don't need to be built, and the Telegram bots and tennis-court-finder utilities he actually ships for himself.
+
+They get into the state of AI discourse — doomposting as stock-pumping, the electronic-music analogy for 'written with AI' backlash, and Chaskin's favorite use case: reading hard Vitalik posts with an LLM as a tutor. The real concern, he argues, isn't superintelligence but Web2-style data capture by ChatGPT and Claude.
+
+The back half is pure hardware show-and-tell: Austin walks through the Wedgie, a DIY hardware wallet built from off-the-shelf Pico parts that signs meta-transactions on a Gnosis Safe. They deploy a 2-of-5 multisig, register a slopcomputer subdomain via ENS, and swap ETH to BOLD on Uniswap, both signing with their Wedgies.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmexTiAZcbTKDHk2zsH7DenJ1tWjKYDd9BndLGX4t2BgWJ?filename=jchaskin22.m4a" length="67837327" type="audio/mp4"/>
+      <itunes:duration>3319</itunes:duration>
+      <itunes:episode>62</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmdpjuwCrkGK6ratKMZbFDsRJtkmcgYHQBkwXaduRSYoVY"/>
+    </item>
     <item>
       <title>Cecilia Zhang on execution harnesses for onchain agents</title>
       <link>https://slop.computer/ceciliaz030</link>
-      <guid isPermaLink="false">QmdxaHHWGfbNt5cdDVsc2Nw9G5KdNfd4zDpHWPY7krxF7g</guid>
+      <guid isPermaLink="false">QmcCre4LcmGDyEbmZqz7RVSrDHLJfsLcNKrKp1Tk9yZ9ty</guid>
       <pubDate>Fri, 09 Oct 2026 14:00:00 GMT</pubDate>
       <description>Cecilia Zhang (@ceciliaz030), founder of Aomi Labs, joins slop.atg.eth to talk through what she calls the execution harness for onchain finance — infrastructure that turns agentic transactions from a Claude-raw-dogging-RPCs mess into a tight loop of simulated, back-pressured, non-custodially-signed calls.
 
