@@ -24,11 +24,27 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Fri, 16 Oct 2026 16:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 20 Oct 2026 16:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Christine D. Kim on Ethereum protocol watching</title>
+      <link>https://slop.computer/christine-dkim</link>
+      <guid isPermaLink="false">QmZ1Aqb8z98BQstoB8R5h5or28peYnjzGPXEYKJe8E84fP</guid>
+      <pubDate>Tue, 20 Oct 2026 16:30:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with independent Ethereum and Bitcoin researcher Christine D. Kim (Anon2791), who runs Protocol Watch, the Ready for Merge podcast, and the ACD After Hours and BTC Before Light newsletters. She explains how she translates deeply technical All Core Devs material for non-technical audiences without a traditional engineering background, and why her readership is mostly protocol developers trying to track work happening in sibling teams.
+
+They map out the shape of the Glamsterdam upgrade, the scalability story around enshrined proposer-builder separation and block-level access lists, FOCIL and censorship resistance, shorter slot times under Hegota, and where frame transactions actually land for application developers. Christine pushes back on the post-quantum urgency narrative and argues the more immediate threat is AI-assisted exploits against Solidity and DeFi.
+
+They also get into her vibe-coded side projects (Bond and Secondhand, built on ezeki.ai), how Claude fits her research workflow without becoming a source of truth, governance as the real bottleneck to shipping faster, and her AI psychosis: vibe-waiting on agents.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmNccMJRvnQuBKyjQMMj7vb6oba1EmQmLDgVQ2nSEMf1uE?filename=christine-dkim.m4a" length="104387084" type="audio/mp4"/>
+      <itunes:duration>5107</itunes:duration>
+      <itunes:episode>63</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmX8JSKQDWdJNev3yRvxQpg2ypXciGiv1gqumaSNwR4N97"/>
+    </item>
     <item>
       <title>Jason Chaskin on DIY hardware wallets and vibe building</title>
       <link>https://slop.computer/jchaskin22</link>
-      <guid isPermaLink="false">QmekaZCoUjQFhow8iM8gwfgEF2toRwfkGXCUtJMQ2v9tCH</guid>
+      <guid isPermaLink="false">QmXUT9mrN6Qv7fXJRZdnJCXTmPVATgV5CHqeEqZa99tY3D</guid>
       <pubDate>Fri, 16 Oct 2026 16:00:00 GMT</pubDate>
       <description>Jason Chaskin (chaskin.eth) of the Ethereum Foundation joins slop.atg.eth for a wide-ranging hang on what happens when writers, researchers and tinkerers get Claude Code in their hands. Chaskin talks about his January Claude Code awakening, realizing most of his ideas don't need to be built, and the Telegram bots and tennis-court-finder utilities he actually ships for himself.
 
