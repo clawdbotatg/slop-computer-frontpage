@@ -24,11 +24,25 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 20 Oct 2026 16:30:00 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 22 Oct 2026 15:30:00 GMT</lastBuildDate>
+    <item>
+      <title>McOso on ERC-7710 and scoped permissions for agents</title>
+      <link>https://slop.computer/mcoso</link>
+      <guid isPermaLink="false">QmVPZxiH6wffCnXKAwinqgoMdKpu4sLGPFhCfxNAmxFGzX</guid>
+      <pubDate>Thu, 22 Oct 2026 15:30:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with McOso.eth (Ryan McPeck), Head of Smart Accounts at MetaMask, to dig into the Delegation Framework and ERC-7710/7715 — the scoped, revocable permission system that lets dApps and AI agents act within hard on-chain guardrails instead of holding raw keys. Ryan walks through the lore from Dan Finlay's original delegatable experiment to productizing it at MetaMask, 7702 upgrades for EOAs, gasless relays, and caveat enforcers that make transactions revert unless the promised NFT or outcome actually lands.
+
+They get into DMSum (a marketplace for reselling Venice inference), the MetaMask Agent Wallet, redelegation and sub-agents, and Osobot — Ryan's autonomous coworker running on OpenClaw that ships code, judges hackathons, and runs its own OsoFund treasury. The conversation drifts into AI psychosis, don't-be-evil versus can't-be-evil governance, agent incentive systems, and Austin's Wedgie DIY hardware wallet. Closing advice: ship fast, run two-week stunt cycles, and lean in.</description>
+      <enclosure url="https://media.slop.computer/ipfs/Qma3Rz4oygr1nhbSX1CZE7gUADy2FcdnBpJNeaqevkYGXE?filename=mcoso.m4a" length="95603395" type="audio/mp4"/>
+      <itunes:duration>4676</itunes:duration>
+      <itunes:episode>64</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmS6zLCt8XAXNNSiwc2VJS2jY8sZutoxaADHw8yA7aBFnD"/>
+    </item>
     <item>
       <title>Christine D. Kim on Ethereum protocol watching</title>
       <link>https://slop.computer/christine-dkim</link>
-      <guid isPermaLink="false">QmZ1Aqb8z98BQstoB8R5h5or28peYnjzGPXEYKJe8E84fP</guid>
+      <guid isPermaLink="false">QmVgq6Zhd4VkakBircarwHwQM2GjjNiTiJW43axv2AFQHM</guid>
       <pubDate>Tue, 20 Oct 2026 16:30:00 GMT</pubDate>
       <description>slop.atg.eth sits down with independent Ethereum and Bitcoin researcher Christine D. Kim (Anon2791), who runs Protocol Watch, the Ready for Merge podcast, and the ACD After Hours and BTC Before Light newsletters. She explains how she translates deeply technical All Core Devs material for non-technical audiences without a traditional engineering background, and why her readership is mostly protocol developers trying to track work happening in sibling teams.
 
@@ -378,7 +392,7 @@ The conversation ranges over ERC-6551 loot bags, prediction markets, PunkStrateg
     <item>
       <title>Gabriel Shapiro on cyborg lawyering and on-chain raises</title>
       <link>https://slop.computer/lex-node</link>
-      <guid isPermaLink="false">QmT5R5Jv56G9SUiu39CPKqM5KWTKCFz3C7GbUP2Sw5R8m5</guid>
+      <guid isPermaLink="false">QmR5uyC1QAJPqp9Rh7Qrs64KUM3Mt9AChkHvZgj2XWnjQH</guid>
       <pubDate>Wed, 12 Aug 2026 15:00:00 GMT</pubDate>
       <description>slop.atg.eth hosts Gabriel Shapiro (lex-node.eth) of MetaLeX for a wide-ranging conversation on putting corporate finance on-chain. Gabriel walks through how he uses Claude to draft and review legal documents as a 'cybernetically augmented' lawyer, why definitions, covenants and conditions need to stay cleanly separated, and how skill files are becoming the real secret sauce for legal AI work.
 
@@ -394,7 +408,7 @@ The back half covers Tornado Cash, relayers, OFAC facilitation risk, Ethereum's 
     <item>
       <title>w1nt3r on BasePaint, Codex, and the arbitrage of AI</title>
       <link>https://slop.computer/w1nt3r-eth</link>
-      <guid isPermaLink="false">QmQV9htgodzR1rJHdBzai3UmYbQLuPi6H1YgUXEmJm26s4</guid>
+      <guid isPermaLink="false">Qmd6fTkuA5Wy89M28wKBjpe73mRj7xDvSgVKVXNCqJ2VJ9</guid>
       <pubDate>Mon, 10 Aug 2026 22:00:00 GMT</pubDate>
       <description>@slop.atg.eth hosts @w1nt3r_eth — co-creator of BasePaint, author of EVM From Scratch, and a longtime Solidity craftsman — for a conversation about what daily building looks like now that agents write most of the code. w1nt3r admits he barely opens an editor anymore, lives inside the Codex desktop app, and shipped things like tv.basepaint.xyz and cursor.exe.xyz almost entirely by prompting.
 
@@ -410,7 +424,7 @@ The episode closes on AI psychosis, the arbitrage gap between Twitter's AI bubbl
     <item>
       <title>ludamad on Claude Box and AI-native CI at Aztec</title>
       <link>https://slop.computer/ludamad</link>
-      <guid isPermaLink="false">QmQ2Ty6vSrrzPATGj6opvWvGaM52EEL5XtotfKGNjNmm4a</guid>
+      <guid isPermaLink="false">QmTv4hscZbnHx6geeeqaM9PNHpU6NwcXHF51zJTjdgfyuw</guid>
       <pubDate>Fri, 07 Aug 2026 14:00:00 GMT</pubDate>
       <description>slop.atg.eth sits down with @ludamad (Adam Domurad), staff engineer at Aztec Labs, to dig into how a privacy-first ZK L2 team actually ships code with AI in the loop. Adam walks through Claude Box, an internal tool that started as a segregated repo for Claude and grew into a Slack-connected, CI-adjacent harness that handles backports, merge conflicts, and tags the right humans on just the diffs that need judgment.
 
@@ -426,7 +440,7 @@ The back half covers Adam's hobby-dev roots (Carnie Death Peddlers, lanarts, C++
     <item>
       <title>Gas Killer: Putting an LLM Fully On-Chain</title>
       <link>https://slop.computer/tbsocialist</link>
-      <guid isPermaLink="false">QmQfxhv1p4GUb7k3N6h2gYbnjxQGpkAwmLGprxiHvRAuhj</guid>
+      <guid isPermaLink="false">QmXkAVf1NfEtoZpphyV6JiDYM7nn9muHv8P5U1PRvMtrt2</guid>
       <pubDate>Thu, 06 Aug 2026 14:00:00 GMT</pubDate>
       <description>theblockchainsocialist.eth (Joshua Dávila of The Blockchain Socialist and Bread Cooperative) and postcapitalistcrypto.eth (Ron Turetzky) join slop.atg.eth to talk about Gas Killer, a crypto-economically secured system that lets existing Solidity contracts skip the block gas limit by having restaked operators optimistically execute functions off-chain, with ZK proofs reserved for the slashing path.
 
@@ -442,7 +456,7 @@ The conversation ranges over use cases: better DAO governance, invariant checks 
     <item>
       <title>Shaw Walters on ElizaOS, collective ownership, and personal AI</title>
       <link>https://slop.computer/shawmakesmagic</link>
-      <guid isPermaLink="false">QmTwQDJWhsgHhMw9zy3eCNAzLcwq2FLb1RmErToNUr7svy</guid>
+      <guid isPermaLink="false">QmSyynqSP6dn5HQAZLqqGMgnt6nbiaFqqYvdqsT6UYct1T</guid>
       <pubDate>Wed, 05 Aug 2026 22:00:00 GMT</pubDate>
       <description>@shawmakesmagic (Shaw Walters, founder of Eliza Labs and creator of ElizaOS) joins @slop.atg.eth for a wide-ranging conversation about what he learned from the ai16z DAO run, the emotional cost of shipping in public during a token pump, and where he wants agent infrastructure to go next.
 
