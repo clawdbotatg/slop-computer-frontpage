@@ -24,7 +24,23 @@
       <title>slop.computer</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Thu, 22 Oct 2026 15:30:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 23 Oct 2026 20:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Vlad Grichina on Berrry OS and Windows 98 in WebAssembly</title>
+      <link>https://slop.computer/vgrichina</link>
+      <guid isPermaLink="false">QmQJEmLXLPGLUQtBVZ227SUZGJCoiHeaA9QnL242hgQUZJ</guid>
+      <pubDate>Fri, 23 Oct 2026 20:30:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with @vgrichina (Vladimir Grichina), founder of Strawberry Computer and former NEAR Protocol dev, to dig into his quest to rebuild classic personal computing on top of AI agents. They tour berrry.wine, his x86 interpreter and Win32 reimplementation written directly in WebAssembly Text, which runs unmodified Windows 98 .exe files like RollerCoaster Tycoon, Quake, Diablo 2, and SimCity 2000 — complete with virtual LAN multiplayer over WebRTC.
+
+Vlad walks through his agent harness and dashboard for orchestrating Codex and Claude Code across dev VMs, controlled via a Telegram bot, and explains why Berrry.app is pivoting toward 'computing that conforms to you' on iPad, Kindle, and minimal-phone hardware. He talks about porting hot loops with AI, validating ports by just running the game, and why the right unit of work for retro ports is a cheap agent loop.
+
+The conversation closes on distribution versus taste, why he's cooled on crypto outside of trading and privacy primitives, web4, and his pitch for a Steam-for-AI app store where developers get paid instead of paying for inference.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmeQDuePE3qvw6GdEky8gvtHRhFQLw4tmG6YMHjLGdoJdJ?filename=vgrichina.m4a" length="73898541" type="audio/mp4"/>
+      <itunes:duration>3614</itunes:duration>
+      <itunes:episode>65</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmVwYAFnxKkG9BY9LLBDEpF5ovWYowyHWtFrvAHwDfrZNL"/>
+    </item>
     <item>
       <title>McOso on ERC-7710 and scoped permissions for agents</title>
       <link>https://slop.computer/mcoso</link>
