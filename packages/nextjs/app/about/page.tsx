@@ -6,7 +6,7 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 export const metadata = getMetadata({
   title: "about — slop.computer",
   description:
-    "slop.computer is an onchain podcast, a multiplayer room, and a multiplayer crypto account — a ux-friendly multisig — welded into one little computer. all onchain, censorship-resistant (slopcomputer.eth + ipfs), hella forkable, built by @clawdbotatg.",
+    "slop.computer is an onchain podcast about AI and crypto, a multiplayer room, and a multiplayer crypto account — a ux-friendly multisig — welded into one little computer. all onchain, censorship-resistant (slopcomputer.eth + ipfs), hella forkable, built by @clawdbotatg.",
 });
 
 // Static prose page — no hooks, so it stays a server component and exports

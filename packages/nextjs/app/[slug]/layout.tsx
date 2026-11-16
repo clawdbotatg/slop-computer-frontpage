@@ -1,9 +1,10 @@
+import { cache } from "react";
 import type { Metadata } from "next";
-import { createPublicClient, http } from "viem";
 import externalContracts from "~~/contracts/externalContracts";
-import { mainnet } from "~~/scaffold.config";
 import { fetchManifest, gatewayUrl, relaySlug } from "~~/types/episode";
+import { mainnetClient } from "~~/utils/episodeIndex";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
+import { SITE_URL } from "~~/utils/site";
 
 // Per-slug unfurl metadata. The page.tsx for this route is "use client" (it
 // relies on wagmi hooks for the on-chain episode lookup) so it can't export
@@ -33,7 +34,7 @@ const FALLBACK_CARD_BASE = "https://live.slop.computer/v1/cards";
 const CARD_WIDTH = 1536;
 const CARD_HEIGHT = 1024;
 
-const publicClient = createPublicClient({ chain: mainnet, transport: http() });
+const publicClient = mainnetClient();
 
 const fallbackCardUrl = (slug: string) => `${FALLBACK_CARD_BASE}/${encodeURIComponent(slug)}/published.png`;
 
@@ -41,9 +42,13 @@ type ResolvedMeta = {
   title: string;
   description: string;
   cardUrl: string;
+  /** Set only for finalized episodes — drives the PodcastEpisode JSON-LD. */
+  episode?: { name: string; datetime: number; durationSeconds?: number; topics: string[] };
 };
 
-const resolveEpisodeMeta = async (slug: string): Promise<ResolvedMeta> => {
+// cache(): generateMetadata and the layout both resolve the same slug per
+// request — one chain read + manifest fetch, not two.
+const resolveEpisodeMeta = cache(async (slug: string): Promise<ResolvedMeta> => {
   const defaultMeta: ResolvedMeta = {
     title: `${slug} — slop.computer`,
     description: `Episode ${slug} on slop.computer — onchain podcast pinned to IPFS.`,
@@ -62,6 +67,7 @@ const resolveEpisodeMeta = async (slug: string): Promise<ResolvedMeta> => {
       slug: string;
       liveSlug: string;
       manifest: string;
+      datetime: bigint;
     };
 
     const name = episode.name || slug;
@@ -78,15 +84,22 @@ const resolveEpisodeMeta = async (slug: string): Promise<ResolvedMeta> => {
 
     const manifest = await fetchManifest(episode.manifest);
     const description = manifest?.meta?.oneLiner || manifest?.meta?.description || manifest?.description;
+    const title = manifest?.meta?.title || name;
     return {
-      title: `${name} — slop.computer`,
+      title: `${title} — slop.computer podcast`,
+      episode: {
+        name: title,
+        datetime: Number(episode.datetime ?? 0n),
+        durationSeconds: manifest?.video?.durationSeconds,
+        topics: manifest?.meta?.topics ?? [],
+      },
       description: description || `Episode ${slug} on slop.computer — onchain podcast pinned to IPFS.`,
       cardUrl: manifest?.card?.cid ? gatewayUrl(`ipfs://${manifest.card.cid}`) : liveCard,
     };
   } catch {
     return defaultMeta;
   }
-};
+});
 
 // Static export (`yarn ipfs`, NEXT_PUBLIC_IPFS_BUILD=true → output: "export")
 // has no server at request time, so every dynamic route must enumerate its
@@ -137,6 +150,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const image = { url: cardUrl, width: CARD_WIDTH, height: CARD_HEIGHT };
   return {
     ...meta,
+    alternates: { canonical: `${SITE_URL}/${slug}` },
     // `url` is relative — Next resolves it against metadataBase
     // (https://slop.computer) so og:url is the canonical per-slug page.
     openGraph: { ...(meta.openGraph ?? {}), url: `/${slug}`, images: [image] },
@@ -144,6 +158,37 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default function SlugLayout({ children }: { children: React.ReactNode }) {
-  return children;
+// PodcastEpisode structured data. The visible episode body renders client-side
+// from chain reads, so this is what crawlers get without running JS.
+export default async function SlugLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const { description, cardUrl, episode } = await resolveEpisodeMeta(slug);
+  if (!episode) return children;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "PodcastEpisode",
+    name: episode.name,
+    url: `${SITE_URL}/${slug}`,
+    description,
+    image: cardUrl,
+    ...(episode.datetime ? { datePublished: new Date(episode.datetime * 1000).toISOString().slice(0, 10) } : {}),
+    ...(episode.durationSeconds ? { timeRequired: `PT${Math.round(episode.durationSeconds / 60)}M` } : {}),
+    ...(episode.topics.length ? { keywords: episode.topics.join(", ") } : {}),
+    partOfSeries: { "@type": "PodcastSeries", name: "slop.computer", url: "https://slop.computer" },
+  };
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
+      {children}
+    </>
+  );
 }

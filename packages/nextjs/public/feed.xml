@@ -4,9 +4,9 @@
      xmlns:podcast="https://podcastindex.org/namespace/1.0"
      xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>slop.computer</title>
+    <title>slop.computer: AI × Crypto</title>
     <link>https://slop.computer</link>
-    <description>an onchain podcast for technical humans building with ai: the cypherpunks, the sloperators, the forward deployed context goblins. join the psychosis to build our way out of the permanent underclass.</description>
+    <description>an onchain podcast about ai and crypto, for technical humans building with agents: the cypherpunks, the sloperators, the forward deployed context goblins. interviews with builders at the intersection of ai and crypto — ai agents, ethereum, smart contracts, agent wallets, and shipping software with claude code and codex. join the psychosis to build our way out of the permanent underclass.</description>
     <language>en-us</language>
     <atom:link href="https://slop.computer/feed.xml" rel="self" type="application/rss+xml"/>
     <podcast:guid>78aaeeea-a01b-5f5f-a6cc-eed97862db2c</podcast:guid>
@@ -16,12 +16,16 @@
       <itunes:email>austin.griffith@ethereum.org</itunes:email>
     </itunes:owner>
     <itunes:category text="Technology"/>
+    <itunes:category text="Business">
+      <itunes:category text="Investing"/>
+    </itunes:category>
+    <itunes:keywords>ai,crypto,ai agents,ethereum,web3,onchain,claude code,vibe coding,smart contracts,defi</itunes:keywords>
     <itunes:explicit>true</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <itunes:image href="https://slop.computer/podcast-cover.png"/>
     <image>
       <url>https://slop.computer/podcast-cover.png</url>
-      <title>slop.computer</title>
+      <title>slop.computer: AI × Crypto</title>
       <link>https://slop.computer</link>
     </image>
     <lastBuildDate>Tue, 27 Oct 2026 15:00:00 GMT</lastBuildDate>

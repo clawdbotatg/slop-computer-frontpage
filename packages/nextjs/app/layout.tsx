@@ -5,6 +5,7 @@ import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithPro
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
+import { SITE_DESCRIPTION } from "~~/utils/site";
 
 const silkscreen = Silkscreen({
   variable: "--font-silkscreen",
@@ -14,9 +15,8 @@ const silkscreen = Silkscreen({
 
 export const metadata = {
   ...getMetadata({
-    title: "slop.computer — onchain podcast",
-    description:
-      "An onchain podcast about agents, builders, and shipping software. Episodes pinned to IPFS, indexed on Ethereum mainnet.",
+    title: "slop.computer — an AI × crypto podcast",
+    description: SITE_DESCRIPTION,
   }),
   // <link rel="alternate"> pointers so agents scraping the HTML head find the
   // machine-readable surfaces without guessing paths (also in llms.txt +

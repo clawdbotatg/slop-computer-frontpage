@@ -17,7 +17,7 @@ const baseUrl =
     : process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : `http://localhost:${process.env.PORT || 3000}`;
-const titleTemplate = "%s | Scaffold-ETH 2";
+const titleTemplate = "%s";
 
 export const getMetadata = ({
   title,
@@ -38,7 +38,20 @@ export const getMetadata = ({
       template: titleTemplate,
     },
     description: description,
+    keywords: [
+      "AI podcast",
+      "crypto podcast",
+      "AI and crypto podcast",
+      "AI agents",
+      "Ethereum",
+      "onchain",
+      "web3",
+      "Claude Code",
+      "vibe coding",
+    ],
     openGraph: {
+      siteName: "slop.computer",
+      type: "website",
       title: {
         default: title,
         template: titleTemplate,

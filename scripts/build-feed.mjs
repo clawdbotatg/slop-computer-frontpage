@@ -28,13 +28,17 @@ const OUT = join(ROOT, "packages/nextjs/public/feed.xml");
 const MANIFEST_CACHE = join(ROOT, "transcripts/manifests");
 
 const CHANNEL = {
-  title: "slop.computer",
+  // Apple/Spotify search weighs the show title + description heavily; the
+  // short descriptor is how "ai crypto podcast" searches find us.
+  title: "slop.computer: AI × Crypto",
   description:
-    "an onchain podcast for technical humans building with ai: the cypherpunks, the sloperators, the forward deployed context goblins. join the psychosis to build our way out of the permanent underclass.",
+    "an onchain podcast about ai and crypto, for technical humans building with agents: the cypherpunks, the sloperators, the forward deployed context goblins. interviews with builders at the intersection of ai and crypto — ai agents, ethereum, smart contracts, agent wallets, and shipping software with claude code and codex. join the psychosis to build our way out of the permanent underclass.",
   author: "austingriffith.eth",
   ownerName: "Austin Griffith",
   ownerEmail: "austin.griffith@ethereum.org",
-  category: "Technology",
+  // Primary first. Crypto shows live under Technology or Business › Investing.
+  categories: [["Technology"], ["Business", "Investing"]],
+  keywords: "ai,crypto,ai agents,ethereum,web3,onchain,claude code,vibe coding,smart contracts,defi",
   explicit: "true",
   image: `${SITE}/podcast-cover.png`,
   language: "en-us",
@@ -130,7 +134,14 @@ const feed = `<?xml version="1.0" encoding="UTF-8"?>
       <itunes:name>${esc(CHANNEL.ownerName)}</itunes:name>
       <itunes:email>${esc(CHANNEL.ownerEmail)}</itunes:email>
     </itunes:owner>
-    <itunes:category text="${esc(CHANNEL.category)}"/>
+${CHANNEL.categories
+  .map(([top, sub]) =>
+    sub
+      ? `    <itunes:category text="${esc(top)}">\n      <itunes:category text="${esc(sub)}"/>\n    </itunes:category>`
+      : `    <itunes:category text="${esc(top)}"/>`,
+  )
+  .join("\n")}
+    <itunes:keywords>${esc(CHANNEL.keywords)}</itunes:keywords>
     <itunes:explicit>${CHANNEL.explicit}</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <itunes:image href="${CHANNEL.image}"/>

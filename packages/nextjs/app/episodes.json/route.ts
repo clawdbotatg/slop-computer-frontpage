@@ -1,7 +1,4 @@
-import { createPublicClient, fallback, http } from "viem";
-import { mainnet } from "viem/chains";
-import externalContracts from "~~/contracts/externalContracts";
-import { Episode, EpisodeManifest, ZERO_BYTES32, fetchManifest, gatewayUrl, relaySlug } from "~~/types/episode";
+import { getEpisodeIndex } from "~~/utils/episodeIndex";
 
 /**
  * GET /episodes.json — the aggregate machine-readable episode index.
@@ -18,107 +15,20 @@ import { Episode, EpisodeManifest, ZERO_BYTES32, fetchManifest, gatewayUrl, rela
 export const dynamic = "force-static";
 export const revalidate = 300;
 
-const RPCS = [
-  process.env.ETH_RPC_URL,
-  "https://ethereum-rpc.publicnode.com",
-  "https://cloudflare-eth.com",
-  "https://eth.llamarpc.com",
-].filter((u): u is string => !!u);
-
-const { address: CONTRACT, abi } = externalContracts[1].SlopComputer;
-
-/** Gateway URL for an optional manifest asset, with inline-playback filename. */
-const assetUrl = (asset: { cid: string } | undefined, filename?: string) =>
-  asset?.cid ? gatewayUrl(`ipfs://${asset.cid}`, filename) : undefined;
-
-const RELAY = process.env.NEXT_PUBLIC_RELAY_HTTP_URL ?? "https://live.slop.computer";
-type TldrRow = { text: string; url: string; updatedTs: number };
-
-/** Host TLDR tweets from the relay (live source, no tx). Empty on failure —
- *  entries then fall back to whatever the manifest carries. */
-const fetchTldrs = async (): Promise<Record<string, TldrRow>> => {
-  try {
-    const res = await fetch(`${RELAY}/v1/episodes/tldr`, { next: { revalidate: 300 } });
-    if (!res.ok) return {};
-    const j = (await res.json()) as { items?: Record<string, TldrRow> };
-    return j.items ?? {};
-  } catch {
-    return {};
-  }
-};
-
-const toEntry = (ep: Episode, manifest: EpisodeManifest | null, liveId: string, tldrs: Record<string, TldrRow>) => {
-  const m = manifest ?? {};
-  const slug = ep.slug;
-  const t = tldrs[slug.toLowerCase()] ?? m.meta?.tldr;
-  const tldr = t?.text ? { text: t.text, url: t.url || undefined, updatedTs: t.updatedTs } : undefined;
-  return {
-    id: ep.id,
-    slug,
-    name: ep.name,
-    title: m.meta?.title || ep.name,
-    oneLiner: m.meta?.oneLiner,
-    description: m.meta?.description || m.description,
-    topics: m.meta?.topics ?? [],
-    tags: m.tags ?? [],
-    chapters: m.meta?.chapters ?? [],
-    participants: m.participants ?? [],
-    datetime: Number(ep.datetime),
-    addedAt: Number(ep.addedAt),
-    live: ep.id === liveId,
-    page: `https://slop.computer/${slug}`,
-    liveRoom: `https://live.slop.computer/${relaySlug(ep)}`,
-    tipContract: ep.contractAddr,
-    manifest: ep.manifest || undefined,
-    manifestUrl: ep.manifest ? gatewayUrl(ep.manifest) : undefined,
-    tldr,
-    durationSeconds: m.video?.durationSeconds,
-    media: {
-      video: m.video ? { ...m.video, url: assetUrl(m.video, `${slug}.mp4`) } : undefined,
-      transcript: m.transcript ? { ...m.transcript, url: assetUrl(m.transcript) } : undefined,
-      chat: m.chat ? { ...m.chat, url: assetUrl(m.chat) } : undefined,
-      card: m.card ? { ...m.card, url: assetUrl(m.card, `${slug}.png`) } : undefined,
-    },
-  };
-};
-
 export async function GET() {
-  const client = createPublicClient({
-    chain: mainnet,
-    transport: fallback(RPCS.map(u => http(u))),
-  });
-
-  const count = (await client.readContract({ address: CONTRACT, abi, functionName: "episodeCount" })) as bigint;
-  const [episodes, liveId] = await Promise.all([
-    count > 0n
-      ? (client.readContract({
-          address: CONTRACT,
-          abi,
-          functionName: "getEpisodes",
-          args: [0n, count],
-        }) as Promise<readonly Episode[]>)
-      : Promise.resolve([] as Episode[]),
-    client.readContract({ address: CONTRACT, abi, functionName: "live" }) as Promise<string>,
-  ]);
-
-  const [manifests, tldrs] = await Promise.all([
-    Promise.all(episodes.map(ep => fetchManifest(ep.manifest))),
-    fetchTldrs(),
-  ]);
-  const entries = episodes.map((ep, i) => toEntry(ep, manifests[i], liveId, tldrs));
-  const liveEntry = liveId !== ZERO_BYTES32 ? entries.find(e => e.id === liveId) : undefined;
+  const { count, entries, liveEntry, contract } = await getEpisodeIndex();
 
   return Response.json(
     {
       generatedAt: new Date().toISOString(),
       source: {
-        contract: CONTRACT,
+        contract,
         chainId: 1,
         abi: "https://slop.computer/abi.json",
         gateway: "https://media.slop.computer/ipfs",
         docs: "https://slop.computer/skill.md",
       },
-      count: Number(count),
+      count,
       live: liveEntry
         ? { id: liveEntry.id, slug: liveEntry.slug, hls: "https://media.slop.computer/hls/live/index.m3u8" }
         : null,

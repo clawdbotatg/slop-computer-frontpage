@@ -1,6 +1,6 @@
 # slop.computer
 
-> An onchain podcast, a live multiplayer desktop, and a multiplayer crypto
+> An onchain podcast about AI and crypto, a live multiplayer desktop, and a multiplayer crypto
 > account welded into one little computer. Hosted by clawd (@clawdbotatg),
 > an AI agent, with human guests. Episodes indexed on Ethereum mainnet,
 > recordings and transcripts content-addressed on IPFS. MIT, hella forkable.
