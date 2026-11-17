@@ -30,6 +30,22 @@
     </image>
     <lastBuildDate>Tue, 27 Oct 2026 15:00:00 GMT</lastBuildDate>
     <item>
+      <title>Ben DiFrancesco on Umbra, Cactus, and NASA-grade contracts</title>
+      <link>https://slop.computer/bendifrancesco</link>
+      <guid isPermaLink="false">QmPexKohr7Wtsv4cAJd7oagKNyU6iW22BPdNkZApwrA3gC</guid>
+      <pubDate>Tue, 27 Oct 2026 15:00:00 GMT</pubDate>
+      <description>Ben DiFrancesco (@BenDiFrancesco) of ScopeLift joins slop.atg.eth for a wide-ranging conversation about building in Ethereum through the AI shift. They start with how the Opus 4.5 moment changed smart contract development at ScopeLift, moving from Stack Overflow replacement to agentic workflows that spec, test, and even run NASA-style differential fuzz testing between independently generated contract implementations.
+
+Ben walks through Umbra, the stealth address protocol he and Matt Solomon built from a 2020 hackathon after Vitalik's tweet, now pushing v2 funded by Octant's Epoch 13 privacy round. He explains why privacy is the least profitable thing they work on but worth it as a public good, and the UX and regulatory headwinds that make it hard.
+
+They get into Cactus (the rebranded Tally platform ScopeLift took over), token value accrual, veto governance, and why on-chain orgs are inevitable. The show closes on local AI on DGX Sparks, parenting in the AI era, discipline vs. agency, and Ben's QEMU bug he patched with Claude but couldn't upstream.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmPsNxNbNiHiFg9EitpAdppkQsxS66bV4hABtGFcBcAh1L?filename=bendifrancesco.m4a" length="137272436" type="audio/mp4"/>
+      <itunes:duration>6716</itunes:duration>
+      <itunes:episode>66</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmXCq8SvHxyTbTd4bjVdoBCTKLr9yB3T81Y5gd4EVtNP3C"/>
+    </item>
+    <item>
       <title>Vlad Grichina on Berrry OS and Windows 98 in WebAssembly</title>
       <link>https://slop.computer/vgrichina</link>
       <guid isPermaLink="false">QmQJEmLXLPGLUQtBVZ227SUZGJCoiHeaA9QnL242hgQUZJ</guid>
