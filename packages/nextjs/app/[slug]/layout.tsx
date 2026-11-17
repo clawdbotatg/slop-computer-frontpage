@@ -43,7 +43,7 @@ type ResolvedMeta = {
   description: string;
   cardUrl: string;
   /** Set only for finalized episodes — drives the PodcastEpisode JSON-LD. */
-  episode?: { name: string; datetime: number; durationSeconds?: number; topics: string[] };
+  episode?: { name: string; datetime: number; durationSeconds?: number; topics: string[]; transcriptCid?: string };
 };
 
 // cache(): generateMetadata and the layout both resolve the same slug per
@@ -92,6 +92,7 @@ const resolveEpisodeMeta = cache(async (slug: string): Promise<ResolvedMeta> => 
         datetime: Number(episode.datetime ?? 0n),
         durationSeconds: manifest?.video?.durationSeconds,
         topics: manifest?.meta?.topics ?? [],
+        transcriptCid: manifest?.transcript?.cid,
       },
       description: description || `Episode ${slug} on slop.computer — onchain podcast pinned to IPFS.`,
       cardUrl: manifest?.card?.cid ? gatewayUrl(`ipfs://${manifest.card.cid}`) : liveCard,
@@ -158,8 +159,62 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-// PodcastEpisode structured data. The visible episode body renders client-side
-// from chain reads, so this is what crawlers get without running JS.
+type Turn = { speaker: string; text: string };
+
+/** Transcript JSONL (from IPFS, immutable by CID) → speaker turns. Speech
+ *  events have no `kind`; consecutive lines from one speaker merge into one
+ *  paragraph. Same filter as scripts/fetch-transcripts.mjs. */
+const fetchTranscript = async (cid: string): Promise<Turn[]> => {
+  try {
+    const res = await fetch(gatewayUrl(`ipfs://${cid}`), { cache: "force-cache" });
+    if (!res.ok) return [];
+    const turns: Turn[] = [];
+    for (const raw of (await res.text()).split("\n")) {
+      let d: { kind?: string; text?: string; handle?: string; anonId?: string; address?: string };
+      try {
+        d = JSON.parse(raw);
+      } catch {
+        continue;
+      }
+      const text = d.text?.trim();
+      // Skip screen events and the STT prompt that sometimes leaks in as speech.
+      if (d.kind || !text || text === "context:" || text.startsWith("The following is a transcript of")) continue;
+      const speaker = d.handle || d.anonId || d.address || "?";
+      const last = turns.at(-1);
+      if (last?.speaker === speaker) last.text += ` ${text}`;
+      else turns.push({ speaker, text });
+    }
+    return turns;
+  } catch {
+    return [];
+  }
+};
+
+// Full transcript, server-rendered under the (client-side) episode view, so
+// every episode is searchable by what was actually said. Collapsed by default.
+const Transcript = ({ title, turns }: { title: string; turns: Turn[] }) => (
+  <section className="w-full max-w-6xl mx-auto px-4 pb-12">
+    <details style={{ borderTop: "1px dashed rgba(255, 62, 201, 0.25)", paddingTop: 24 }}>
+      <summary
+        className="slop-mono text-sm sm:text-base cursor-pointer"
+        style={{ color: "var(--slop-magenta)", textTransform: "none" }}
+      >
+        {`// full transcript — ${title}`}
+      </summary>
+      <div className="flex flex-col gap-3 mt-4 slop-mono text-sm" style={{ textTransform: "none" }}>
+        {turns.map((t, i) => (
+          <p key={i} className="m-0" style={{ color: "var(--slop-text)" }}>
+            <span style={{ color: "var(--slop-cyan)" }}>{t.speaker}:</span> {t.text}
+          </p>
+        ))}
+      </div>
+    </details>
+  </section>
+);
+
+// PodcastEpisode structured data + transcript. The visible episode body
+// renders client-side from chain reads, so this is what crawlers get without
+// running JS.
 export default async function SlugLayout({
   children,
   params,
@@ -170,6 +225,7 @@ export default async function SlugLayout({
   const { slug } = await params;
   const { description, cardUrl, episode } = await resolveEpisodeMeta(slug);
   if (!episode) return children;
+  const turns = episode.transcriptCid ? await fetchTranscript(episode.transcriptCid) : [];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "PodcastEpisode",
@@ -189,6 +245,7 @@ export default async function SlugLayout({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       {children}
+      {turns.length > 0 ? <Transcript title={episode.name} turns={turns} /> : null}
     </>
   );
 }
