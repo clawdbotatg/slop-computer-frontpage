@@ -28,7 +28,23 @@
       <title>slop.computer: AI × Crypto</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 27 Oct 2026 15:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 17 Nov 2026 17:30:00 GMT</lastBuildDate>
+    <item>
+      <title>Tanz0rz on DevRel, local AI, and privacy maxing</title>
+      <link>https://slop.computer/tanz0rz</link>
+      <guid isPermaLink="false">QmSZdCaDKYjfdzavK1A3LbQM2ptdnAPpFWaZVKx8es5ciX</guid>
+      <pubDate>Tue, 17 Nov 2026 17:30:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with Tanz0rz (Tanner Moore), DevRel at 1inch Labs, for a sprawling conversation that starts with how he fell into Ethereum via EthHub and ETHDenver 2020 and ended up maintaining the 1inch Go SDK and running Fusion+ workshops at ETHGlobal events.
+
+They dig into what DevRel looks like in the agent era — vibes, time-to-hello-world, and docs an agent can one-shot — before going deep on Tanner's local AI setup running Qwen 3 on a 4090, the math on a $22k Mac Studio rig, and why Opus 5.5 finally made him trust AI to co-judge hackathons. Privacy maxing comes next: containerized Claude Code, Proton aliases, de-Googling, self-hosted Immich, and the Q-Day case for keeping data off the cloud.
+
+They close on DAO disillusionment, VC funding becoming less necessary, Tanner's League of Legends patch-notes site pulling 10k humans a month, and whether AI-composed music makes his game-jam soundtracks obsolete.</description>
+      <enclosure url="https://media.slop.computer/ipfs/QmWJDNKJRqHGizSrfQXjQs6BWoyKYNzzL8aPHoFsRe1G2L?filename=tanz0rz.m4a" length="94105754" type="audio/mp4"/>
+      <itunes:duration>4603</itunes:duration>
+      <itunes:episode>67</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/QmTMj8yBNW7NUb6AEjtUZhY7FSL7N3xxknSMBncKgEZemL"/>
+    </item>
     <item>
       <title>Ben DiFrancesco on Umbra, Cactus, and NASA-grade contracts</title>
       <link>https://slop.computer/bendifrancesco</link>
