@@ -28,11 +28,27 @@
       <title>slop.computer: AI × Crypto</title>
       <link>https://slop.computer</link>
     </image>
-    <lastBuildDate>Tue, 17 Nov 2026 17:30:00 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 20 Nov 2026 17:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Ben Edgington on post-quantum Ethereum</title>
+      <link>https://slop.computer/benjaminion-xyz</link>
+      <guid isPermaLink="false">QmfS258xKSLCvNesCpaFiaH9ibdaUUaFUgDqxMNYzeR2ms</guid>
+      <pubDate>Fri, 20 Nov 2026 17:00:00 GMT</pubDate>
+      <description>slop.atg.eth sits down with benjaminion.eth (Ben Edgington), external consultant with the Ethereum Foundation's Protocol Consensus team and newly minted moderator of the ACDC call, for a wide-ranging conversation on where Ethereum's consensus layer is heading. Ben walks through why the AI and quantum threats to elliptic curve cryptography have the same solution — moving to hash-based signatures — and why Devcon in Mumbai pushed the community's urgency level up a notch.
+
+They dig into EIP-8453 Decoupled Consensus, how separating head votes from finality votes opens the design space for post-quantum signatures, and why getting time-to-finality down from 16 minutes toward 30 seconds matters for L2s, bridges, and point-of-sale crypto. Ben also surveys how core dev teams are embracing AI maximalism, from formally verified protocol work in Lean 4 to Lodestar's Discord triage agents.
+
+They close on local model setups, AI psychoses, saying please and thank you to Codex, and picking a name for the post-quantum fork.</description>
+      <enclosure url="https://media.slop.computer/ipfs/Qmf3BfkXf1eQr4yCDrUKj5d95vbF4aubFUPjEs218v6RBZ?filename=benjaminion-xyz.m4a" length="89860119" type="audio/mp4"/>
+      <itunes:duration>4395</itunes:duration>
+      <itunes:episode>68</itunes:episode>
+      <itunes:explicit>true</itunes:explicit>
+      <itunes:image href="https://media.slop.computer/ipfs/Qmc53owPZBAAeCjU1CwpGdik2U2L1B1JhzAJsSi2wsDFpB"/>
+    </item>
     <item>
       <title>Tanz0rz on DevRel, local AI, and privacy maxing</title>
       <link>https://slop.computer/tanz0rz</link>
-      <guid isPermaLink="false">QmSZdCaDKYjfdzavK1A3LbQM2ptdnAPpFWaZVKx8es5ciX</guid>
+      <guid isPermaLink="false">QmNhAbX23Gi5xV1n6ko83mQMqipce6YJhnquZa7g1pug3W</guid>
       <pubDate>Tue, 17 Nov 2026 17:30:00 GMT</pubDate>
       <description>slop.atg.eth sits down with Tanz0rz (Tanner Moore), DevRel at 1inch Labs, for a sprawling conversation that starts with how he fell into Ethereum via EthHub and ETHDenver 2020 and ended up maintaining the 1inch Go SDK and running Fusion+ workshops at ETHGlobal events.
 
